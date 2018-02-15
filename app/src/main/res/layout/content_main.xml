@@ -10,27 +10,36 @@
     tools:showIn="@layout/app_bar_main">
 
 
-    <include
-        android:id="@+id/spinner_view"
-        layout="@layout/spinner_view"
+    <LinearLayout
+        android:id="@+id/listview_legend_group"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-   />
+        android:orientation="vertical">
+
+        <include
+            android:id="@+id/spinner_view"
+            layout="@layout/spinner_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
 
-    <include
-        android:id="@+id/listview_item_header"
-        layout="@layout/listview_item_header"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/spinner_view" />
+        <include
+            android:id="@+id/listview_item_header"
+            layout="@layout/listview_item_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/spinner_view" />
+
+
+    </LinearLayout>
+
 
     <android.support.v4.view.ViewPager
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/listview_item_header"
+        android:layout_below="@+id/listview_legend_group"
         android:id="@+id/viewpage"
         />
 
@@ -38,7 +47,7 @@
         android:id="@+id/listview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/listview_item_header"
+        android:layout_below="@+id/listview_legend_group"
         android:visibility="gone" />
 
 

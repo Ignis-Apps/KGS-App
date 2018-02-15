@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -22,10 +23,16 @@ import android.text.format.Time;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
+import android.view.animation.ScaleAnimation;
+import android.view.animation.TranslateAnimation;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -40,6 +47,7 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 
 import java.util.List;
 
+import de.kgs.vertretungsplan.Slide.BlackboardFragment;
 import de.kgs.vertretungsplan.Slide.ListViewFragment;
 import de.kgs.vertretungsplan.Slide.ListViewPagerAdapter;
 import de.kgs.vertretungsplan.CoverPlan.CoverItem;
@@ -74,6 +82,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public RelativeLayout contentMain;
     public Toolbar toolbar;
 
+    //private LinearLayout spinnerView,listviewItemHeader;
+    private LinearLayout listviewLegendGroup;
+    private int listviewLegendGroupHeight = -1;
+   private int previousPosition = 0;
+
     public WebView webView;
     public ProgressDialog progressLoadingPage;
     private Spinner spinnerClass;
@@ -85,6 +98,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ViewPager viewPager;
     private ListViewFragment today;
     private ListViewFragment tomorrow;
+    private BlackboardFragment blackboard;
 
     private Trace loadWebpageTrace;
     private FirebaseAnalytics firebaseAnalytics;
@@ -138,6 +152,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -149,6 +165,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setupUI();
         setupPageViewer();
         setupBrowser();
+        setupAnimations();
+
 
     }
 
@@ -233,9 +251,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toolbar.setTitle(getResources().getString(R.string.app_title));
         setSupportActionBar(toolbar);
 
-        contentMain = (RelativeLayout) findViewById(R.id.contentMainRl);
-
+        listviewLegendGroup = (LinearLayout) findViewById(R.id.listview_legend_group);
+        contentMain         = (RelativeLayout) findViewById(R.id.contentMainRl);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+
+
+        listviewLegendGroup.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+
+               /// System.out.println("GLOBAL LAYOUT CALLED");
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    listviewLegendGroup.getViewTreeObserver().removeOnGlobalLayoutListener (this);
+
+                    if(listviewLegendGroupHeight==-1){
+                        listviewLegendGroupHeight = listviewLegendGroup.getHeight();
+                        setupAnimations();
+                    }
+
+                    listviewLegendGroup.setVisibility(View.GONE);
+                }
+            }
+        });
+
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
@@ -297,14 +335,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         viewPager = findViewById(R.id.viewpage);
 
         ListViewPagerAdapter ad = new ListViewPagerAdapter(getSupportFragmentManager());
-        today = new ListViewFragment();
-        tomorrow = new ListViewFragment();
 
+        blackboard  = new BlackboardFragment();
+        today       = new ListViewFragment();
+        tomorrow    = new ListViewFragment();
+
+        ad.addFragment(blackboard);
         ad.addFragment(today);
         ad.addFragment(tomorrow);
 
+        viewPager.setOffscreenPageLimit(2);
+
         viewPager.setAdapter(ad);
-        viewPager.setCurrentItem(currentday);
+        viewPager.setCurrentItem(0);
         viewPager.setOnPageChangeListener(this);
 
     }
@@ -360,20 +403,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    
-
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.nav_today) {
-            currentday = 0;
+        if(id==R.id.nav_black_board){
             viewPager.setCurrentItem(0);
+
+        } else if (id == R.id.nav_today) {
+            currentday = 0;
+            viewPager.setCurrentItem(1);
             showCoverplanListview();
         } else if (id == R.id.nav_tomorrow) {
             currentday = 1;
-            viewPager.setCurrentItem(1);
+            viewPager.setCurrentItem(2);
             showCoverplanListview();
         } else if (id == R.id.nav_school_mensa) {
             Bundle bundle = new Bundle();
@@ -443,19 +487,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         String datum1 = ds.coverPlanToday.title.split(" ")[0];
         String tag1 = ds.coverPlanToday.title.split(" ")[1].replace(",", "");
-        navigationView.getMenu().getItem(0).setTitle(tag1 + ", " + datum1);
+        navigationView.getMenu().getItem(1).setTitle(tag1 + ", " + datum1);
 
         String datum2 = ds.coverPlanTomorow.title.split(" ")[0];
         String tag2 = ds.coverPlanTomorow.title.split(" ")[1].replace(",", "");
-        navigationView.getMenu().getItem(1).setTitle(tag2 + ", " + datum2);
+        navigationView.getMenu().getItem(2).setTitle(tag2 + ", " + datum2);
 
-        if(currentday == 0){
-            toolbar.setTitle(getResources().getString(R.string.app_title) + " - " + tag1);
-        }else {
-            toolbar.setTitle(getResources().getString(R.string.app_title) + " - " + tag2);
+
+        switch (viewPager.getCurrentItem()){
+
+            case 0:
+                toolbar.setTitle("Schwarzes Brett");
+                break;
+
+            case 1:
+                toolbar.setTitle(getResources().getString(R.string.app_title) + " - " + tag1);
+                break;
+
+            case 2:
+                toolbar.setTitle(getResources().getString(R.string.app_title) + " - " + tag2);
+                break;
+
         }
 
-        navigationView.getMenu().getItem(currentday).setChecked(true);
+        navigationView.getMenu().getItem(viewPager.getCurrentItem()).setChecked(true);
         showInfoDialog();
         refreshPageViewer();
 
@@ -796,6 +851,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
+    private void setHeight(View view, int height){
+        android.view.ViewGroup.LayoutParams params = view.getLayoutParams();
+        params.height = height;
+        view.setLayoutParams(params);
+    }
+
     @Override
     public void onPageSelected(int position){
 
@@ -808,20 +869,143 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         String datum1 = ds.coverPlanToday.title.split(" ")[0];
         String tag1 = ds.coverPlanToday.title.split(" ")[1].replace(",", "");
-        navigationView.getMenu().getItem(0).setTitle(tag1 + ", " + datum1);
+        navigationView.getMenu().getItem(1).setTitle(tag1 + ", " + datum1);
 
         String datum2 = ds.coverPlanTomorow.title.split(" ")[0];
         String tag2 = ds.coverPlanTomorow.title.split(" ")[1].replace(",", "");
-        navigationView.getMenu().getItem(1).setTitle(tag2 + ", " + datum2);
+        navigationView.getMenu().getItem(2).setTitle(tag2 + ", " + datum2);
 
-        if(position == 0){
-            toolbar.setTitle(getResources().getString(R.string.app_title) + " - " + tag1);
-            navigationView.getMenu().getItem(0).setChecked(true);
-        }else {
-            toolbar.setTitle(getResources().getString(R.string.app_title) + " - " + tag2);
-            navigationView.getMenu().getItem(1).setChecked(true);
+
+        navigationView.getMenu().getItem(position).setChecked(true);
+
+        switch (position){
+
+            case 0:
+                toolbar.setTitle("Schwarzes Brett");
+                hideLegendGroup();
+
+                break;
+
+            case 1:
+                toolbar.setTitle(getResources().getString(R.string.app_title) + " - " + tag1);
+                if(previousPosition==0&&listviewLegendGroupHeight!=-1){
+                    showLegendGroup();
+                }
+
+
+                break;
+
+            case 2:
+                toolbar.setTitle(getResources().getString(R.string.app_title) + " - " + tag2);
+                if(previousPosition==0){
+                    showLegendGroup();
+                }
+                break;
+
         }
 
+        previousPosition = position;
+
+    }
+
+    ScaleAnimation animationLegendgroupHide, animationLegendgroupShow;
+    TranslateAnimation animationViewpagerHide,animationViewpagerShow;
+
+    private void setupAnimations(){
+
+        System.out.println("SETTING UP ANIMATIONS WITH HEIGHT = " + listviewLegendGroupHeight);
+
+        animationLegendgroupHide = new ScaleAnimation(1.0f, 1.0f, 1.0f, 0f);
+        animationLegendgroupHide.setDuration(500);
+        animationLegendgroupHide.setAnimationListener(new AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                listviewLegendGroup.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+        animationLegendgroupShow = new ScaleAnimation(1.0f, 1.0f, 0f, 1f);
+        animationLegendgroupShow.setDuration(500);
+        animationLegendgroupShow.setAnimationListener(new AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                listviewLegendGroup.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+        animationViewpagerHide = new TranslateAnimation(0,0,0,-listviewLegendGroupHeight);
+        animationViewpagerHide.setDuration(500);
+        animationViewpagerHide.setAnimationListener(new AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                TranslateAnimation keep_steady = new TranslateAnimation(0,0,0,0);
+                keep_steady.setDuration(1);
+                viewPager.startAnimation(keep_steady);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+        animationViewpagerShow = new TranslateAnimation(0,0,0,listviewLegendGroupHeight);
+        animationViewpagerShow.setDuration(500);
+        animationViewpagerShow.setAnimationListener(new AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                TranslateAnimation keep_steady = new TranslateAnimation(0,0,0,0);
+                keep_steady.setDuration(1);
+                viewPager.startAnimation(keep_steady);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+
+    }
+
+    private void showLegendGroup(){
+        listviewLegendGroup.startAnimation(animationLegendgroupShow);
+        viewPager.startAnimation(animationViewpagerShow);
+    }
+
+    private void hideLegendGroup(){
+        listviewLegendGroup.startAnimation(animationLegendgroupHide);
+        viewPager.startAnimation(animationViewpagerHide);
     }
 
     @Override
@@ -836,4 +1020,5 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         return false;
     }
+
 }

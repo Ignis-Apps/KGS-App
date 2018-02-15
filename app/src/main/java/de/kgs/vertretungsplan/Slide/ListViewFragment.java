@@ -50,7 +50,9 @@ public class ListViewFragment extends Fragment {
     }
 
     public void setItemClickListener(AdapterView.OnItemClickListener i){
-
+        if(listView.getOnItemClickListener()==null){
+            listView.setOnItemClickListener(i);
+        }
     }
 
     public List<CoverItem> getDataset(){
