@@ -1,0 +1,118 @@
+package de.kgs.vertretungsplan;
+
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import de.kgs.vertretungsplan.CoverPlan.CoverPlanLoader;
+import de.kgs.vertretungsplan.CoverPlan.CoverPlanLoaderCallback;
+
+import static de.kgs.vertretungsplan.DataStorage.PASSWORD;
+import static de.kgs.vertretungsplan.DataStorage.SHARED_PREF;
+import static de.kgs.vertretungsplan.DataStorage.USERNAME;
+
+public class LoginActivity extends AppCompatActivity implements CoverPlanLoaderCallback {
+    public static final int SUCCESS_RC = 111;
+    private static final String TAG = "LoginActivity";
+
+    private DataStorage ds = DataStorage.getInstance();
+    public SharedPreferences sharedPreferences;
+    public SharedPreferences.Editor sharedEditor;
+
+    private Button loginButton;
+    private EditText usernameText;
+    private EditText passwordText;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_login);
+
+        loginButton = (Button) findViewById(R.id.btn_login);
+        usernameText = (EditText) findViewById(R.id.input_username);
+        passwordText = (EditText) findViewById(R.id.input_password);
+
+        loginButton.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                login();
+            }
+        });
+
+
+    }
+
+    public void login() {
+        Log.d(TAG, "Login");
+
+        if (!validate()) {
+            return;
+        }
+
+        loginButton.setEnabled(false);
+
+        ds.username = usernameText.getText().toString().trim();
+        ds.password = passwordText.getText().toString().trim();
+
+        CoverPlanLoader loader = new CoverPlanLoader(this,this, true);
+        loader.execute();
+    }
+
+    @Override
+    public void onBackPressed() {
+        // disable going back to the MainActivity
+        moveTaskToBack(true);
+    }
+
+    public boolean validate() {
+        boolean valid = true;
+
+        String email = usernameText.getText().toString();
+        String password = passwordText.getText().toString();
+
+        if (email.trim().isEmpty()) {
+            usernameText.setError("Gib einen Benutzernamen ein!");
+            valid = false;
+        } else {
+            usernameText.setError(null);
+        }
+
+        if (password.trim().isEmpty()) {
+            passwordText.setError("Gib ein Passwort ein!");
+            valid = false;
+        } else {
+            passwordText.setError(null);
+        }
+
+        return valid;
+    }
+
+    @Override
+    public void loaderFinishedWithResponseCode(int ResponseCode) {
+        loginButton.setEnabled(true);
+        if(ResponseCode == CoverPlanLoader.RC_LATEST_DATASET){
+            sharedPreferences = this.getSharedPreferences(SHARED_PREF, 0);
+            sharedEditor = sharedPreferences.edit();
+            sharedEditor.commit();
+            sharedEditor.putString(PASSWORD, passwordText.getText().toString().trim());
+            sharedEditor.putString(USERNAME, usernameText.getText().toString().trim());
+            sharedEditor.commit();
+            ds.responseCode = ResponseCode;
+            setResult(SUCCESS_RC);
+            finish();
+        } else if (ResponseCode == CoverPlanLoader.RC_NO_INTERNET_DATASET_EXIST || ResponseCode == CoverPlanLoader.RC_NO_INTERNET_NO_DATASET){
+            Toast.makeText(getBaseContext(), "Keine Internetverbindung!", Toast.LENGTH_LONG).show();
+        } else if(ResponseCode == CoverPlanLoader.RC_LOGIN_REQUIRED) {
+            Toast.makeText(getBaseContext(), "Falscher Nutzername oder Passwort!", Toast.LENGTH_LONG).show();
+        } else if(ResponseCode == CoverPlanLoader.RC_ERROR) {
+            Toast.makeText(getBaseContext(), "Ein Fehler ist aufgetreten! Versuche es später erneut.", Toast.LENGTH_LONG).show();
+        }
+    }
+}

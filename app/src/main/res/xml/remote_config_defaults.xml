@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<defaultsMap>
+    <entry>
+        <key>login_page_url</key>
+        <value>https://moodle-s.kgs.hd.bw.schule.de/moodle/blocks/exa2fa/login/</value>
+    </entry>
+    <entry>
+        <key>cover_plan_today</key>
+        <value>https://moodle-s.kgs.hd.bw.schule.de/moodle/pluginfile.php/2987/mod_resource/content/3/subst_001.htm</value>
+    </entry>
+    <entry>
+        <key>cover_plan_tomorrow</key>
+        <value>https://moodle-s.kgs.hd.bw.schule.de/moodle/pluginfile.php/3054/mod_resource/content/2/subst_001.htm</value>
+    </entry>
+    <entry>
+        <key>school_news_url</key>
+        <value>http://www.kurpfalz-gymnasium-schriesheim.de/index.php?id=657</value>
+    </entry>
+    <entry>
+        <key>school_events_url</key>
+        <value>http://www.kurpfalz-gymnasium-schriesheim.de/index.php?id=43</value>
+    </entry>
+    <entry>
+        <key>school_press_url</key>
+        <value>http://www.kurpfalz-gymnasium-schriesheim.de/index.php?id=1233</value>
+    </entry>
+    <entry>
+        <key>school_newsletter_url</key>
+        <value>http://kurpfalz-gymnasium-schriesheim.us12.list-manage.com/subscribe?u=ffc2a479ba2058b85f8e5a7f1&amp;id=0a2433f476</value>
+    </entry>
+    <entry>
+        <key>school_moodle_url</key>
+        <value>https://moodle-s.kgs.hd.bw.schule.de/moodle/</value>
+    </entry>
+    <entry>
+        <key>school_webpage_url</key>
+        <value>http://www.kurpfalz-gymnasium-schriesheim.de/</value>
+    </entry>
+    <entry>
+        <key>school_mensa_url</key>
+        <value>http://www.kurpfalz-gymnasium-schriesheim.de/fileadmin/kgs/user_upload/mensa/Speiseplan_Schriesheim.pdf</value>
+    </entry>
+</defaultsMap>

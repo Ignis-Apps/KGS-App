@@ -1,0 +1,66 @@
+package de.kgs.vertretungsplan;
+
+import java.util.Date;
+
+import de.kgs.vertretungsplan.CoverPlan.CoverPlan;
+
+/**
+ * Created by janik on 15.12.2017.
+ */
+
+public class DataStorage {
+    private final static DataStorage ourInstance = new DataStorage();
+
+    public final static String LOGIN_PAGE_URL = "login_page_url";
+
+    public final static String COVER_PLAN_TODAY = "cover_plan_today";
+    public final static String COVER_PLAN_TOMORROW = "cover_plan_tomorrow";
+
+    public final static String SCHOOL_NEWS_URL = "school_news_url";
+    public final static String SCHOOL_EVENTS_URL = "school_events_url";
+    public final static String SCHOOL_PRESS_URL ="school_press_url";
+
+    public final static String SCHOOL_NEWSLETTER_URL = "school_newsletter_url";
+    public final static String SCHOOL_MOODLE_URL = "school_moodle_url";
+    public final static String SCHOOL_WEBPAGE_URL = "school_webpage_url";
+    public final static String SCHOOL_MENSA_URL = "school_mensa_url";
+
+    public static final String SHARED_PREF = "privateSharedPreferences";
+    public static final String CURRENT_GRADE_LEVEL = "currentGradeLevel";
+    public static final String CURRENT_CLASS = "currentClass";
+    public static final String USERNAME = "username";
+    public static final String PASSWORD = "password";
+    public static final String SHOW_SWIPE_INFO = "swipe_tutorial";
+
+    public String login_page_url;
+
+    public String cover_plan_today;
+    public String cover_plan_tomorrow;
+
+    public String school_news_url;
+    public String school_events_url;
+    public String school_press_url;
+
+    public String school_newsletter_url;
+    public String school_moodle_url;
+    public String school_webpage_url;
+    public String school_mensa_url;
+
+    public int currentGradeLevel,currentClass;
+    public long timeMillsLastView;
+
+    public CoverPlan coverPlanToday,coverPlanTomorow;
+    public Date lastUpdated;
+    public Integer responseCode = 0;
+
+    public String username;
+    public String password;
+
+    public static DataStorage getInstance() {
+        return ourInstance;
+    }
+
+    private DataStorage() {
+
+    }
+}

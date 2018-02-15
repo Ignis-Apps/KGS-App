@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_today"
+            android:icon="@drawable/ic_menu_today"
+            android:title="Heute"/>
+        <item
+            android:id="@+id/nav_tomorrow"
+            android:icon="@drawable/ic_menu_tomorrow"
+            android:title="Nächster Schultag" />
+
+    <item android:title="Aktuelles">
+
+        <menu>
+            <group android:checkableBehavior="single">
+            <item
+                android:id="@+id/nav_school_website_news"
+                android:icon="@drawable/ic_menu_news"
+                android:title="Nachrichten" />
+
+            <item
+                android:id="@+id/nav_school_website_events"
+                android:icon="@drawable/ic_menu_events"
+                android:title="Termine" />
+
+            <item
+                android:id="@+id/nav_school_website_press"
+                android:icon="@drawable/ic_menu_presse"
+                android:title="Presse" />
+            </group>
+            <item
+                android:id="@+id/nav_school_mensa"
+                android:icon="@drawable/ic_menu_mensa"
+                android:title="Mensa-Speiseplan" />
+        </menu>
+
+    </item>
+
+    </group>
+
+    <item android:title="Weitere Informationen">
+        <menu>
+
+            <item
+                android:id="@+id/nav_school_website"
+                android:icon="@drawable/ic_menu_website"
+                android:title="Schulwebseite" />
+            <item
+                android:id="@+id/nav_moodle"
+                android:icon="@drawable/ic_menu_moodle"
+                android:title="Moodle" />
+
+            <item
+                android:id="@+id/nav_school_newsletter"
+                android:icon="@drawable/ic_menu_mails"
+                android:title="Newsletter" />
+
+
+        </menu>
+    </item>
+
+
+</menu>

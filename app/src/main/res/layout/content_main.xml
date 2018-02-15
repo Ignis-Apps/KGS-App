@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/contentMainRl"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="de.kgs.vertretungsplan.MainActivity"
+    tools:showIn="@layout/app_bar_main">
+
+
+    <include
+        android:id="@+id/spinner_view"
+        layout="@layout/spinner_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+   />
+
+
+    <include
+        android:id="@+id/listview_item_header"
+        layout="@layout/listview_item_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/spinner_view" />
+
+    <android.support.v4.view.ViewPager
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/listview_item_header"
+        android:id="@+id/viewpage"
+        />
+
+    <ListView
+        android:id="@+id/listview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/listview_item_header"
+        android:visibility="gone" />
+
+
+
+
+
+</RelativeLayout>

@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "981370213561",
+    "firebase_url": "https://kgs-vertretungsplan-d127e.firebaseio.com",
+    "project_id": "kgs-vertretungsplan-d127e",
+    "storage_bucket": "kgs-vertretungsplan-d127e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:981370213561:android:23ade5c52cb1a6af",
+        "android_client_info": {
+          "package_name": "de.kgs.vertretungsplan"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "981370213561-kdtukosupuidqop02dj2l2tl6685mrd9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCTGhMYd-14j9gDp-S6axdJVDysxXypVE0"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
