@@ -38,13 +38,11 @@ import com.google.firebase.perf.FirebasePerformance;
 import com.google.firebase.perf.metrics.Trace;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import de.kgs.vertretungsplan.Slide.ListViewFragment;
 import de.kgs.vertretungsplan.Slide.ListViewPagerAdapter;
 import de.kgs.vertretungsplan.CoverPlan.CoverItem;
-import de.kgs.vertretungsplan.CoverPlan.CoverPlan;
 import de.kgs.vertretungsplan.CoverPlan.CoverPlanLoader;
 import de.kgs.vertretungsplan.CoverPlan.CoverPlanLoaderCallback;
 
@@ -138,11 +136,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         finish();
         Runtime.getRuntime().exit(0);
 
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
     }
 
     @Override
@@ -793,8 +786,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         today.setDailyMessage(ds.coverPlanToday.dailyInfoHeader,ds.coverPlanToday.getDailyInfoMessage());
         tomorrow.setDailyMessage(ds.coverPlanTomorow.dailyInfoHeader,ds.coverPlanTomorow.getDailyInfoMessage());
 
-        today.setItemClickListene(this);
-        tomorrow.setItemClickListene(this);
+        today.setItemClickListener(this);
+        tomorrow.setItemClickListener(this);
 
     }
 

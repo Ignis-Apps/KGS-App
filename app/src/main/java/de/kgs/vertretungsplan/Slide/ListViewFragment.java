@@ -25,7 +25,6 @@ public class ListViewFragment extends Fragment {
     public ListView listView;
     public StableArrayAdapter arrayAdapter;
     public List<CoverItem> values;
-    public boolean hasInterface;
 
 
     @Nullable
@@ -50,11 +49,7 @@ public class ListViewFragment extends Fragment {
         arrayAdapter.setDailyMessage(title, msg);
     }
 
-    public void setItemClickListene(AdapterView.OnItemClickListener i){
-        if(listView!=null){
-            listView.setOnItemClickListener(i);
-            hasInterface=true;
-        }
+    public void setItemClickListener(AdapterView.OnItemClickListener i){
 
     }
 

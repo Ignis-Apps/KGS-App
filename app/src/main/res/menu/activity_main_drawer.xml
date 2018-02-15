@@ -5,6 +5,10 @@
 
     <group android:checkableBehavior="single">
         <item
+            android:id="@+id/nav_black_board"
+            android:icon="@drawable/ic_menu_black_board"
+            android:title="Schwarzes Brett"/>
+        <item
             android:id="@+id/nav_today"
             android:icon="@drawable/ic_menu_today"
             android:title="Heute"/>
