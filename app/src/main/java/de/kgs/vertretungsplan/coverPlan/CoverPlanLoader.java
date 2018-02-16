@@ -1,4 +1,4 @@
-package de.kgs.vertretungsplan.CoverPlan;
+package de.kgs.vertretungsplan.coverPlan;
 
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
@@ -18,7 +18,6 @@ import java.util.Calendar;
 import java.util.Date;
 
 import de.kgs.vertretungsplan.DataStorage;
-import de.kgs.vertretungsplan.MainActivity;
 
 public class CoverPlanLoader extends AsyncTask<String,Void,Integer> {
 
@@ -97,7 +96,6 @@ public class CoverPlanLoader extends AsyncTask<String,Void,Integer> {
 
         if( isNetworkAvailable(c)&&!onlyLoadData){
 
-            HttpUrlConnectionHandler httpHandler = new HttpUrlConnectionHandler();
             CoverPlanAnalyser coverPlanAnalyser  = new CoverPlanAnalyser();
 
             Document documentToday;
@@ -105,11 +103,13 @@ public class CoverPlanLoader extends AsyncTask<String,Void,Integer> {
 
             try {
 
+                HttpUrlConnectionHandler httpHandler = new HttpUrlConnectionHandler();
+
                 documentToday       = httpHandler.getParsedDocument(ds.cover_plan_today);
                 documentTomorrow    = httpHandler.getParsedDocument(ds.cover_plan_tomorrow);
 
-                //documentToday       = httpHandler.getParsedDocument("http://sick-players.de/kgsvp/vp24-01-2018.html");
-                //documentTomorrow    = httpHandler.getParsedDocument("http://sick-players.de/kgsvp/vp25-01-2018.html");
+                //documentToday       = httpHandler.getParsedDocument("http://www.sick-players.de/kgsvp/vp24-01-2018.html");
+                //documentTomorrow    = httpHandler.getParsedDocument("http://www.sick-players.de/kgsvp/vp25-01-2018.html");
 
             } catch (Exception e) {
                 if(e.getMessage().equals("Login needed")){

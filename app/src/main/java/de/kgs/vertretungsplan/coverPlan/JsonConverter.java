@@ -1,4 +1,4 @@
-package de.kgs.vertretungsplan.CoverPlan;
+package de.kgs.vertretungsplan.coverPlan;
 
 import com.google.firebase.crash.FirebaseCrash;
 

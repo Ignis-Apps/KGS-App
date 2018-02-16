@@ -2,7 +2,7 @@ package de.kgs.vertretungsplan;
 
 import java.util.Date;
 
-import de.kgs.vertretungsplan.CoverPlan.CoverPlan;
+import de.kgs.vertretungsplan.coverPlan.CoverPlan;
 
 /**
  * Created by janik on 15.12.2017.
@@ -30,7 +30,7 @@ public class DataStorage {
     public static final String CURRENT_CLASS = "currentClass";
     public static final String USERNAME = "username";
     public static final String PASSWORD = "password";
-    public static final String SHOW_SWIPE_INFO = "swipe_tutorial";
+    public static final String SHOW_SWIPE_INFO = "swipe_tutorial_2";
 
     public String login_page_url;
 

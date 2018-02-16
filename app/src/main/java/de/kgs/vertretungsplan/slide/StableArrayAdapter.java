@@ -1,4 +1,4 @@
-package de.kgs.vertretungsplan.Slide;
+package de.kgs.vertretungsplan.slide;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -13,7 +13,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import de.kgs.vertretungsplan.R;
-import de.kgs.vertretungsplan.CoverPlan.CoverItem;
+import de.kgs.vertretungsplan.coverPlan.CoverItem;
 
 public class StableArrayAdapter extends ArrayAdapter<CoverItem> {
     private final Context context;

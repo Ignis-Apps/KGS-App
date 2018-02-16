@@ -1,9 +1,8 @@
-package de.kgs.vertretungsplan.Slide;
+package de.kgs.vertretungsplan.slide;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.kgs.vertretungsplan.R;
-import de.kgs.vertretungsplan.CoverPlan.CoverItem;
+import de.kgs.vertretungsplan.coverPlan.CoverItem;
 
 /**
  * Created by Andreas on 17.01.2018.

@@ -8,7 +8,6 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -37,22 +36,18 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
-import com.google.firebase.perf.FirebasePerformance;
-import com.google.firebase.perf.metrics.Trace;
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 
 import java.util.List;
 
-import de.kgs.vertretungsplan.Slide.BlackboardFragment;
-import de.kgs.vertretungsplan.Slide.ListViewFragment;
-import de.kgs.vertretungsplan.Slide.ListViewPagerAdapter;
-import de.kgs.vertretungsplan.CoverPlan.CoverItem;
-import de.kgs.vertretungsplan.CoverPlan.CoverPlanLoader;
-import de.kgs.vertretungsplan.CoverPlan.CoverPlanLoaderCallback;
+import de.kgs.vertretungsplan.manager.FirebaseManager;
+import de.kgs.vertretungsplan.manager.ViewPagerManager;
+import de.kgs.vertretungsplan.slide.BlackboardFragment;
+import de.kgs.vertretungsplan.slide.ListViewFragment;
+import de.kgs.vertretungsplan.slide.ListViewPagerAdapter;
+import de.kgs.vertretungsplan.coverPlan.CoverItem;
+import de.kgs.vertretungsplan.coverPlan.CoverPlanLoader;
+import de.kgs.vertretungsplan.coverPlan.CoverPlanLoaderCallback;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static de.kgs.vertretungsplan.DataStorage.CURRENT_CLASS;
@@ -62,11 +57,11 @@ import static de.kgs.vertretungsplan.DataStorage.SHARED_PREF;
 import static de.kgs.vertretungsplan.DataStorage.SHOW_SWIPE_INFO;
 import static de.kgs.vertretungsplan.DataStorage.USERNAME;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,ViewPager.OnPageChangeListener, AdapterView.OnItemSelectedListener,CoverPlanLoaderCallback, AdapterView.OnItemClickListener, View.OnLongClickListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,AdapterView.OnItemSelectedListener,CoverPlanLoaderCallback, AdapterView.OnItemClickListener, View.OnClickListener {
     public static final int SIGN_UP_RC = 7234;
-    public static final String ANALYTICS_MENU_INTERNAL = "internal";
-    public static final String ANALYTICS_MENU_EXTERNAL = "external";
 
+    public FirebaseManager firebaseManager;
+    public ViewPagerManager viewPagerManager;
 
     public int currentday;
 
@@ -82,30 +77,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public RelativeLayout contentMain;
     public Toolbar toolbar;
 
-    //private LinearLayout spinnerView,listviewItemHeader;
-    private LinearLayout listviewLegendGroup;
-    private int listviewLegendGroupHeight = -1;
-   private int previousPosition = 0;
-
     public WebView webView;
     public ProgressDialog progressLoadingPage;
-    private Spinner spinnerClass;
+    public Spinner spinnerClass;
     public boolean showsWebView = false;
 
     public CoverPlanLoader loader;
-    private boolean quickStart = false;
+    public boolean quickStart = false;
 
-    private ViewPager viewPager;
-    private ListViewFragment today;
-    private ListViewFragment tomorrow;
-    private BlackboardFragment blackboard;
-
-    private Trace loadWebpageTrace;
-    private FirebaseAnalytics firebaseAnalytics;
-    private FirebaseRemoteConfig firebaseRemoteConfig;
-
-    private Context context;
-    private CoverPlanLoaderCallback coverPlanLoaderCallback;
+    public Context context;
+    public CoverPlanLoaderCallback coverPlanLoaderCallback;
 
     @Override
     protected void onPause() {
@@ -137,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if(System.currentTimeMillis() - ds.timeMillsLastView > 600000){
             loader = new CoverPlanLoader(this,this, false);
             loader.execute();
-            showCoverplanListview();
+            showViewPager();
         }
 
     }
@@ -152,73 +133,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         ds = DataStorage.getInstance();
 
-        setupFirebase();
+        firebaseManager = new FirebaseManager(this, ds);
         setupDataStorage();
         setupUI();
-        setupPageViewer();
+        viewPagerManager = new ViewPagerManager(this, ds, firebaseManager);
         setupBrowser();
-        setupAnimations();
 
-
-    }
-
-    private void setupFirebase(){
-        firebaseAnalytics = FirebaseAnalytics.getInstance(this);
-
-        loadWebpageTrace = FirebasePerformance.getInstance().newTrace("load_webpage");
-
-        firebaseRemoteConfig  = FirebaseRemoteConfig.getInstance();
-        firebaseRemoteConfig.setDefaults(R.xml.remote_config_defaults);
-
-        ds.login_page_url = firebaseRemoteConfig.getString(DataStorage.LOGIN_PAGE_URL);
-
-        ds.cover_plan_today = firebaseRemoteConfig.getString(DataStorage.COVER_PLAN_TODAY);
-        ds.cover_plan_tomorrow = firebaseRemoteConfig.getString(DataStorage.COVER_PLAN_TOMORROW);
-
-        ds.school_news_url = firebaseRemoteConfig.getString(DataStorage.SCHOOL_NEWS_URL);
-        ds.school_events_url = firebaseRemoteConfig.getString(DataStorage.SCHOOL_EVENTS_URL);
-        ds.school_press_url = firebaseRemoteConfig.getString(DataStorage.SCHOOL_PRESS_URL);
-
-        ds.school_newsletter_url = firebaseRemoteConfig.getString(DataStorage.SCHOOL_NEWSLETTER_URL);
-        ds.school_moodle_url = firebaseRemoteConfig.getString(DataStorage.SCHOOL_MOODLE_URL);
-        ds.school_webpage_url = firebaseRemoteConfig.getString(DataStorage.SCHOOL_WEBPAGE_URL);
-        ds.school_mensa_url = firebaseRemoteConfig.getString(DataStorage.SCHOOL_MENSA_URL);
-
-        firebaseRemoteConfig.fetch(86400)
-                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-
-                            firebaseRemoteConfig.activateFetched();
-
-                            ds.login_page_url = firebaseRemoteConfig.getString(DataStorage.LOGIN_PAGE_URL);
-
-                            ds.cover_plan_today = firebaseRemoteConfig.getString(DataStorage.COVER_PLAN_TODAY);
-                            ds.cover_plan_tomorrow = firebaseRemoteConfig.getString(DataStorage.COVER_PLAN_TOMORROW);
-
-                            ds.school_news_url = firebaseRemoteConfig.getString(DataStorage.SCHOOL_NEWS_URL);
-                            ds.school_events_url = firebaseRemoteConfig.getString(DataStorage.SCHOOL_EVENTS_URL);
-                            ds.school_press_url = firebaseRemoteConfig.getString(DataStorage.SCHOOL_PRESS_URL);
-
-                            ds.school_newsletter_url = firebaseRemoteConfig.getString(DataStorage.SCHOOL_NEWSLETTER_URL);
-                            ds.school_moodle_url = firebaseRemoteConfig.getString(DataStorage.SCHOOL_MOODLE_URL);
-                            ds.school_webpage_url = firebaseRemoteConfig.getString(DataStorage.SCHOOL_WEBPAGE_URL);
-                            ds.school_mensa_url = firebaseRemoteConfig.getString(DataStorage.SCHOOL_MENSA_URL);
-
-                        } else {
-                            FirebaseCrash.report(task.getException());
-                        }
-                    }
-                });
     }
 
     private void setupDataStorage(){
@@ -232,7 +158,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             sharedEditor.commit();
             FirebaseCrash.report(new Exception("Magic is happening (currentGradeLevel)"));
         }
-        firebaseAnalytics.setUserProperty("Stufe", ds.currentGradeLevel + "");
+        firebaseManager.setUserProperty("Stufe", ds.currentGradeLevel + "");
         ds.currentClass = sharedPreferences.getInt(CURRENT_CLASS,0);
         if(ds.currentClass > 5 || ds.currentClass < 0) {
             ds.currentClass = 0;
@@ -240,7 +166,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             sharedEditor.commit();
             FirebaseCrash.report(new Exception("Magic is happening (currentClass)"));
         }
-        firebaseAnalytics.setUserProperty("Klasse", ds.currentClass + "");
+        firebaseManager.setUserProperty("Klasse", ds.currentClass + "");
         ds.password = sharedPreferences.getString(PASSWORD, "");
         ds.username = sharedPreferences.getString(USERNAME, "");
     }
@@ -251,28 +177,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toolbar.setTitle(getResources().getString(R.string.app_title));
         setSupportActionBar(toolbar);
 
-        listviewLegendGroup = (LinearLayout) findViewById(R.id.listview_legend_group);
         contentMain         = (RelativeLayout) findViewById(R.id.contentMainRl);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 
-
-        listviewLegendGroup.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-
-               /// System.out.println("GLOBAL LAYOUT CALLED");
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    listviewLegendGroup.getViewTreeObserver().removeOnGlobalLayoutListener (this);
-
-                    if(listviewLegendGroupHeight==-1){
-                        listviewLegendGroupHeight = listviewLegendGroup.getHeight();
-                        setupAnimations();
-                    }
-
-                    listviewLegendGroup.setVisibility(View.GONE);
-                }
-            }
-        });
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -319,39 +226,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-    public void setupPageViewer(){
-
-        if(getSupportFragmentManager().getFragments().size()>0){
-
-            for(int pos = 0;pos<getSupportFragmentManager().getFragments().size();pos++){
-                String tag = "android:switcher:"+ R.id.viewpage+":"+pos;
-                Fragment fragment = getSupportFragmentManager().findFragmentByTag(tag);
-                if(fragment!=null)
-                    getSupportFragmentManager().beginTransaction().remove(fragment).commit();
-            }
-            getSupportFragmentManager().executePendingTransactions();
-        }
-
-        viewPager = findViewById(R.id.viewpage);
-
-        ListViewPagerAdapter ad = new ListViewPagerAdapter(getSupportFragmentManager());
-
-        blackboard  = new BlackboardFragment();
-        today       = new ListViewFragment();
-        tomorrow    = new ListViewFragment();
-
-        ad.addFragment(blackboard);
-        ad.addFragment(today);
-        ad.addFragment(tomorrow);
-
-        viewPager.setOffscreenPageLimit(2);
-
-        viewPager.setAdapter(ad);
-        viewPager.setCurrentItem(0);
-        viewPager.setOnPageChangeListener(this);
-
-    }
-
     public void setupBrowser(){
 
         RelativeLayout.LayoutParams parms = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,RelativeLayout.LayoutParams.MATCH_PARENT);
@@ -362,7 +236,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         webView.setWebViewClient(new WebViewClient(){
 
             public void onPageFinished(WebView view, String url) {
-                loadWebpageTrace.stop();
+                firebaseManager.loadWebpageTrace.stop();
 
                 if(progressLoadingPage != null)
                     progressLoadingPage.dismiss();
@@ -409,70 +283,48 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int id = item.getItemId();
 
         if(id==R.id.nav_black_board){
-            viewPager.setCurrentItem(0);
-
+            viewPagerManager.viewPager.setCurrentItem(0);
+            showViewPager();
         } else if (id == R.id.nav_today) {
             currentday = 0;
-            viewPager.setCurrentItem(1);
-            showCoverplanListview();
+            viewPagerManager.viewPager.setCurrentItem(1);
+            showViewPager();
         } else if (id == R.id.nav_tomorrow) {
             currentday = 1;
-            viewPager.setCurrentItem(2);
-            showCoverplanListview();
+            viewPagerManager.viewPager.setCurrentItem(2);
+            showViewPager();
         } else if (id == R.id.nav_school_mensa) {
-            Bundle bundle = new Bundle();
-            bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "mensa");
-            bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, ANALYTICS_MENU_EXTERNAL);
-            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+            firebaseManager.logEventSelectContent("mensa", FirebaseManager.ANALYTICS_MENU_EXTERNAL);
 
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(ds.school_mensa_url));
             startActivity(browserIntent);
         } else if (id == R.id.nav_school_website) {
-            Bundle bundle = new Bundle();
-            bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "schulwebseite");
-            bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, ANALYTICS_MENU_EXTERNAL);
-            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+            firebaseManager.logEventSelectContent("schulwebseite", FirebaseManager.ANALYTICS_MENU_EXTERNAL);
 
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(ds.school_webpage_url));
             startActivity(browserIntent);
         } else if (id == R.id.nav_moodle) {
-            Bundle bundle = new Bundle();
-            bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "moodle");
-            bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, ANALYTICS_MENU_EXTERNAL);
-            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+            firebaseManager.logEventSelectContent("moodle", FirebaseManager.ANALYTICS_MENU_EXTERNAL);
 
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(ds.school_moodle_url));
             startActivity(browserIntent);
         } else if(id == R.id.nav_school_newsletter){
-
-            Bundle bundle = new Bundle();
-            bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "newsletter");
-            bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, ANALYTICS_MENU_EXTERNAL);
-            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+            firebaseManager.logEventSelectContent("newsletter", FirebaseManager.ANALYTICS_MENU_EXTERNAL);
 
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(ds.school_newsletter_url));
             startActivity(browserIntent);
         } else if(id == R.id.nav_school_website_news){
-            Bundle bundle = new Bundle();
-            bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "nachrichten");
-            bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, ANALYTICS_MENU_INTERNAL);
-            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+            firebaseManager.logEventSelectContent("nachrichten", FirebaseManager.ANALYTICS_MENU_INTERNAL);
 
             toolbar.setTitle("Nachrichten");
             showPageInWebview(ds.school_news_url);
         } else if(id == R.id.nav_school_website_events){
-            Bundle bundle = new Bundle();
-            bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "termine");
-            bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, ANALYTICS_MENU_INTERNAL);
-            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+            firebaseManager.logEventSelectContent("termine", FirebaseManager.ANALYTICS_MENU_INTERNAL);
 
             toolbar.setTitle("Termine");
             showPageInWebview(ds.school_events_url);
         } else if( id == R.id.nav_school_website_press){
-            Bundle bundle = new Bundle();
-            bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "presse");
-            bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, ANALYTICS_MENU_INTERNAL);
-            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+            firebaseManager.logEventSelectContent("presse", FirebaseManager.ANALYTICS_MENU_INTERNAL);
 
             toolbar.setTitle("Presse");
             showPageInWebview(ds.school_press_url);
@@ -494,7 +346,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.getMenu().getItem(2).setTitle(tag2 + ", " + datum2);
 
 
-        switch (viewPager.getCurrentItem()){
+        switch (viewPagerManager.viewPager.getCurrentItem()){
 
             case 0:
                 toolbar.setTitle("Schwarzes Brett");
@@ -510,9 +362,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         }
 
-        navigationView.getMenu().getItem(viewPager.getCurrentItem()).setChecked(true);
+        navigationView.getMenu().getItem(viewPagerManager.viewPager.getCurrentItem()).setChecked(true);
         showInfoDialog();
-        refreshPageViewer();
+        viewPagerManager.refreshPageViewer();
 
     }
 
@@ -612,16 +464,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         List<CoverItem> ci = null;
 
         if(currentday == 0){
-            ci = today.getDataset();
+            ci = viewPagerManager.today.getDataset();
         }else if(currentday == 1){
-            ci = tomorrow.getDataset();
+            ci = viewPagerManager.tomorrow.getDataset();
         }
 
 
 
         if(i == ci.size()-1){
-            Bundle bundle = new Bundle();
-            firebaseAnalytics.logEvent("rate_app", bundle);
+            firebaseManager.logEvent("rate_app");
 
             try {
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=de.kgs.vertretungsplan")));
@@ -701,7 +552,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void showPageInWebview(String url){
 
-        loadWebpageTrace.start();
+        firebaseManager.loadWebpageTrace.start();
 
         webView.loadUrl(url);
         webView.setVisibility(View.VISIBLE);
@@ -711,7 +562,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-    public void showCoverplanListview(){
+    public void showViewPager(){
 
         webView.setVisibility(View.GONE);
         showsWebView = false;
@@ -821,204 +672,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         }
 
-        //ds.coverPlanToday.log();
-        //ds.coverPlanTomorow.log();
-
 
     }
 
-    public void refreshPageViewer(){
-
-        if(spinnerClass.getVisibility()==View.VISIBLE){
-            today.setDataset(ds.coverPlanToday.getCoverItemsForClass(currentGradeLevel+currentClass));
-            tomorrow.setDataset(ds.coverPlanTomorow.getCoverItemsForClass(currentGradeLevel+currentClass));
-        }
-        else{
-            today.setDataset(ds.coverPlanToday.getCoverItemsForClass(currentGradeLevel));
-            tomorrow.setDataset(ds.coverPlanTomorow.getCoverItemsForClass(currentGradeLevel));
-        }
-
-        today.setDailyMessage(ds.coverPlanToday.dailyInfoHeader,ds.coverPlanToday.getDailyInfoMessage());
-        tomorrow.setDailyMessage(ds.coverPlanTomorow.dailyInfoHeader,ds.coverPlanTomorow.getDailyInfoMessage());
-
-        today.setItemClickListener(this);
-        tomorrow.setItemClickListener(this);
-
-    }
 
     @Override
-    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
+    public void onClick(View v) {
+        viewPagerManager.onClick(v);
     }
-
-    private void setHeight(View view, int height){
-        android.view.ViewGroup.LayoutParams params = view.getLayoutParams();
-        params.height = height;
-        view.setLayoutParams(params);
-    }
-
-    @Override
-    public void onPageSelected(int position){
-
-        if(ds.coverPlanToday==null||ds.coverPlanTomorow==null){
-            return;
-        }
-
-        System.out.println("Page Selected "  + position);
-        currentday = position;
-
-        String datum1 = ds.coverPlanToday.title.split(" ")[0];
-        String tag1 = ds.coverPlanToday.title.split(" ")[1].replace(",", "");
-        navigationView.getMenu().getItem(1).setTitle(tag1 + ", " + datum1);
-
-        String datum2 = ds.coverPlanTomorow.title.split(" ")[0];
-        String tag2 = ds.coverPlanTomorow.title.split(" ")[1].replace(",", "");
-        navigationView.getMenu().getItem(2).setTitle(tag2 + ", " + datum2);
-
-
-        navigationView.getMenu().getItem(position).setChecked(true);
-
-        switch (position){
-
-            case 0:
-                toolbar.setTitle("Schwarzes Brett");
-                hideLegendGroup();
-
-                break;
-
-            case 1:
-                toolbar.setTitle(getResources().getString(R.string.app_title) + " - " + tag1);
-                if(previousPosition==0&&listviewLegendGroupHeight!=-1){
-                    showLegendGroup();
-                }
-
-
-                break;
-
-            case 2:
-                toolbar.setTitle(getResources().getString(R.string.app_title) + " - " + tag2);
-                if(previousPosition==0){
-                    showLegendGroup();
-                }
-                break;
-
-        }
-
-        previousPosition = position;
-
-    }
-
-    ScaleAnimation animationLegendgroupHide, animationLegendgroupShow;
-    TranslateAnimation animationViewpagerHide,animationViewpagerShow;
-
-    private void setupAnimations(){
-
-        System.out.println("SETTING UP ANIMATIONS WITH HEIGHT = " + listviewLegendGroupHeight);
-
-        animationLegendgroupHide = new ScaleAnimation(1.0f, 1.0f, 1.0f, 0f);
-        animationLegendgroupHide.setDuration(500);
-        animationLegendgroupHide.setAnimationListener(new AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                listviewLegendGroup.setVisibility(View.GONE);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-
-        animationLegendgroupShow = new ScaleAnimation(1.0f, 1.0f, 0f, 1f);
-        animationLegendgroupShow.setDuration(500);
-        animationLegendgroupShow.setAnimationListener(new AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                listviewLegendGroup.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-
-        animationViewpagerHide = new TranslateAnimation(0,0,0,-listviewLegendGroupHeight);
-        animationViewpagerHide.setDuration(500);
-        animationViewpagerHide.setAnimationListener(new AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                TranslateAnimation keep_steady = new TranslateAnimation(0,0,0,0);
-                keep_steady.setDuration(1);
-                viewPager.startAnimation(keep_steady);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-
-        animationViewpagerShow = new TranslateAnimation(0,0,0,listviewLegendGroupHeight);
-        animationViewpagerShow.setDuration(500);
-        animationViewpagerShow.setAnimationListener(new AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                TranslateAnimation keep_steady = new TranslateAnimation(0,0,0,0);
-                keep_steady.setDuration(1);
-                viewPager.startAnimation(keep_steady);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-
-
-    }
-
-    private void showLegendGroup(){
-        listviewLegendGroup.startAnimation(animationLegendgroupShow);
-        viewPager.startAnimation(animationViewpagerShow);
-    }
-
-    private void hideLegendGroup(){
-        listviewLegendGroup.startAnimation(animationLegendgroupHide);
-        viewPager.startAnimation(animationViewpagerHide);
-    }
-
-    @Override
-    public void onPageScrollStateChanged(int state) {
-
-    }
-
-    @Override
-    public boolean onLongClick(View view) {
-
-        System.out.println("onLongClick " + view);
-
-        return false;
-    }
-
 }

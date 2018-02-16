@@ -10,8 +10,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import de.kgs.vertretungsplan.CoverPlan.CoverPlanLoader;
-import de.kgs.vertretungsplan.CoverPlan.CoverPlanLoaderCallback;
+import de.kgs.vertretungsplan.coverPlan.CoverPlanLoader;
+import de.kgs.vertretungsplan.coverPlan.CoverPlanLoaderCallback;
 
 import static de.kgs.vertretungsplan.DataStorage.PASSWORD;
 import static de.kgs.vertretungsplan.DataStorage.SHARED_PREF;

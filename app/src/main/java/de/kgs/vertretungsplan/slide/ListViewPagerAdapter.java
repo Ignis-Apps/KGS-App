@@ -1,4 +1,4 @@
-package de.kgs.vertretungsplan.Slide;
+package de.kgs.vertretungsplan.slide;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;

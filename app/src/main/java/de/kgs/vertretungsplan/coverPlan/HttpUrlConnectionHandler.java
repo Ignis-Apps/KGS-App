@@ -1,4 +1,4 @@
-package de.kgs.vertretungsplan.CoverPlan;
+package de.kgs.vertretungsplan.coverPlan;
 
 import com.google.firebase.crash.FirebaseCrash;
 
@@ -33,21 +33,11 @@ public class HttpUrlConnectionHandler {
 
 	  public String pagestring = "=&=&=&=&=&=&keywords=&=&=&=&=&robots=&viewport=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&username=" + ds.username + "&=&=&=&=&password=" + ds.password + "&=&=&anchor=&=&=Login&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=";
 	
-	  public HttpUrlConnectionHandler(){
+	  public HttpUrlConnectionHandler () throws IOException{
 		
-		CookieHandler.setDefault(new CookieManager());
-			
-		try {
+		  CookieHandler.setDefault(new CookieManager());
 
-			sendPost(ds.login_page_url, pagestring);
-				
-		} catch (IOException e) {
-
-
-			FirebaseCrash.report(e);
-			e.printStackTrace();
-				
-		}
+		  sendPost(ds.login_page_url, pagestring);
 			
 	  }
 
@@ -59,8 +49,8 @@ public class HttpUrlConnectionHandler {
 		conn = (HttpsURLConnection) obj.openConnection();
 
 		conn.setUseCaches(false);
-		//httpsURLConnection.setInstanceFollowRedirects(false);
 		conn.setRequestMethod("POST");
+		conn.setConnectTimeout(5000);
 
 		conn.setDoOutput(true);
 		conn.setDoInput(true);
@@ -106,6 +96,8 @@ public class HttpUrlConnectionHandler {
 		  httpURLConnection = (HttpURLConnection) obj.openConnection();
 		  httpURLConnection.setRequestMethod("GET");
 		  httpURLConnection.setInstanceFollowRedirects(false);
+		  httpURLConnection.setConnectTimeout(5000);
+
 		  int responseCode = httpURLConnection.getResponseCode();
 
 		  System.out.println("\nSending 'GET' request to URL : " + url);
