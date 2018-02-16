@@ -2,6 +2,7 @@ package de.kgs.vertretungsplan.manager;
 
 import android.content.Context;
 import android.os.Build;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.view.View;
@@ -22,7 +23,7 @@ import de.kgs.vertretungsplan.slide.ListViewPagerAdapter;
  * Created by janik on 15.02.2018.
  */
 
-public class ViewPagerManager implements ViewPager.OnPageChangeListener{
+public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animation.AnimationListener{
 
     private Context context;
     private MainActivity act;
@@ -39,7 +40,7 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener{
     private int previousPosition = 0;
 
     private ScaleAnimation animationLegendgroupHide, animationLegendgroupShow;
-    private TranslateAnimation animationViewpagerHide,animationViewpagerShow;
+    private TranslateAnimation animationViewpagerHide,animationViewpagerShow,steady_animation;
 
 
     public ViewPagerManager(Context context, DataStorage dataStorage, FirebaseManager firebaseManager){
@@ -93,6 +94,7 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener{
 
         viewPager.setAdapter(ad);
         viewPager.setCurrentItem(0);
+        viewPager.setDrawingCacheEnabled(true);
         viewPager.setOnPageChangeListener(this);
 
         setupAnimations();
@@ -100,88 +102,24 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener{
 
     private void setupAnimations(){
 
-        System.out.println("SETTING UP ANIMATIONS WITH HEIGHT = " + coverplanLegendHeight);
-
         animationLegendgroupHide = new ScaleAnimation(1.0f, 1.0f, 1.0f, 0f);
         animationLegendgroupHide.setDuration(200);
-        animationLegendgroupHide.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                coverplanLegend.setVisibility(View.GONE);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
+        animationLegendgroupHide.setAnimationListener(this);
 
         animationLegendgroupShow = new ScaleAnimation(1.0f, 1.0f, 0f, 1f);
         animationLegendgroupShow.setDuration(200);
-        animationLegendgroupShow.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                coverplanLegend.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
+        animationLegendgroupShow.setAnimationListener(this);
 
         animationViewpagerHide = new TranslateAnimation(0,0,0,-coverplanLegendHeight);
         animationViewpagerHide.setDuration(200);
-        animationViewpagerHide.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                TranslateAnimation keep_steady = new TranslateAnimation(0,0,0,0);
-                keep_steady.setDuration(1);
-                viewPager.startAnimation(keep_steady);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
+        animationViewpagerHide.setAnimationListener(this);
 
         animationViewpagerShow = new TranslateAnimation(0,0,0, coverplanLegendHeight);
         animationViewpagerShow.setDuration(200);
-        animationViewpagerShow.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
+        animationViewpagerShow.setAnimationListener(this);
 
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                TranslateAnimation keep_steady = new TranslateAnimation(0,0,0,0);
-                keep_steady.setDuration(1);
-                viewPager.startAnimation(keep_steady);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-
+        steady_animation = new TranslateAnimation(0,0,0,0);
+        steady_animation.setDuration(1);
 
     }
 
@@ -240,6 +178,7 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener{
             case 0:
                 act.toolbar.setTitle("Schwarzes Brett");
                 hideLegendGroup();
+                //coverplanLegend.setVisibility(View.GONE);
 
                 break;
 
@@ -247,6 +186,7 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener{
                 act.toolbar.setTitle(act.getResources().getString(R.string.app_title) + " - " + tag1);
                 if(previousPosition==0&& coverplanLegendHeight !=-1){
                     showLegendGroup();
+                    //coverplanLegend.setVisibility(View.VISIBLE);
                 }
 
 
@@ -256,6 +196,7 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener{
                 act.toolbar.setTitle(act.getResources().getString(R.string.app_title) + " - " + tag2);
                 if(previousPosition==0){
                     showLegendGroup();
+                    //coverplanLegend.setVisibility(View.VISIBLE);
                 }
                 break;
 
@@ -274,14 +215,62 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener{
         blackboard.onClick(view, context, firebaseManager, ds);
     }
 
+    final Handler animationScheduler = new Handler();
+
     public void showLegendGroup(){
-        coverplanLegend.startAnimation(animationLegendgroupShow);
-        viewPager.startAnimation(animationViewpagerShow);
+
+        animationScheduler.removeCallbacks(null);
+        animationScheduler.postDelayed(showLegendGroupRunnable,300);
+
     }
+
+    private Runnable showLegendGroupRunnable = new Runnable() {
+        @Override
+        public void run() {
+            coverplanLegend.startAnimation(animationLegendgroupShow);
+            viewPager.startAnimation(animationViewpagerShow);
+        }
+    };
+
+    private Runnable hideLegendGroupRunnable = new Runnable() {
+        @Override
+        public void run() {
+            coverplanLegend.startAnimation(animationLegendgroupHide);
+            viewPager.startAnimation(animationViewpagerHide);
+        }
+    };
 
     public void hideLegendGroup(){
-        coverplanLegend.startAnimation(animationLegendgroupHide);
-        viewPager.startAnimation(animationViewpagerHide);
+
+        animationScheduler.removeCallbacks(null);
+        animationScheduler.postDelayed(hideLegendGroupRunnable, 300);
+
+
     }
 
+    @Override
+    public void onAnimationStart(Animation animation) {
+
+    }
+
+    @Override
+    public void onAnimationEnd(Animation animation) {
+
+        if(animation == animationLegendgroupShow){
+            coverplanLegend.setVisibility(View.VISIBLE);
+        }else if(animation == animationLegendgroupHide){
+            coverplanLegend.setVisibility(View.GONE);
+        }else if(animation == animationViewpagerShow){
+            viewPager.startAnimation(steady_animation);
+        }else if(animation == animationViewpagerHide){
+            viewPager.startAnimation(steady_animation);
+           // viewPager.invalidate();
+        }
+
+    }
+
+    @Override
+    public void onAnimationRepeat(Animation animation) {
+
+    }
 }
