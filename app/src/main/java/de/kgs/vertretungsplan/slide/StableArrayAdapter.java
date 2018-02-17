@@ -20,13 +20,13 @@ public class StableArrayAdapter extends ArrayAdapter<CoverItem> {
     private final List<CoverItem> values;
     private String dailyInfoHeader,dailyInfoMessage;
 
-    public StableArrayAdapter(Context context, List<CoverItem> values) {
+    StableArrayAdapter(Context context, List<CoverItem> values) {
         super(context, -1, values);
         this.context = context;
         this.values = values;
     }
 
-    public void setDataSet(List<CoverItem> items){
+    void setDataSet(List<CoverItem> items){
 
         System.out.println("SETTING NEW DATASET " + items.size());
 
@@ -43,7 +43,7 @@ public class StableArrayAdapter extends ArrayAdapter<CoverItem> {
 
     }
 
-    public void setDailyMessage(String title,String message){
+    void setDailyMessage(String title,String message){
 
         dailyInfoHeader = title;
         dailyInfoMessage = message;

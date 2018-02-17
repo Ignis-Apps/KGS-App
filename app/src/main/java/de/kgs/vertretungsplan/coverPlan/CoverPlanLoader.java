@@ -37,7 +37,7 @@ public class CoverPlanLoader extends AsyncTask<String,Void,Integer> {
     private CoverPlanLoaderCallback callback;
     private ProgressDialog dialog;
 
-    Trace loadDataTrace;
+    private Trace loadDataTrace;
 
     private DataStorage ds = DataStorage.getInstance();
 

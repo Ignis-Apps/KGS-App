@@ -4,17 +4,17 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-public class CoverPlanAnalyser {
+class CoverPlanAnalyser {
 
 	
-	public CoverPlan getCoverPlan(Document document) throws Exception{
+	CoverPlan getCoverPlan(Document document) throws Exception{
 		
 		CoverPlan coverPlan = new CoverPlan();
-		
-		  Elements elements = document.getAllElements();
+		Elements elements = document.getAllElements();
 
-		   int infoIndex=0;
-		  for(Element e : elements ){
+		int infoIndex=0;
+
+		for(Element e : elements ){
 			  		
 			CoverItem cItem = null;
 			  
@@ -61,7 +61,7 @@ public class CoverPlanAnalyser {
 				coverPlan.coverItems.add(cItem);
 			}
 
-		  }
+		}
 
 
 		if(coverPlan.title == null){
@@ -71,12 +71,11 @@ public class CoverPlanAnalyser {
 		}
 
 		return coverPlan;
-		
 	}
 	
 
 
-	 public CoverItem getCoverItem(Element list){
+	 private CoverItem getCoverItem(Element list){
 		  
 		  int index = 0;
   
@@ -135,7 +134,7 @@ public class CoverPlanAnalyser {
 		  return null;
 	 }
 	
-	 public String getLastCoverPlanUpdate(Element mon_head){
+	 private String getLastCoverPlanUpdate(Element mon_head){
 		 
 		 Elements es = mon_head.children();
 		 
@@ -145,7 +144,7 @@ public class CoverPlanAnalyser {
 		 
 	 }
 
-	 public void getDailyInfos(Elements tElements,CoverPlan cp){
+	 private void getDailyInfos(Elements tElements,CoverPlan cp){
 
 		 //System.out.println(tElements);
 
@@ -182,7 +181,7 @@ public class CoverPlanAnalyser {
 
 	 }
 	 
-	 public String splitAfterWord(String text, String split){
+	 private String splitAfterWord(String text, String split){
 		 
 		 String output = "";
 		 char[] t = text.toCharArray();

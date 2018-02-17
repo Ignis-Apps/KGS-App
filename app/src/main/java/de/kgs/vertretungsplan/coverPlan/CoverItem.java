@@ -4,7 +4,7 @@ public class CoverItem {
 
 	public String Class;			 // Klasse die vom Entfall betroffen ist
 	public String Hour;				 // Welche Stunden sin betroffen
-	public String Dropped;			 // Entf�llt die Stunde
+	public String Dropped;			 // Entfällt die Stunde
 	public String Fach;				 // Vertretende Fach
 	public String Room;				 // Raum der Vertretungsstunde
 	public String Annotation;		 // Bemerkung zur Vertretung

@@ -6,10 +6,10 @@ import java.util.List;
 public class CoverPlan {
 
 	public String title;
-	public String lastUpdate;
+	String lastUpdate;
 	public String dailyInfoHeader = ""; // Sollte nie mehr als einen geben
-	public List<String> dailyInfoRows = new ArrayList<>();
-	public List<CoverItem> coverItems = new ArrayList<>();
+	List<String> dailyInfoRows = new ArrayList<>();
+	List<CoverItem> coverItems = new ArrayList<>();
 	
 	public List getCoverItemsForClass(String class_id){
 		
@@ -45,13 +45,13 @@ public class CoverPlan {
 
 		out+="\nRows : ";
 		for(String r:dailyInfoRows){
-			out+=" "+r;
+			out += " "+r;
 		}
 
 		for(CoverItem c:coverItems){
-			out+="\n-------------------------------------";
-			out+="\n"+c.toString();
-			out+="\n-------------------------------------";
+			out += "\n-------------------------------------";
+			out += "\n"+c.toString();
+			out += "\n-------------------------------------";
 		}
 		return out;
 	}
@@ -96,9 +96,9 @@ public class CoverPlan {
 	public String getDailyInfoMessage(){
 		String out = "";
 		for(String s:dailyInfoRows){
-			out+=s;
+			out += s;
 			if(dailyInfoRows.size()>1){
-				out+="\n";
+				out += "\n";
 			}
 		}
 		return out;

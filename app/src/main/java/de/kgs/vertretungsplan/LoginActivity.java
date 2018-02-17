@@ -45,8 +45,11 @@ public class LoginActivity extends AppCompatActivity implements CoverPlanLoaderC
                 login();
             }
         });
+    }
 
-
+    @Override
+    public void onBackPressed() {
+        moveTaskToBack(true);
     }
 
     public void login() {
@@ -63,12 +66,6 @@ public class LoginActivity extends AppCompatActivity implements CoverPlanLoaderC
 
         CoverPlanLoader loader = new CoverPlanLoader(this,this, true);
         loader.execute();
-    }
-
-    @Override
-    public void onBackPressed() {
-        // disable going back to the MainActivity
-        moveTaskToBack(true);
     }
 
     public boolean validate() {

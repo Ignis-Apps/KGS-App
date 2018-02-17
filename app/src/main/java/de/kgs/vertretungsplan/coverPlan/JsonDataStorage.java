@@ -15,9 +15,9 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class JsonDataStorage {
+class JsonDataStorage {
 
-    public void writeJSONToFile(Context c,JSONObject jo,String filename)  {
+    void writeJSONToFile(Context c,JSONObject jo,String filename)  {
 
         File file = new File(c.getFilesDir(),"json_data");
 
@@ -39,7 +39,7 @@ public class JsonDataStorage {
 
     }
 
-    public JSONObject readJSONFromFile(Context c, String filename) {
+    JSONObject readJSONFromFile(Context c, String filename) {
 
         File file = new File(c.getFilesDir(),"json_data");
         File f = new File(file,filename);

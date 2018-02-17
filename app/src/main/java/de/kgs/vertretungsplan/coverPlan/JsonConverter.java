@@ -5,7 +5,7 @@ import com.google.firebase.crash.FirebaseCrash;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class JsonConverter {
+class JsonConverter {
 
     private static final String key_class = "class";
     private static final String key_hour = "hour";
@@ -29,7 +29,7 @@ public class JsonConverter {
     private static final String key_dailymessage_item_amount = "dailyMessageItemAmount";
 
 
-    public static JSONObject getJSONFromCoverPlan(CoverPlan p)  {
+    static JSONObject getJSONFromCoverPlan(CoverPlan p)  {
 
         JSONObject json = null;
 
@@ -91,7 +91,7 @@ public class JsonConverter {
 
     }
 
-    public static CoverPlan getCoverPlanFromJSON(JSONObject o)  {
+    static CoverPlan getCoverPlanFromJSON(JSONObject o)  {
 
         CoverPlan p = null;
 

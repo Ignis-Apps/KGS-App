@@ -4,10 +4,6 @@ import java.util.Date;
 
 import de.kgs.vertretungsplan.coverPlan.CoverPlan;
 
-/**
- * Created by janik on 15.12.2017.
- */
-
 public class DataStorage {
     private final static DataStorage ourInstance = new DataStorage();
 
@@ -25,12 +21,12 @@ public class DataStorage {
     public final static String SCHOOL_WEBPAGE_URL = "school_webpage_url";
     public final static String SCHOOL_MENSA_URL = "school_mensa_url";
 
-    public static final String SHARED_PREF = "privateSharedPreferences";
-    public static final String CURRENT_GRADE_LEVEL = "currentGradeLevel";
-    public static final String CURRENT_CLASS = "currentClass";
-    public static final String USERNAME = "username";
-    public static final String PASSWORD = "password";
-    public static final String SHOW_SWIPE_INFO = "swipe_tutorial_2";
+    static final String SHARED_PREF = "privateSharedPreferences";
+    static final String CURRENT_GRADE_LEVEL = "currentGradeLevel";
+    static final String CURRENT_CLASS = "currentClass";
+    static final String USERNAME = "username";
+    static final String PASSWORD = "password";
+    static final String SHOW_SWIPE_INFO = "swipe_tutorial_2";
 
     public String login_page_url;
 
@@ -46,12 +42,12 @@ public class DataStorage {
     public String school_webpage_url;
     public String school_mensa_url;
 
-    public int currentGradeLevel,currentClass;
-    public long timeMillsLastView;
+    int currentGradeLevel,currentClass;
+    long timeMillsLastView;
 
     public CoverPlan coverPlanToday,coverPlanTomorow;
     public Date lastUpdated;
-    public Integer responseCode = 0;
+    Integer responseCode = 0;
 
     public String username;
     public String password;

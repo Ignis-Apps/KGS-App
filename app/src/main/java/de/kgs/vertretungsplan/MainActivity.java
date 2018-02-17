@@ -6,13 +6,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
@@ -22,16 +19,10 @@ import android.text.format.Time;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewTreeObserver;
-import android.view.animation.Animation;
-import android.view.animation.Animation.AnimationListener;
-import android.view.animation.ScaleAnimation;
-import android.view.animation.TranslateAnimation;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -42,9 +33,6 @@ import java.util.List;
 
 import de.kgs.vertretungsplan.manager.FirebaseManager;
 import de.kgs.vertretungsplan.manager.ViewPagerManager;
-import de.kgs.vertretungsplan.slide.BlackboardFragment;
-import de.kgs.vertretungsplan.slide.ListViewFragment;
-import de.kgs.vertretungsplan.slide.ListViewPagerAdapter;
 import de.kgs.vertretungsplan.coverPlan.CoverItem;
 import de.kgs.vertretungsplan.coverPlan.CoverPlanLoader;
 import de.kgs.vertretungsplan.coverPlan.CoverPlanLoaderCallback;
@@ -88,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public Context context;
     public CoverPlanLoaderCallback coverPlanLoaderCallback;
 
+
     @Override
     protected void onPause() {
         super.onPause();
@@ -120,17 +109,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             loader.execute();
             showViewPager();
         }
-
     }
 
     public void restart(){
-
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
         this.startActivity(intent);
         finish();
         Runtime.getRuntime().exit(0);
-
     }
 
     @Override
@@ -173,12 +159,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void setupUI(){
         setContentView(R.layout.activity_main);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle(getResources().getString(R.string.app_title));
         setSupportActionBar(toolbar);
 
-        contentMain         = (RelativeLayout) findViewById(R.id.contentMainRl);
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        contentMain         = findViewById(R.id.contentMainRl);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
 
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -194,16 +180,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             currentday = 1;
         }
 
-        navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         setupSpinner();
-
     }
 
     public void setupSpinner(){
-
-        Spinner spinnerGradeLevel = (Spinner) findViewById(R.id.spinnerGrade);
+        Spinner spinnerGradeLevel = findViewById(R.id.spinnerGrade);
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.spinner_array, R.layout.spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -211,7 +195,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         spinnerGradeLevel.setSelection(ds.currentGradeLevel);
         spinnerGradeLevel.setOnItemSelectedListener(this);
 
-        spinnerClass = (Spinner) findViewById(R.id.spinnerClass);
+        spinnerClass = findViewById(R.id.spinnerClass);
 
         ArrayAdapter<CharSequence> adapterClass = ArrayAdapter.createFromResource(this, R.array.spinner_array_class, R.layout.spinner_item);
         adapterClass.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -227,7 +211,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void setupBrowser(){
-
         RelativeLayout.LayoutParams parms = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,RelativeLayout.LayoutParams.MATCH_PARENT);
 
         webView = new WebView(this);
@@ -269,7 +252,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -330,42 +313,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             showPageInWebview(ds.school_press_url);
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
-    }
-
-    public void refreshCoverPlan(){
-
-        String datum1 = ds.coverPlanToday.title.split(" ")[0];
-        String tag1 = ds.coverPlanToday.title.split(" ")[1].replace(",", "");
-        navigationView.getMenu().getItem(1).setTitle(tag1 + ", " + datum1);
-
-        String datum2 = ds.coverPlanTomorow.title.split(" ")[0];
-        String tag2 = ds.coverPlanTomorow.title.split(" ")[1].replace(",", "");
-        navigationView.getMenu().getItem(2).setTitle(tag2 + ", " + datum2);
-
-
-        switch (viewPagerManager.viewPager.getCurrentItem()){
-
-            case 0:
-                toolbar.setTitle("Schwarzes Brett");
-                break;
-
-            case 1:
-                toolbar.setTitle(getResources().getString(R.string.app_title) + " - " + tag1);
-                break;
-
-            case 2:
-                toolbar.setTitle(getResources().getString(R.string.app_title) + " - " + tag2);
-                break;
-
-        }
-
-        navigationView.getMenu().getItem(viewPagerManager.viewPager.getCurrentItem()).setChecked(true);
-        showInfoDialog();
-        viewPagerManager.refreshPageViewer();
-
     }
 
     @Override
@@ -461,15 +411,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
-        List<CoverItem> ci = null;
+        List<CoverItem> ci;
 
         if(currentday == 0){
             ci = viewPagerManager.today.getDataset();
         }else if(currentday == 1){
             ci = viewPagerManager.tomorrow.getDataset();
+        }else {
+            ci = viewPagerManager.today.getDataset();
         }
-
-
 
         if(i == ci.size()-1){
             firebaseManager.logEvent("rate_app");
@@ -550,6 +500,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView) {
+
+    }
+
+    @Override
+    public void onClick(View v) {
+        viewPagerManager.onClick(v);
+    }
+
     public void showPageInWebview(String url){
 
         firebaseManager.loadWebpageTrace.start();
@@ -591,11 +551,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             sharedEditor.commit();
 
         }
-
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> adapterView) {
 
     }
 
@@ -675,9 +630,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
+    public void refreshCoverPlan(){
+        String datum1 = ds.coverPlanToday.title.split(" ")[0];
+        String tag1 = ds.coverPlanToday.title.split(" ")[1].replace(",", "");
+        navigationView.getMenu().getItem(1).setTitle(tag1 + ", " + datum1);
 
-    @Override
-    public void onClick(View v) {
-        viewPagerManager.onClick(v);
+        String datum2 = ds.coverPlanTomorow.title.split(" ")[0];
+        String tag2 = ds.coverPlanTomorow.title.split(" ")[1].replace(",", "");
+        navigationView.getMenu().getItem(2).setTitle(tag2 + ", " + datum2);
+
+
+        switch (viewPagerManager.viewPager.getCurrentItem()){
+
+            case 0:
+                toolbar.setTitle("Schwarzes Brett");
+                break;
+
+            case 1:
+                toolbar.setTitle(getResources().getString(R.string.app_title) + " - " + tag1);
+                break;
+
+            case 2:
+                toolbar.setTitle(getResources().getString(R.string.app_title) + " - " + tag2);
+                break;
+
+        }
+
+        navigationView.getMenu().getItem(viewPagerManager.viewPager.getCurrentItem()).setChecked(true);
+        showInfoDialog();
+        viewPagerManager.refreshPageViewer();
     }
 }

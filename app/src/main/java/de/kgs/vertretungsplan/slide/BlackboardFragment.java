@@ -1,5 +1,7 @@
 package de.kgs.vertretungsplan.slide;
 
+import android.content.DialogInterface;
+import android.support.v7.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -15,10 +17,6 @@ import android.view.ViewGroup;
 import de.kgs.vertretungsplan.DataStorage;
 import de.kgs.vertretungsplan.manager.FirebaseManager;
 import de.kgs.vertretungsplan.R;
-
-/**
- * Created by Andreas on 15.02.2018.
- */
 
 public class BlackboardFragment extends Fragment{
 
@@ -55,6 +53,29 @@ public class BlackboardFragment extends Fragment{
            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(ds.school_mensa_url));
            startActivity(browserIntent);
        }else if(view == powerCreative){
+           LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+           AlertDialog.Builder powerCreativeInfoDialogBuilder = new AlertDialog.Builder(context);
+           powerCreativeInfoDialogBuilder.setView(inflater.inflate(R.layout.alertdialog_power_creative, null));
+           powerCreativeInfoDialogBuilder.setPositiveButton("Anschreiben", new DialogInterface.OnClickListener() {
+               @Override
+               public void onClick(DialogInterface dialog, int which) {
+                   Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:power.creative@outlook.de"));
+                   startActivity(Intent.createChooser(emailIntent, "Sende Nachricht mit ..."));
+               }
+           });
+           powerCreativeInfoDialogBuilder.setNegativeButton("Teilen", new DialogInterface.OnClickListener() {
+               @Override
+               public void onClick(DialogInterface dialog, int which) {
+                   Intent sendIntent = new Intent();
+                   sendIntent.setAction(Intent.ACTION_SEND);
+                   sendIntent.putExtra(Intent.EXTRA_TEXT, "Power.Creative\n\nDu bist unsicher bei Präsentation oder brauchst Hilfe bei Power Point? Melde dich jetzt :D\n\nEmail: power.creative@outlook.de");
+                   sendIntent.setType("text/plain");
+                   startActivity(sendIntent);
+               }
+           });
+
+           powerCreativeInfoDialogBuilder.create().show();
 
        }else if(view == contact){
            Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:ignis.apps@gmail.com"));

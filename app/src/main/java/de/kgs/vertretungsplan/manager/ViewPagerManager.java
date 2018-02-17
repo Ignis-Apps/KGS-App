@@ -19,10 +19,6 @@ import de.kgs.vertretungsplan.slide.BlackboardFragment;
 import de.kgs.vertretungsplan.slide.ListViewFragment;
 import de.kgs.vertretungsplan.slide.ListViewPagerAdapter;
 
-/**
- * Created by janik on 15.02.2018.
- */
-
 public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animation.AnimationListener{
 
     private Context context;
@@ -41,6 +37,8 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
 
     private ScaleAnimation animationLegendgroupHide, animationLegendgroupShow;
     private TranslateAnimation animationViewpagerHide,animationViewpagerShow,steady_animation;
+
+    private final Handler animationScheduler = new Handler();
 
 
     public ViewPagerManager(Context context, DataStorage dataStorage, FirebaseManager firebaseManager){
@@ -103,19 +101,19 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
     private void setupAnimations(){
 
         animationLegendgroupHide = new ScaleAnimation(1.0f, 1.0f, 1.0f, 0f);
-        animationLegendgroupHide.setDuration(200);
+        animationLegendgroupHide.setDuration(400);
         animationLegendgroupHide.setAnimationListener(this);
 
         animationLegendgroupShow = new ScaleAnimation(1.0f, 1.0f, 0f, 1f);
-        animationLegendgroupShow.setDuration(200);
+        animationLegendgroupShow.setDuration(400);
         animationLegendgroupShow.setAnimationListener(this);
 
         animationViewpagerHide = new TranslateAnimation(0,0,0,-coverplanLegendHeight);
-        animationViewpagerHide.setDuration(200);
+        animationViewpagerHide.setDuration(400);
         animationViewpagerHide.setAnimationListener(this);
 
         animationViewpagerShow = new TranslateAnimation(0,0,0, coverplanLegendHeight);
-        animationViewpagerShow.setDuration(200);
+        animationViewpagerShow.setDuration(400);
         animationViewpagerShow.setAnimationListener(this);
 
         steady_animation = new TranslateAnimation(0,0,0,0);
@@ -178,7 +176,6 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
             case 0:
                 act.toolbar.setTitle("Schwarzes Brett");
                 hideLegendGroup();
-                //coverplanLegend.setVisibility(View.GONE);
 
                 break;
 
@@ -186,7 +183,6 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
                 act.toolbar.setTitle(act.getResources().getString(R.string.app_title) + " - " + tag1);
                 if(previousPosition==0&& coverplanLegendHeight !=-1){
                     showLegendGroup();
-                    //coverplanLegend.setVisibility(View.VISIBLE);
                 }
 
 
@@ -196,7 +192,6 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
                 act.toolbar.setTitle(act.getResources().getString(R.string.app_title) + " - " + tag2);
                 if(previousPosition==0){
                     showLegendGroup();
-                    //coverplanLegend.setVisibility(View.VISIBLE);
                 }
                 break;
 
@@ -215,12 +210,10 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
         blackboard.onClick(view, context, firebaseManager, ds);
     }
 
-    final Handler animationScheduler = new Handler();
-
-    public void showLegendGroup(){
+    private void showLegendGroup(){
 
         animationScheduler.removeCallbacks(null);
-        animationScheduler.postDelayed(showLegendGroupRunnable,300);
+        animationScheduler.postDelayed(showLegendGroupRunnable,100);
 
     }
 
@@ -240,10 +233,10 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
         }
     };
 
-    public void hideLegendGroup(){
+    private void hideLegendGroup(){
 
         animationScheduler.removeCallbacks(null);
-        animationScheduler.postDelayed(hideLegendGroupRunnable, 300);
+        animationScheduler.postDelayed(hideLegendGroupRunnable, 100);
 
 
     }
@@ -264,7 +257,7 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
             viewPager.startAnimation(steady_animation);
         }else if(animation == animationViewpagerHide){
             viewPager.startAnimation(steady_animation);
-           // viewPager.invalidate();
+            //viewPager.invalidate();
         }
 
     }
