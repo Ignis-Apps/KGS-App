@@ -18,15 +18,15 @@ import de.kgs.vertretungsplan.DataStorage;
 class HttpUrlConnectionHandler {
 	private DataStorage ds = DataStorage.getInstance();
 
+	@SuppressWarnings("FieldCanBeLocal")
 	private String pagestring = "=&=&=&=&=&=&keywords=&=&=&=&=&robots=&viewport=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&username=" + ds.username + "&=&=&=&=&password=" + ds.password + "&=&=&anchor=&=&=Login&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=&=";
-	
+
 
 	HttpUrlConnectionHandler () throws IOException{
 	    CookieHandler.setDefault(new CookieManager());
 
 	    sendPost(ds.login_page_url, pagestring);
 	}
-
 
 	private void sendPost(String url, String postParams) throws IOException {
 		HttpsURLConnection conn;
@@ -54,18 +54,10 @@ class HttpUrlConnectionHandler {
 		System.out.println("Response Code : " + responseCode);
 
 		BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-		/*String inputLine;
-		StringBuilder response = new StringBuilder();
-
-		while ((inputLine = in.readLine()) != null) {
-			response.append(inputLine);
-		}*/
-
 		in.close();
 
 	}
 
-	
 	private String GetPageContent(String url) throws Exception {
 		if(url.contains("https")){
 			return  getPageContentHttps(url);
@@ -73,7 +65,6 @@ class HttpUrlConnectionHandler {
 			return getPageContentHttp(url);
 		}
 	}
-
 
 	private String getPageContentHttp(String url)throws Exception{
 	    URL obj = new URL(url);
@@ -125,12 +116,12 @@ class HttpUrlConnectionHandler {
 		System.out.println("\nSending 'GET' request to URL : " + url);
 		System.out.println("Response Code : " + responseCode);
 
-		// (RC 303) HTTP Connection shoud redirect to another page (Login Page)
+		// (RC 303) HTTPS Connection shoud redirect to another page (Login Page)
 		if(responseCode==303){
 			// DO NOT remove/modify this exception because it triggers the CREDENTIALS_NEEDED response
 			throw new Exception("Login needed");
 		}
-		// (RC 200) HTTP Connection OK!
+		// (RC 200) HTTPS Connection OK!
 		else if(responseCode!=200){
 			throw new Exception("Error while loading page");
 		}

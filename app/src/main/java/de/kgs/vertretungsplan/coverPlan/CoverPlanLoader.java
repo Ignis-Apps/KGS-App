@@ -27,6 +27,7 @@ public class CoverPlanLoader extends AsyncTask<String,Void,Integer> {
     public static final int RC_NO_INTERNET_DATASET_EXIST = 102;
     public static final int RC_LOGIN_REQUIRED = 98;
 
+    @SuppressWarnings("WeakerAccess")
     public boolean onlyLoadData = false;
     public boolean isRunning = false;
 
@@ -132,14 +133,17 @@ public class CoverPlanLoader extends AsyncTask<String,Void,Integer> {
                 return RC_ERROR;
             }
 
-
-
             dataStorage.lastUpdated     = currentTime;
             dataStorage.coverPlanToday  = coverPlanToday;
             dataStorage.coverPlanTomorow= coverPlanTomorrow;
 
-            storage.writeJSONToFile(c,JsonConverter.getJSONFromCoverPlan(coverPlanToday), COVERPLAN_TODAY_FILE);
-            storage.writeJSONToFile(c,JsonConverter.getJSONFromCoverPlan(coverPlanTomorrow), COVERPLAN_TOMORROW_FILE);
+            try {
+                storage.writeJSONToFile(c,JsonConverter.getJSONFromCoverPlan(coverPlanToday), COVERPLAN_TODAY_FILE);
+                storage.writeJSONToFile(c,JsonConverter.getJSONFromCoverPlan(coverPlanTomorrow), COVERPLAN_TOMORROW_FILE);
+            } catch (Exception e) {
+                e.printStackTrace();
+                FirebaseCrash.report(e);
+            }
 
             return RC_LATEST_DATASET;
 
@@ -164,13 +168,10 @@ public class CoverPlanLoader extends AsyncTask<String,Void,Integer> {
             }else {
 
                 FirebaseCrash.report(new Exception("Files do not exist or are incomplete!"));
-
                 System.err.println("Files do not exist or are incomplete!");
                 return RC_NO_INTERNET_NO_DATASET;
             }
-
         }
-
     }
 
     public void onPause(){

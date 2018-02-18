@@ -267,13 +267,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if(id==R.id.nav_black_board){
             viewPagerManager.viewPager.setCurrentItem(0);
+            viewPagerManager.updateToolbar();
             showViewPager();
         } else if (id == R.id.nav_today) {
             currentday = 0;
+            viewPagerManager.updateToolbar();
             viewPagerManager.viewPager.setCurrentItem(1);
             showViewPager();
         } else if (id == R.id.nav_tomorrow) {
             currentday = 1;
+            viewPagerManager.updateToolbar();
             viewPagerManager.viewPager.setCurrentItem(2);
             showViewPager();
         } else if (id == R.id.nav_school_mensa) {
@@ -526,7 +529,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         webView.setVisibility(View.GONE);
         showsWebView = false;
-
     }
 
     public void showInfoDialog(){

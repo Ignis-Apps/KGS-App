@@ -29,7 +29,7 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
     public ViewPager viewPager;
     public ListViewFragment today;
     public ListViewFragment tomorrow;
-    public BlackboardFragment blackboard;
+    private BlackboardFragment blackboard;
 
     private LinearLayout coverplanLegend;
     private int coverplanLegendHeight = -1;
@@ -40,6 +40,9 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
 
     private final Handler animationScheduler = new Handler();
 
+    @SuppressWarnings("FieldCanBeLocal")
+    private int animationDuration = 400;
+    private int animationDelay = 100;
 
     public ViewPagerManager(Context context, DataStorage dataStorage, FirebaseManager firebaseManager){
         this.context = context;
@@ -47,7 +50,7 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
         this.ds = dataStorage;
         this.firebaseManager = firebaseManager;
 
-        coverplanLegend = (LinearLayout) act.findViewById(R.id.listview_legend_group);
+        coverplanLegend = act.findViewById(R.id.listview_legend_group);
 
         coverplanLegend.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
@@ -93,7 +96,7 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
         viewPager.setAdapter(ad);
         viewPager.setCurrentItem(0);
         viewPager.setDrawingCacheEnabled(true);
-        viewPager.setOnPageChangeListener(this);
+        viewPager.addOnPageChangeListener(this);
 
         setupAnimations();
     }
@@ -101,19 +104,19 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
     private void setupAnimations(){
 
         animationLegendgroupHide = new ScaleAnimation(1.0f, 1.0f, 1.0f, 0f);
-        animationLegendgroupHide.setDuration(400);
+        animationLegendgroupHide.setDuration(animationDuration);
         animationLegendgroupHide.setAnimationListener(this);
 
         animationLegendgroupShow = new ScaleAnimation(1.0f, 1.0f, 0f, 1f);
-        animationLegendgroupShow.setDuration(400);
+        animationLegendgroupShow.setDuration(animationDuration);
         animationLegendgroupShow.setAnimationListener(this);
 
         animationViewpagerHide = new TranslateAnimation(0,0,0,-coverplanLegendHeight);
-        animationViewpagerHide.setDuration(400);
+        animationViewpagerHide.setDuration(animationDuration);
         animationViewpagerHide.setAnimationListener(this);
 
         animationViewpagerShow = new TranslateAnimation(0,0,0, coverplanLegendHeight);
-        animationViewpagerShow.setDuration(400);
+        animationViewpagerShow.setDuration(animationDuration);
         animationViewpagerShow.setAnimationListener(this);
 
         steady_animation = new TranslateAnimation(0,0,0,0);
@@ -160,6 +163,20 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
             act.currentday = 1;
         }
 
+        act.navigationView.getMenu().getItem(position).setChecked(true);
+
+        if(position==0)
+            hideLegendGroup();
+        if(previousPosition==0&&coverplanLegendHeight!=-1)
+            showLegendGroup();
+
+        updateToolbar();
+        previousPosition = position;
+
+}
+
+    public void updateToolbar(){
+
         String datum1 = ds.coverPlanToday.title.split(" ")[0];
         String tag1 = ds.coverPlanToday.title.split(" ")[1].replace(",", "");
         act.navigationView.getMenu().getItem(1).setTitle(tag1 + ", " + datum1);
@@ -168,36 +185,19 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
         String tag2 = ds.coverPlanTomorow.title.split(" ")[1].replace(",", "");
         act.navigationView.getMenu().getItem(2).setTitle(tag2 + ", " + datum2);
 
-
-        act.navigationView.getMenu().getItem(position).setChecked(true);
-
-        switch (position){
+        switch(viewPager.getCurrentItem()){
 
             case 0:
                 act.toolbar.setTitle("Schwarzes Brett");
-                hideLegendGroup();
-
                 break;
-
             case 1:
                 act.toolbar.setTitle(act.getResources().getString(R.string.app_title) + " - " + tag1);
-                if(previousPosition==0&& coverplanLegendHeight !=-1){
-                    showLegendGroup();
-                }
-
-
                 break;
-
             case 2:
                 act.toolbar.setTitle(act.getResources().getString(R.string.app_title) + " - " + tag2);
-                if(previousPosition==0){
-                    showLegendGroup();
-                }
                 break;
 
         }
-
-        previousPosition = position;
 
     }
 
@@ -213,7 +213,14 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
     private void showLegendGroup(){
 
         animationScheduler.removeCallbacks(null);
-        animationScheduler.postDelayed(showLegendGroupRunnable,100);
+        animationScheduler.postDelayed(showLegendGroupRunnable,animationDelay);
+
+    }
+
+    private void hideLegendGroup(){
+
+        animationScheduler.removeCallbacks(null);
+        animationScheduler.postDelayed(hideLegendGroupRunnable, animationDelay);
 
     }
 
@@ -233,14 +240,6 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
         }
     };
 
-    private void hideLegendGroup(){
-
-        animationScheduler.removeCallbacks(null);
-        animationScheduler.postDelayed(hideLegendGroupRunnable, 100);
-
-
-    }
-
     @Override
     public void onAnimationStart(Animation animation) {
 
@@ -257,7 +256,6 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
             viewPager.startAnimation(steady_animation);
         }else if(animation == animationViewpagerHide){
             viewPager.startAnimation(steady_animation);
-            //viewPager.invalidate();
         }
 
     }

@@ -20,30 +20,21 @@ class CoverPlanAnalyser {
 			  
 			switch (e.className()) {
 
-
 				case "info":
-
 					if(infoIndex==0){
-
 						getDailyInfos(e.getAllElements(),coverPlan);
 						infoIndex++;
 					}
-
 					break;
 
 				case "mon_title":
-					
 					coverPlan.title = e.ownText();
-					
 					break;
 					
 				case "mon_head":
-					
-					String lastUpdated = getLastCoverPlanUpdate(e);
-					coverPlan.lastUpdate = lastUpdated;
-					
+					coverPlan.lastUpdate = getLastCoverPlanUpdate(e);
 					break;
-				
+
 				case "list odd":				
 					cItem = getCoverItem(e);
 					break;
@@ -52,19 +43,16 @@ class CoverPlanAnalyser {
 					cItem = getCoverItem(e);
 					break;
 
-				default:
-					
-					break;
 			}
 			
-			if(cItem!=null){
+			if(cItem!=null)
 				coverPlan.coverItems.add(cItem);
-			}
+
 
 		}
 
 
-		if(coverPlan.title == null){
+		if(coverPlan.title != null){
             if(coverPlan.title.trim().isEmpty()){
                 throw new Exception("Title dosen't exsist");
             }
@@ -146,44 +134,34 @@ class CoverPlanAnalyser {
 
 	 private void getDailyInfos(Elements tElements,CoverPlan cp){
 
-		 //System.out.println(tElements);
 
-		 Elements tableElements = tElements;
-		 String headers = "Headers : ";
-		 String rows = "Rows : ";
-
-		 Elements tableHeaderEles = tableElements.select("tbody tr th");
-
-		 System.out.println("tableHeaderEles.size()" +  tableHeaderEles.size());
+		 Elements tableHeaderEles = tElements.select("tbody tr th");
 
 		 for (int i = 0; i < tableHeaderEles.size(); i++) {
 			 cp.dailyInfoHeader = tableHeaderEles.get(i).text();
 		 }
 
-
-		 Elements tableRowElements = tableElements.select(":not(thead) tr");
+		 Elements tableRowElements = tElements.select(":not(thead) tr");
 
 		 for (int i = 0; i < tableRowElements.size(); i++) {
 			 Element row = tableRowElements.get(i);
 			 Elements rowItems = row.select("td");
-			 String r = "";
+			 StringBuilder r = new StringBuilder();
 			 for (int j = 0; j < rowItems.size(); j++) {
 				if(j!=0)
-					r+=" ";
-			 	r+=(rowItems.get(j).text());
+					r.append(" ");
+			 	r.append(rowItems.get(j).text());
 			 }
-			 cp.dailyInfoRows.add(r);
+			 cp.dailyInfoRows.add(r.toString());
 
 		 }
 
-		// System.out.println("HEADERS : " + cp.dailyInfoHeaders.toArray().toString());
-		 //System.out.println("ROWS : " + cp.dailyInfoRows.toArray().toString());
 
 	 }
 	 
-	 private String splitAfterWord(String text, String split){
+	 private String splitAfterWord(String text, @SuppressWarnings("SameParameterValue") String split){
 		 
-		 String output = "";
+		 StringBuilder output = new StringBuilder();
 		 char[] t = text.toCharArray();
 		 char[] cs= split.toCharArray();
 		 int mCounter = cs.length;
@@ -197,12 +175,12 @@ class CoverPlanAnalyser {
 					 mCounter = cs.length;
 				 }
 			 }else {
-				output+=c;
+				output.append(c);
 			}
 			  
 		 }
 		 
-		 return output;
+		 return output.toString();
 		 
 	 }
 	 

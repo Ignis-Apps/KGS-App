@@ -11,7 +11,7 @@ public class CoverPlan {
 	List<String> dailyInfoRows = new ArrayList<>();
 	List<CoverItem> coverItems = new ArrayList<>();
 	
-	public List getCoverItemsForClass(String class_id){
+	public List<CoverItem> getCoverItemsForClass(String class_id){
 		
 		List<CoverItem> cItems = new ArrayList<>();
 		for(CoverItem c:coverItems){
@@ -23,7 +23,6 @@ public class CoverPlan {
 			{
 				cItems.add(c);
 			}
-
 
 			if(c.Class.contains(class_id)) {
 				cItems.add(c);
@@ -37,51 +36,25 @@ public class CoverPlan {
 
 	public String toString(){
 
-		String out = "";
-		out+=title;
-		out+="\nZuletzt Aktualiesiert"+lastUpdate;
-		out+="\nHeaders : " + dailyInfoHeader;
-		//for(String h:dailyInfoHeaders){out+=" "+h;}
+		StringBuilder out = new StringBuilder();
+		out.append(title);
+		out.append("\nZuletzt Aktualiesiert").append(lastUpdate);
+		out.append("\nHeaders : ").append(dailyInfoHeader);
 
-		out+="\nRows : ";
+		out.append("\nRows : ");
 		for(String r:dailyInfoRows){
-			out += " "+r;
+			out.append(" ").append(r);
 		}
 
 		for(CoverItem c:coverItems){
-			out += "\n-------------------------------------";
-			out += "\n"+c.toString();
-			out += "\n-------------------------------------";
+			out.append("\n-------------------------------------");
+			out.append("\n").append(c.toString());
+			out.append("\n-------------------------------------");
 		}
-		return out;
+		return out.toString();
 	}
 
-	public void log(){
-
-		System.out.println(toString());
-
-		/*
-		System.out.println(title);
-		System.out.println("Zuletzt Aktualiesiert : " + lastUpdate);
-		
-		for(CoverItem c:coverItems){
-			
-			System.out.println("-------------------------------------");
-			System.out.println("Klasse: " +c.Class );
-			System.out.println("Stunde: " +c.Hour );
-			System.out.println("Entfaellt: " +c.Dropped );
-			System.out.println("Fach: " +c.Fach );
-			System.out.println("Raum: " +c.Room );
-			System.out.println("Bemerkung zur Vertretung: " +c.Annotation );
-			System.out.println("Verlegt von: " +c.Ver_From );
-			System.out.println("Bemerkung zum Unterricht: " +c.Annotation_Lesson );
-			System.out.println("-------------------------------------");
-			
-		}
-		*/
-	}
-
-	public CoverItem[] getCoverItems(){
+	CoverItem[] getCoverItems(){
 
 		CoverItem[] c = new CoverItem[coverItems.size()];
 
@@ -94,14 +67,14 @@ public class CoverPlan {
 	}
 
 	public String getDailyInfoMessage(){
-		String out = "";
+		StringBuilder out = new StringBuilder();
 		for(String s:dailyInfoRows){
-			out += s;
+			out.append(s);
 			if(dailyInfoRows.size()>1){
-				out += "\n";
+				out.append("\n");
 			}
 		}
-		return out;
+		return out.toString();
 	}
 	
 }

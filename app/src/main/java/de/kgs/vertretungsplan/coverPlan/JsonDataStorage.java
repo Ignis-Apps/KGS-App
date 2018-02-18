@@ -17,12 +17,15 @@ import java.io.IOException;
 
 class JsonDataStorage {
 
-    void writeJSONToFile(Context c,JSONObject jo,String filename)  {
+    void writeJSONToFile(Context c,JSONObject jo,String filename) throws Exception  {
 
         File file = new File(c.getFilesDir(),"json_data");
 
-        if(!file.exists())
-            file.mkdir();
+        if(!file.exists()) {
+            if (!file.mkdir()) {
+                throw new Exception("Directory could not be created" + file.getAbsolutePath());
+            }
+        }
 
         try{
             File f = new File(file, filename);
@@ -43,13 +46,13 @@ class JsonDataStorage {
 
         File file = new File(c.getFilesDir(),"json_data");
         File f = new File(file,filename);
-        String line,output = "";
+        String line;StringBuilder output = new StringBuilder();
 
         try{
             BufferedReader reader = new BufferedReader(new FileReader(f));
 
             while((line = reader.readLine())!=null){
-                output+=line;
+                output.append(line);
             }
             reader.close();
         }catch (FileNotFoundException fe){
@@ -62,7 +65,7 @@ class JsonDataStorage {
 
         JSONObject j = null;
         try {
-            j = new JSONObject(output);
+            j = new JSONObject(output.toString());
             System.out.println("JSON successfully read from : " + f.getAbsolutePath());
         } catch (JSONException e) {
             FirebaseCrash.report(e);
