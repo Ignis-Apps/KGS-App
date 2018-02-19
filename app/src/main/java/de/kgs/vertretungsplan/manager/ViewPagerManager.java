@@ -34,6 +34,7 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
     private LinearLayout coverplanLegend;
     private int coverplanLegendHeight = -1;
     private int previousPosition = 0;
+    private boolean isLegendGroupVisible;
 
     private ScaleAnimation animationLegendgroupHide, animationLegendgroupShow;
     private TranslateAnimation animationViewpagerHide,animationViewpagerShow,steady_animation;
@@ -73,8 +74,11 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
             for(int pos = 0;pos<act.getSupportFragmentManager().getFragments().size();pos++){
                 String tag = "android:switcher:"+ R.id.viewpage+":"+pos;
                 Fragment fragment = act.getSupportFragmentManager().findFragmentByTag(tag);
-                if(fragment!=null)
+                if(fragment!=null){
+                    System.out.println("REMOVING FRAGMENT FROM FRAGMENTMANAGER");
                     act.getSupportFragmentManager().beginTransaction().remove(fragment).commit();
+                }
+
             }
             act.getSupportFragmentManager().executePendingTransactions();
         }
@@ -124,7 +128,29 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
 
     }
 
+    private final Handler scheduledRefresher = new Handler();
+
+    private Runnable refreshLaterRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if(!today.isCreated()||!tomorrow.isCreated()){
+                scheduledRefresher.postDelayed(refreshLaterRunnable,50);
+            }else{
+                refreshPageViewer();
+            }
+
+        }
+    };
+
     public void refreshPageViewer(){
+
+        // Falls die Fragmente noch nicht da sind, fügen wir die Daten einfach später hinzu.
+        if(!today.isCreated()||!tomorrow.isCreated()){
+            scheduledRefresher.postDelayed(refreshLaterRunnable,50);
+            return;
+        }
+
+        System.out.println("REFRESHING PAGE VIEWER");
 
         if(act.spinnerClass.getVisibility()==View.VISIBLE){
             today.setDataset(ds.coverPlanToday.getCoverItemsForClass(act.currentGradeLevel+act.currentClass));
@@ -156,7 +182,7 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
             return;
         }
 
-        System.out.println("Page Selected: "  + position);
+        System.out.println("Page Selected: "  + position + "previous position :  " + previousPosition + "coverplanHeight : " + coverplanLegendHeight );
         if(position == 1){
             act.currentday = 0;
         }else if(position == 2){
@@ -167,8 +193,10 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
 
         if(position==0)
             hideLegendGroup();
-        if(previousPosition==0&&coverplanLegendHeight!=-1)
-            showLegendGroup();
+
+       if(position==1||position==2){
+           showLegendGroup();
+       }
 
         updateToolbar();
         previousPosition = position;
@@ -212,15 +240,23 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
 
     private void showLegendGroup(){
 
+        if(isLegendGroupVisible)
+            return;
+
         animationScheduler.removeCallbacks(null);
         animationScheduler.postDelayed(showLegendGroupRunnable,animationDelay);
+        isLegendGroupVisible = true;
 
     }
 
     private void hideLegendGroup(){
 
+        if(!isLegendGroupVisible)
+            return;
+
         animationScheduler.removeCallbacks(null);
         animationScheduler.postDelayed(hideLegendGroupRunnable, animationDelay);
+        isLegendGroupVisible = false;
 
     }
 

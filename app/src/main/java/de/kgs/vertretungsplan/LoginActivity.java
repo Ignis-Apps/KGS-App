@@ -34,9 +34,9 @@ public class LoginActivity extends AppCompatActivity implements CoverPlanLoaderC
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        loginButton = (Button) findViewById(R.id.btn_login);
-        usernameText = (EditText) findViewById(R.id.input_username);
-        passwordText = (EditText) findViewById(R.id.input_password);
+        loginButton =  findViewById(R.id.btn_login);
+        usernameText = findViewById(R.id.input_username);
+        passwordText = findViewById(R.id.input_password);
 
         loginButton.setOnClickListener(new View.OnClickListener() {
 

@@ -2,6 +2,7 @@ package de.kgs.vertretungsplan.slide;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,9 +38,6 @@ public class StableArrayAdapter extends ArrayAdapter<CoverItem> {
         // Platzhalter für die Bewertung
         values.add(new CoverItem());
         notifyDataSetChanged();
-        System.out.println(values.get(0).toString());
-        System.out.println(values.get(values.size()-1).toString());
-        System.out.println(values.get(values.size()-2).toString());
 
     }
 
@@ -49,11 +47,14 @@ public class StableArrayAdapter extends ArrayAdapter<CoverItem> {
         dailyInfoMessage = message;
     }
 
-
+    @NonNull
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(int position, View convertView, @NonNull ViewGroup parent) {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View listItemView;
+
+        if(inflater==null)
+            return new View(context);
 
         if(position==0){
             listItemView = inflater.inflate(R.layout.listview_item_daily_info, parent, false);

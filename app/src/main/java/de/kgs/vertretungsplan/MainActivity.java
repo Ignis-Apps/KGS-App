@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
@@ -71,7 +72,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean showsWebView = false;
 
     public CoverPlanLoader loader;
-    public boolean quickStart = false;
 
     public Context context;
     public CoverPlanLoaderCallback coverPlanLoaderCallback;
@@ -225,12 +225,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     progressLoadingPage.dismiss();
             }
 
-            /*public boolean shouldOverrideUrlLoading(WebView view, String url) {
-
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                startActivity(browserIntent);
-                return false;
-            }*/
         });
 
         webView.setVisibility(View.GONE);
@@ -262,7 +256,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
 
         if(id==R.id.nav_black_board){
@@ -633,31 +627,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void refreshCoverPlan(){
-        String datum1 = ds.coverPlanToday.title.split(" ")[0];
-        String tag1 = ds.coverPlanToday.title.split(" ")[1].replace(",", "");
-        navigationView.getMenu().getItem(1).setTitle(tag1 + ", " + datum1);
 
-        String datum2 = ds.coverPlanTomorow.title.split(" ")[0];
-        String tag2 = ds.coverPlanTomorow.title.split(" ")[1].replace(",", "");
-        navigationView.getMenu().getItem(2).setTitle(tag2 + ", " + datum2);
-
-
-        switch (viewPagerManager.viewPager.getCurrentItem()){
-
-            case 0:
-                toolbar.setTitle("Schwarzes Brett");
-                break;
-
-            case 1:
-                toolbar.setTitle(getResources().getString(R.string.app_title) + " - " + tag1);
-                break;
-
-            case 2:
-                toolbar.setTitle(getResources().getString(R.string.app_title) + " - " + tag2);
-                break;
-
-        }
-
+        viewPagerManager.updateToolbar();
         navigationView.getMenu().getItem(viewPagerManager.viewPager.getCurrentItem()).setChecked(true);
         showInfoDialog();
         viewPagerManager.refreshPageViewer();
