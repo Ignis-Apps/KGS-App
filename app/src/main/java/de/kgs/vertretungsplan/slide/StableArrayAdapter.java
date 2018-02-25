@@ -3,6 +3,7 @@ package de.kgs.vertretungsplan.slide;
 import android.content.Context;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.List;
+import java.util.zip.Inflater;
 
 import de.kgs.vertretungsplan.R;
 import de.kgs.vertretungsplan.coverPlan.CoverItem;
@@ -20,6 +22,7 @@ public class StableArrayAdapter extends ArrayAdapter<CoverItem> {
     private final Context context;
     private final List<CoverItem> values;
     private String dailyInfoHeader,dailyInfoMessage;
+    private String TAG = "ignislog arrayadapter";
 
     StableArrayAdapter(Context context, List<CoverItem> values) {
         super(context, -1, values);
@@ -29,13 +32,14 @@ public class StableArrayAdapter extends ArrayAdapter<CoverItem> {
 
     void setDataSet(List<CoverItem> items){
 
-        System.out.println("SETTING NEW DATASET " + items.size());
+        Log.d(TAG, "Setting new dataset ");
 
         values.clear();
-        // Platzhalter für die Tages Nachricht
+        // Fügt einen Platzhalter für die Tagesnachricht hinzu
         values.add(new CoverItem());
+        // Fügt alle Daten hinzu
         values.addAll(items);
-        // Platzhalter für die Bewertung
+        // Fügt einen Platzhalter für die Bewertung hinzu
         values.add(new CoverItem());
         notifyDataSetChanged();
 
@@ -50,67 +54,140 @@ public class StableArrayAdapter extends ArrayAdapter<CoverItem> {
     @NonNull
     @Override
     public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View listItemView;
 
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        // Falls wir keinen Inflater haben geben wir einen leeren View zurück
         if(inflater==null)
             return new View(context);
 
-        if(position==0){
-            listItemView = inflater.inflate(R.layout.listview_item_daily_info, parent, false);
-            TextView dailyMessageTitle = listItemView.findViewById(R.id.dailyViewTitle);
-            TextView dailyMessageText = listItemView.findViewById(R.id.dailyViewMessage);
+        // Die erste Position ist der Tagesnachricht vorbehalten, falls keine existiert geben wir einen leeren View zurück
+        if(position==0)
+            return getDailyMessageView(inflater,parent);
 
-            if(!dailyInfoHeader.trim().isEmpty()&&!dailyInfoMessage.trim().isEmpty()) {
-                dailyMessageTitle.setText(dailyInfoHeader.trim());
-                dailyMessageText.setText(dailyInfoMessage.trim());
-            }else{
-                return new View(context);
-            }
+        // Die letzte Position ist für den Bewerten View
+        if(position==values.size()-1)
+            return getShareView(inflater,parent);
 
-            return listItemView;
-        }
+        View listItemView = convertView;
 
-        if(position==values.size()-1) {
-            listItemView = inflater.inflate(R.layout.listview_item_share, parent, false);
-            return listItemView;
-        }
-
-
+        // Falls es keinen ViewHolder gibt erstelle einen neuen und schreib ihn in den Tag
+        if(convertView.getTag()==null){
             listItemView = inflater.inflate(R.layout.listview_item_standard,parent,false);
+            listItemView.setTag(getViewHolder(listItemView));
+        }
 
-            TextView textKlasse = listItemView.findViewById(R.id.textViewKlasse);
-            TextView textStunde = listItemView.findViewById(R.id.textViewStunde);
-            TextView textFach = listItemView.findViewById(R.id.textViewFach);
-            TextView textRaum = listItemView.findViewById(R.id.textViewRaum);
-            ImageView imageInfo = listItemView.findViewById(R.id.imageViewInfo);
+        // Extrahiere den ViewHolder aus dem convertView
+        ViewHolder viewHolder = getViewHolder(listItemView);
+        CoverItem ci = values.get(position);
 
-           // System.out.println("POSITION " + position + "VAL LENGTH = " + values.size());
-
-            CoverItem ci = values.get(position);// -1 Cause Element 0 is the daily info
-            textKlasse.setText(ci.Class);
-            textStunde.setText(ci.Hour);
-            textFach.setText(ci.Fach);
-            textRaum.setText(ci.Room);
-
-            if(ci.Annotation.trim().equals("") && ci.Ver_From.trim().equals("") && ci.Annotation_Lesson.trim().equals("")){
-                imageInfo.setVisibility(View.INVISIBLE);
-            }
-
-            LinearLayout background = listItemView.findViewById(R.id.listViewLn);
-            if(ci.getsDropped()){
-                background.setBackgroundColor(context.getResources().getColor(R.color.colorEntfall));
-                textKlasse.setTextColor(Color.parseColor("#ffffff"));
-                textStunde.setTextColor(Color.parseColor("#ffffff"));
-                textFach.setTextColor(Color.parseColor("#ffffff"));
-                textRaum.setTextColor(Color.parseColor("#ffffff"));
-                imageInfo.setImageResource(R.drawable.ic_action_info_light);
-            }
+        insertDataIntoItem(viewHolder,ci);
 
         return listItemView;
 
+    }
+
+    private void insertDataIntoItem(ViewHolder holder, CoverItem data){
+
+        if(data.Annotation.concat(data.Ver_From).concat(data.Annotation_Lesson).equals(""))
+            holder.imageInfo.setVisibility(View.INVISIBLE);
+
+        adjustColors(holder,data.getsDropped());
+
+        holder.textKlasse.setText(data.Class);
+        holder.textStunde.setText(data.Hour);
+        holder.textFach.setText(data.Fach);
+        holder.textRaum.setText(data.Room);
 
     }
 
+    private void adjustColors(ViewHolder holder, boolean dropped){
+
+        if(holder.dropped != null)
+            if(dropped == holder.dropped)
+                return;
+
+        if(dropped){
+
+            int red = context.getResources().getColor(R.color.colorEntfall);
+            int white = Color.parseColor("#ffffff");
+
+            holder.background.setBackgroundColor(red);
+            holder.textKlasse.setTextColor(white);
+            holder.textStunde.setTextColor(white);
+            holder.textFach.setTextColor(white);
+            holder.textRaum.setTextColor(white);
+
+            holder.imageInfo.setImageResource(R.drawable.ic_action_info_light);
+
+        }else {
+
+            int black = Color.parseColor("#000000");
+
+            holder.background.setBackgroundColor(0);
+            holder.textKlasse.setTextColor(black);
+            holder.textStunde.setTextColor(black);
+            holder.textFach.setTextColor(black);
+            holder.textRaum.setTextColor(black);
+
+            holder.imageInfo.setImageResource(R.drawable.ic_action_info_light);
+
+        }
+
+    }
+
+    private ViewHolder getViewHolder(View listItemView){
+
+        ViewHolder v = (ViewHolder) listItemView.getTag();
+
+        if (v!=null)
+            return v;
+
+        ViewHolder holder = new ViewHolder();
+
+        holder.textKlasse  = listItemView.findViewById(R.id.textViewKlasse);
+        holder.textStunde  = listItemView.findViewById(R.id.textViewStunde);
+        holder.textFach    = listItemView.findViewById(R.id.textViewFach);
+        holder.textRaum    = listItemView.findViewById(R.id.textViewRaum);
+        holder.imageInfo   = listItemView.findViewById(R.id.imageViewInfo);
+        holder.background  = listItemView.findViewById(R.id.listViewLn);
+
+        return holder;
+    }
+
+    private View getDailyMessageView(LayoutInflater inflater,ViewGroup parent){
+
+        View listItemView = inflater.inflate(R.layout.listview_item_daily_info, parent, false);
+        TextView dailyMessageTitle = listItemView.findViewById(R.id.dailyViewTitle);
+        TextView dailyMessageText = listItemView.findViewById(R.id.dailyViewMessage);
+
+        if(!dailyInfoHeader.trim().isEmpty()&&!dailyInfoMessage.trim().isEmpty()) {
+            dailyMessageTitle.setText(dailyInfoHeader.trim());
+            dailyMessageText.setText(dailyInfoMessage.trim());
+        }else{
+            return new View(context);
+        }
+
+        return listItemView;
+
+    }
+
+    private View getShareView(LayoutInflater inflater,ViewGroup parent){
+        View listItemView = inflater.inflate(R.layout.listview_item_share, parent, false);
+        return listItemView;
+    }
+
+
+    static class ViewHolder{
+
+        TextView textKlasse;
+        TextView textStunde;
+        TextView textFach;
+        TextView textRaum;
+        ImageView imageInfo;
+        LinearLayout background;
+        Boolean dropped;
+
+    }
 
 }
