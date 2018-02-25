@@ -16,9 +16,6 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import de.kgs.vertretungsplan.DataStorage;
 import de.kgs.vertretungsplan.R;
 
-/**
- * Created by janik on 15.02.2018.
- */
 
 public class FirebaseManager {
     public static final String ANALYTICS_MENU_INTERNAL = "internal";

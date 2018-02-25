@@ -1,5 +1,6 @@
 package de.kgs.vertretungsplan.slide;
 
+import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
@@ -65,14 +66,19 @@ public class BlackboardFragment extends Fragment{
                    startActivity(Intent.createChooser(emailIntent, "Sende Nachricht mit ..."));
                }
            });
-           powerCreativeInfoDialogBuilder.setNegativeButton("Teilen", new DialogInterface.OnClickListener() {
+           powerCreativeInfoDialogBuilder.setNegativeButton("Instagram", new DialogInterface.OnClickListener() {
                @Override
                public void onClick(DialogInterface dialog, int which) {
-                   Intent sendIntent = new Intent();
-                   sendIntent.setAction(Intent.ACTION_SEND);
-                   sendIntent.putExtra(Intent.EXTRA_TEXT, "Power.Creative\n\nDu bist unsicher bei Präsentation oder brauchst Hilfe bei Power Point? Melde dich jetzt :D\n\nEmail: power.creative@outlook.de");
-                   sendIntent.setType("text/plain");
-                   startActivity(sendIntent);
+                   Uri uri = Uri.parse("http://instagram.com/_u/power.creative");
+                   Intent likeIng = new Intent(Intent.ACTION_VIEW, uri);
+                   likeIng.setPackage("com.instagram.android");
+
+                   try {
+                       startActivity(likeIng);
+                   } catch (ActivityNotFoundException e) {
+                       startActivity(new Intent(Intent.ACTION_VIEW,
+                               Uri.parse("http://instagram.com/power.creative")));
+                   }
                }
            });
 

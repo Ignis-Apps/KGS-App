@@ -174,18 +174,19 @@
                 <ImageView
                     android:id="@+id/thumbnail"
                     android:layout_width="match_parent"
-                    android:layout_height="115dp"
+                    android:layout_height="120dp"
                     android:layout_alignParentTop="true"
-                    android:scaleType="centerCrop"
+                    android:scaleType="fitCenter"
                     android:src="@drawable/power_creative_preview" />
 
                     <TextView
-                    android:layout_width="wrap_content"
+                    android:background="#ff1800"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/thumbnail"
-                    android:text="Du bist unsicher bei Präsentation oder brauchst Hilfe bei Power Point? Melde dich jetzt :D"
-                    android:textColor="#3f3f3f"
-                    android:padding="16dp"/>
+                    android:text="Mehr Details erfahren!"
+                    android:textColor="#ffffff"
+                    android:padding="10dp"/>
 
                 </RelativeLayout>
 
