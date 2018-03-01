@@ -1,6 +1,7 @@
 package de.kgs.vertretungsplan.coverPlan;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.google.firebase.crash.FirebaseCrash;
 
@@ -46,7 +47,10 @@ class JsonDataStorage {
 
         File file = new File(c.getFilesDir(),"json_data");
         File f = new File(file,filename);
-        String line;StringBuilder output = new StringBuilder();
+        String line;
+        StringBuilder output = new StringBuilder();
+
+        JSONObject j = null;
 
         try{
             BufferedReader reader = new BufferedReader(new FileReader(f));
@@ -55,19 +59,16 @@ class JsonDataStorage {
                 output.append(line);
             }
             reader.close();
+
+            j = new JSONObject(output.toString());
+            System.out.println("JSON successfully read from : " + f.getAbsolutePath());
         }catch (FileNotFoundException fe){
             FirebaseCrash.report(fe);
             fe.printStackTrace();
         }catch (IOException ie){
             FirebaseCrash.report(ie);
             ie.printStackTrace();
-        }
-
-        JSONObject j = null;
-        try {
-            j = new JSONObject(output.toString());
-            System.out.println("JSON successfully read from : " + f.getAbsolutePath());
-        } catch (JSONException e) {
+        }catch (JSONException e) {
             FirebaseCrash.report(e);
             e.printStackTrace();
         }

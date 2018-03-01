@@ -91,57 +91,37 @@ class JsonConverter {
 
     }
 
-    static CoverPlan getCoverPlanFromJSON(JSONObject o)  {
+    static CoverPlan getCoverPlanFromJSON(JSONObject o) throws Exception {
 
-        CoverPlan p = null;
-
-        try{
-
-            p = new CoverPlan();
-
-            JSONObject coverPlanInfos = o.getJSONObject(key_coverplan_info);
-            JSONObject items = o.getJSONObject(key_coverplan_items);
-
-            p.title = coverPlanInfos.getString(key_title);
-            p.lastUpdate = coverPlanInfos.getString(key_last_updated);
-            p.dailyInfoHeader = coverPlanInfos.optString(key_dailymessage_header);
-
-            int itemAmount = coverPlanInfos.getInt(key_item_amount);
-            int index = 0;
-
-            while(index<itemAmount){
-
-                CoverItem ci=new CoverItem();
-                JSONObject item = items.getJSONObject(key_item+index);
-                ci.Class             = item.getString(key_class);
-                ci.Hour              = item.getString(key_hour);
-                ci.Dropped           = item.getString(key_dropped);
-                ci.Fach              = item.getString(key_fach);
-                ci.Room              = item.getString(key_room);
-                ci.Annotation        = item.getString(key_annotation);
-                ci.Ver_From          = item.getString(key_ver);
-                ci.Annotation_Lesson = item.getString(key_annotation_lesson);
-                p.coverItems.add(ci);
-                index++;
-
-            }
-
-            items = o.getJSONObject(key_dailymessage_items);
-
-            itemAmount = coverPlanInfos.getInt(key_dailymessage_item_amount);
-            index = 0;
-
-            while(index<itemAmount){
-
-                JSONObject rowItem = items.getJSONObject(key_dailymessage_item+index);
-                p.dailyInfoRows.add(rowItem.getString(key_dailymessage_item_text));
-                index++;
-
-            }
-
-        }catch (JSONException je){
-            FirebaseCrash.report(je);
-            je.printStackTrace();
+        CoverPlan p = new CoverPlan();
+        JSONObject coverPlanInfos = o.getJSONObject(key_coverplan_info);
+        JSONObject items = o.getJSONObject(key_coverplan_items);
+        p.title = coverPlanInfos.getString(key_title);
+        p.lastUpdate = coverPlanInfos.getString(key_last_updated);
+        p.dailyInfoHeader = coverPlanInfos.optString(key_dailymessage_header);
+        int itemAmount = coverPlanInfos.getInt(key_item_amount);
+        int index = 0;
+        while(index<itemAmount){
+            CoverItem ci=new CoverItem();
+            JSONObject item = items.getJSONObject(key_item+index);
+            ci.Class             = item.getString(key_class);
+            ci.Hour              = item.getString(key_hour);
+            ci.Dropped           = item.getString(key_dropped);
+            ci.Fach              = item.getString(key_fach);
+            ci.Room              = item.getString(key_room);
+            ci.Annotation        = item.getString(key_annotation);
+            ci.Ver_From          = item.getString(key_ver);
+            ci.Annotation_Lesson = item.getString(key_annotation_lesson);
+            p.coverItems.add(ci);
+            index++;
+        }
+        items = o.optJSONObject(key_dailymessage_items);
+        itemAmount = coverPlanInfos.getInt(key_dailymessage_item_amount);
+        index = 0;
+        while(index<itemAmount){
+            JSONObject rowItem = items.optJSONObject(key_dailymessage_item+index);
+            p.dailyInfoRows.add(rowItem.getString(key_dailymessage_item_text));
+            index++;
         }
 
         return p;

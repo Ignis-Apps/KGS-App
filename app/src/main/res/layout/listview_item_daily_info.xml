@@ -4,7 +4,7 @@
     android:id="@+id/listViewRl"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/colorAccent"
+    android:background="@color/colorInfo"
     android:padding="6dip">
 
     <ImageView
@@ -27,7 +27,7 @@
         android:gravity="center_vertical"
         android:paddingLeft="7dp"
         android:paddingTop="3dp"
-        android:text="Daily Message Title"
+        android:text="Nachricht zum Tag"
         android:textColor="@android:color/white"
         android:textSize="19sp" />
 
@@ -42,7 +42,7 @@
         android:layout_toStartOf="@+id/icon"
         android:paddingBottom="3dp"
         android:paddingLeft="7dp"
-        android:text="Daily Message Text"
+        android:text="Lädt ..."
         android:textColor="@android:color/white" />
 
 </RelativeLayout>

@@ -48,14 +48,6 @@ class CoverPlanAnalyser {
 			if(cItem!=null)
 				coverPlan.coverItems.add(cItem);
 
-
-		}
-
-
-		if(coverPlan.title != null){
-            if(coverPlan.title.trim().isEmpty()){
-                throw new Exception("Title dosen't exsist");
-            }
 		}
 
 		return coverPlan;

@@ -111,6 +111,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        ds.timeMillsLastView = 0;
+        ds.responseCode = 0;
+    }
+
     public void restart(){
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
@@ -532,7 +540,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
             alertBuilder.setCancelable(true);
             alertBuilder.setTitle("Info");
-            alertBuilder.setMessage("Wische nach links bzw. nach rechts, um den Tag zu wechseln.");
+            alertBuilder.setMessage("Wische nach links bzw. nach rechts, um zwischen den Tagen oder dem Schwarzen Brett zu wechseln.");
             alertBuilder.setIcon(R.drawable.ic_action_info);
             alertBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                 @Override

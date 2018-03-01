@@ -6,6 +6,7 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.perf.FirebasePerformance;
@@ -88,6 +89,8 @@ public class CoverPlanLoader extends AsyncTask<String,Void,Integer> {
     @Override
     protected Integer doInBackground(String... parameters) {
 
+        Long i = System.currentTimeMillis();
+
         Date currentTime = Calendar.getInstance().getTime();
         DataStorage dataStorage = DataStorage.getInstance();
         JsonDataStorage storage = new JsonDataStorage();
@@ -121,6 +124,8 @@ public class CoverPlanLoader extends AsyncTask<String,Void,Integer> {
                 return RC_ERROR;
             }
 
+            Log.d("Time-Info", "Download-Time: " + (System.currentTimeMillis() - i) + " ms");
+
             CoverPlan coverPlanToday;
             CoverPlan coverPlanTomorrow;
 
@@ -132,6 +137,8 @@ public class CoverPlanLoader extends AsyncTask<String,Void,Integer> {
                 FirebaseCrash.report(e);
                 return RC_ERROR;
             }
+
+            Log.d("Time-Info", "Analyze-Time: " + (System.currentTimeMillis() - i) + " ms");
 
             dataStorage.lastUpdated     = currentTime;
             dataStorage.coverPlanToday  = coverPlanToday;
@@ -145,6 +152,8 @@ public class CoverPlanLoader extends AsyncTask<String,Void,Integer> {
                 FirebaseCrash.report(e);
             }
 
+            Log.d("Time-Info", "Save-Time: " + (System.currentTimeMillis() - i) + " ms");
+
             return RC_LATEST_DATASET;
 
         }else {
@@ -154,11 +163,17 @@ public class CoverPlanLoader extends AsyncTask<String,Void,Integer> {
 
             if(json_today!=null&&json_tomorrow!=null){
 
-                CoverPlan coverPlanToday    = JsonConverter.getCoverPlanFromJSON(json_today);
-                CoverPlan coverPlanTomorrow = JsonConverter.getCoverPlanFromJSON(json_tomorrow);
+                try {
+                    CoverPlan coverPlanToday = JsonConverter.getCoverPlanFromJSON(json_today);
+                    CoverPlan coverPlanTomorrow = JsonConverter.getCoverPlanFromJSON(json_tomorrow);
 
-                dataStorage.coverPlanToday = coverPlanToday;
-                dataStorage.coverPlanTomorow = coverPlanTomorrow;
+                    dataStorage.coverPlanToday = coverPlanToday;
+                    dataStorage.coverPlanTomorow = coverPlanTomorrow;
+                } catch (Exception e){
+                    FirebaseCrash.report(new Exception("Files (or Code is) are broken!"));
+                    System.err.println("Files (or Code is) are broken!");
+                    return RC_NO_INTERNET_NO_DATASET;
+                }
 
                 if(onlyLoadData)
                     return RC_LATEST_DATASET;
@@ -167,8 +182,6 @@ public class CoverPlanLoader extends AsyncTask<String,Void,Integer> {
 
             }else {
 
-                FirebaseCrash.report(new Exception("Files do not exist or are incomplete!"));
-                System.err.println("Files do not exist or are incomplete!");
                 return RC_NO_INTERNET_NO_DATASET;
             }
         }

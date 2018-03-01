@@ -20,6 +20,7 @@ import de.kgs.vertretungsplan.R;
 public class FirebaseManager {
     public static final String ANALYTICS_MENU_INTERNAL = "internal";
     public static final String ANALYTICS_MENU_EXTERNAL = "external";
+    public static final String ANALYTICS_BLACK_BOARD = "black_board";
 
     private Context c;
     private DataStorage ds;

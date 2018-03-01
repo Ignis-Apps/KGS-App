@@ -48,13 +48,15 @@ public class BlackboardFragment extends Fragment{
         contact.setOnClickListener(onClickListener);
    }
 
-   public void onClick(View view, Context context, FirebaseManager firebaseManager, DataStorage ds){
+   public void onClick(View view, Context context, final FirebaseManager firebaseManager, DataStorage ds){
        if(view == mensa){
-           firebaseManager.logEventSelectContent("mensa_black_board", FirebaseManager.ANALYTICS_MENU_EXTERNAL);
+           firebaseManager.logEventSelectContent("mensa", FirebaseManager.ANALYTICS_BLACK_BOARD);
 
            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(ds.school_mensa_url));
            startActivity(browserIntent);
        }else if(view == powerCreative){
+           firebaseManager.logEventSelectContent("power.creative", FirebaseManager.ANALYTICS_BLACK_BOARD);
+
            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
            AlertDialog.Builder powerCreativeInfoDialogBuilder = new AlertDialog.Builder(context);
@@ -62,6 +64,8 @@ public class BlackboardFragment extends Fragment{
            powerCreativeInfoDialogBuilder.setPositiveButton("Anschreiben", new DialogInterface.OnClickListener() {
                @Override
                public void onClick(DialogInterface dialog, int which) {
+                   firebaseManager.logEventSelectContent("power.creative_email", FirebaseManager.ANALYTICS_BLACK_BOARD);
+
                    Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:power.creative@outlook.de"));
                    startActivity(Intent.createChooser(emailIntent, "Sende Nachricht mit ..."));
                }
@@ -69,6 +73,8 @@ public class BlackboardFragment extends Fragment{
            powerCreativeInfoDialogBuilder.setNegativeButton("Instagram", new DialogInterface.OnClickListener() {
                @Override
                public void onClick(DialogInterface dialog, int which) {
+                   firebaseManager.logEventSelectContent("power.creative_instagram", FirebaseManager.ANALYTICS_BLACK_BOARD);
+
                    Uri uri = Uri.parse("http://instagram.com/_u/power.creative");
                    Intent likeIng = new Intent(Intent.ACTION_VIEW, uri);
                    likeIng.setPackage("com.instagram.android");
@@ -85,9 +91,13 @@ public class BlackboardFragment extends Fragment{
            powerCreativeInfoDialogBuilder.create().show();
 
        }else if(view == contact){
+           firebaseManager.logEventSelectContent("contact", FirebaseManager.ANALYTICS_BLACK_BOARD);
+
            Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:ignis.apps@gmail.com"));
            emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Neuer Eintrag - Schwarzes Brett");
            startActivity(Intent.createChooser(emailIntent, "Sende Email mit ..."));
+       }else if(view == newspaper){
+           firebaseManager.logEventSelectContent("newspaper", FirebaseManager.ANALYTICS_BLACK_BOARD);
        }
    }
 

@@ -7,7 +7,7 @@ public class CoverPlan {
 
 	public String title;
 	String lastUpdate;
-	public String dailyInfoHeader = ""; // Sollte nie mehr als einen geben
+	public String dailyInfoHeader = "";
 	List<String> dailyInfoRows = new ArrayList<>();
 	List<CoverItem> coverItems = new ArrayList<>();
 	

@@ -133,12 +133,7 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
     private Runnable refreshLaterRunnable = new Runnable() {
         @Override
         public void run() {
-            if(!today.isCreated()||!tomorrow.isCreated()){
-                scheduledRefresher.postDelayed(refreshLaterRunnable,50);
-            }else{
-                refreshPageViewer();
-            }
-
+            refreshPageViewer();
         }
     };
 

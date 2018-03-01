@@ -1,5 +1,6 @@
 <resources>
-    <string name="app_name">KGS VP</string>
+    <string name="app_name">KGS App</string>
+    <string name="app_name_debug">KGS DBG</string>
     <string name="app_title">Vertretungsplan</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
