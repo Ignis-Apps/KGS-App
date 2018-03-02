@@ -22,11 +22,11 @@ import de.kgs.vertretungsplan.DataStorage;
 
 public class CoverPlanLoader extends AsyncTask<String,Void,Integer> {
 
+    public static final int RC_LOGIN_REQUIRED = 98;
     public static final int RC_ERROR = 99;
     public static final int RC_NO_INTERNET_NO_DATASET = 100;
     public static final int RC_LATEST_DATASET = 101;
     public static final int RC_NO_INTERNET_DATASET_EXIST = 102;
-    public static final int RC_LOGIN_REQUIRED = 98;
 
     @SuppressWarnings("WeakerAccess")
     public boolean onlyLoadData = false;

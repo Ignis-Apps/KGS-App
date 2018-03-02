@@ -5,6 +5,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.animation.Animation;
@@ -33,7 +34,6 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
 
     private LinearLayout coverplanLegend;
     private int coverplanLegendHeight = -1;
-    private int previousPosition = 0;
     private boolean isLegendGroupVisible;
 
     private ScaleAnimation animationLegendgroupHide, animationLegendgroupShow;
@@ -59,9 +59,9 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
                 if(coverplanLegendHeight ==-1){
                     coverplanLegendHeight = coverplanLegend.getHeight();
                     setupAnimations();
-                }
 
-                coverplanLegend.setVisibility(View.GONE);
+                    coverplanLegend.setVisibility(View.GONE);
+                }
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                     coverplanLegend.getViewTreeObserver().removeOnGlobalLayoutListener (this);
@@ -145,7 +145,13 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
             return;
         }
 
+        blackboard.setOnClickListener(act);
+
         System.out.println("REFRESHING PAGE VIEWER");
+
+        if(ds.coverPlanToday==null||ds.coverPlanTomorow==null){
+            return;
+        }
 
         if(act.spinnerClass.getVisibility()==View.VISIBLE){
             today.setDataset(ds.coverPlanToday.getCoverItemsForClass(act.currentGradeLevel+act.currentClass));
@@ -161,8 +167,6 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
 
         today.setItemClickListener(act);
         tomorrow.setItemClickListener(act);
-        blackboard.setOnClickListener(act);
-
     }
 
     @Override
@@ -173,11 +177,7 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
     @Override
     public void onPageSelected(int position){
 
-        if(ds.coverPlanToday==null||ds.coverPlanTomorow==null){
-            return;
-        }
-
-        System.out.println("Page Selected: "  + position + "previous position :  " + previousPosition + "coverplanHeight : " + coverplanLegendHeight );
+        System.out.println("Page Selected: "  + position + "  coverplanHeight : " + coverplanLegendHeight );
         if(position == 1){
             act.currentday = 0;
         }else if(position == 2){
@@ -189,16 +189,18 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
         if(position==0)
             hideLegendGroup();
 
-       if(position==1||position==2){
-           showLegendGroup();
-       }
+        if(position==1||position==2){
+            showLegendGroup();
+        }
 
         updateToolbar();
-        previousPosition = position;
-
 }
 
     public void updateToolbar(){
+
+        if(ds.coverPlanToday==null||ds.coverPlanTomorow==null){
+            return;
+        }
 
         String datum1 = ds.coverPlanToday.title.split(" ")[0];
         String tag1 = ds.coverPlanToday.title.split(" ")[1].replace(",", "");
@@ -240,7 +242,6 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
 
         animationScheduler.removeCallbacks(null);
         animationScheduler.postDelayed(showLegendGroupRunnable,animationDelay);
-        isLegendGroupVisible = true;
 
     }
 
@@ -251,7 +252,6 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
 
         animationScheduler.removeCallbacks(null);
         animationScheduler.postDelayed(hideLegendGroupRunnable, animationDelay);
-        isLegendGroupVisible = false;
 
     }
 
@@ -280,8 +280,10 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
     public void onAnimationEnd(Animation animation) {
 
         if(animation == animationLegendgroupShow){
+            isLegendGroupVisible = true;
             coverplanLegend.setVisibility(View.VISIBLE);
         }else if(animation == animationLegendgroupHide){
+            isLegendGroupVisible = false;
             coverplanLegend.setVisibility(View.GONE);
         }else if(animation == animationViewpagerShow){
             viewPager.startAnimation(steady_animation);

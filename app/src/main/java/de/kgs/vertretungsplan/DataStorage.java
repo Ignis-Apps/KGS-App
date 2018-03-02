@@ -47,7 +47,7 @@ public class DataStorage {
 
     public CoverPlan coverPlanToday,coverPlanTomorow;
     public Date lastUpdated;
-    Integer responseCode = 0;
+    public Integer responseCode = 0;
 
     public String username;
     public String password;

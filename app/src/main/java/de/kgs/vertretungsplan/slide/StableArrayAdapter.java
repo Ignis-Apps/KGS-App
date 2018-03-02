@@ -91,6 +91,9 @@ public class StableArrayAdapter extends ArrayAdapter<CoverItem> {
 
         if(data.Annotation.concat(data.Ver_From).concat(data.Annotation_Lesson).equals(""))
             holder.imageInfo.setVisibility(View.INVISIBLE);
+        else {
+            holder.imageInfo.setVisibility(View.VISIBLE);
+        }
 
         adjustColors(holder,data.getsDropped());
 
@@ -109,7 +112,7 @@ public class StableArrayAdapter extends ArrayAdapter<CoverItem> {
 
         if(dropped){
 
-            int red = context.getResources().getColor(R.color.colorEntfall);
+            int red = context.getResources().getColor(R.color.colorAccent);
             int white = Color.parseColor("#ffffff");
 
             holder.background.setBackgroundColor(red);
@@ -130,7 +133,7 @@ public class StableArrayAdapter extends ArrayAdapter<CoverItem> {
             holder.textFach.setTextColor(black);
             holder.textRaum.setTextColor(black);
 
-            holder.imageInfo.setImageResource(R.drawable.ic_action_info_light);
+            holder.imageInfo.setImageResource(R.drawable.ic_action_info);
 
         }
 
@@ -173,8 +176,7 @@ public class StableArrayAdapter extends ArrayAdapter<CoverItem> {
     }
 
     private View getShareView(LayoutInflater inflater,ViewGroup parent){
-        View listItemView = inflater.inflate(R.layout.listview_item_share, parent, false);
-        return listItemView;
+        return inflater.inflate(R.layout.listview_item_share, parent, false);
     }
 
 

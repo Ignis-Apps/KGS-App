@@ -17,6 +17,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.format.Time;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,6 +25,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -82,7 +84,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onPause();
         if(loader!=null)
             loader.onPause();
-        ds.timeMillsLastView = System.currentTimeMillis();
+        if(ds.responseCode == CoverPlanLoader.RC_LATEST_DATASET)
+            ds.timeMillsLastView = System.currentTimeMillis();
     }
 
     @Override
@@ -116,7 +119,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onDestroy();
 
         ds.timeMillsLastView = 0;
-        ds.responseCode = 0;
     }
 
     public void restart(){
@@ -223,7 +225,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         webView = new WebView(this);
         webView.setLayoutParams(parms);
-        webView.getSettings().setJavaScriptEnabled(true);
         webView.setWebViewClient(new WebViewClient(){
 
             public void onPageFinished(WebView view, String url) {
@@ -408,8 +409,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         sharedEditor.commit();
 
-        if(ds.responseCode>100)
-            refreshCoverPlan();
+        refreshCoverPlan();
 
     }
 
@@ -487,7 +487,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }else {
                 dialogView.findViewById(R.id.llAnnotationLesson).setVisibility(View.GONE);
             }
-
 
             alertBuilder.setTitle("Informationen");
             alertBuilder.setIcon(R.drawable.ic_action_info);
