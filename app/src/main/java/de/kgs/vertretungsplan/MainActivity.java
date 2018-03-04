@@ -1,5 +1,6 @@
 package de.kgs.vertretungsplan;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -17,7 +18,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.format.Time;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,7 +25,6 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -55,35 +54,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public ViewPagerManager viewPagerManager;
 
     public int currentday;
-
     public String currentGradeLevel ="";
     public String currentClass = "";
+    public boolean showsWebView = false;
 
     private DataStorage ds;
     public SharedPreferences sharedPreferences;
     public SharedPreferences.Editor sharedEditor;
 
     public NavigationView navigationView;
-
     public RelativeLayout contentMain;
     public Toolbar toolbar;
-
     public WebView webView;
     public ProgressDialog progressLoadingPage;
     public Spinner spinnerClass;
-    public boolean showsWebView = false;
 
     public CoverPlanLoader loader;
-
-    public Context context;
-    public CoverPlanLoaderCallback coverPlanLoaderCallback;
-
 
     @Override
     protected void onPause() {
         super.onPause();
         if(loader!=null)
             loader.onPause();
+
         if(ds.responseCode == CoverPlanLoader.RC_LATEST_DATASET)
             ds.timeMillsLastView = System.currentTimeMillis();
     }
@@ -93,9 +86,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onStart();
 
         ds = DataStorage.getInstance();
-
-        context = this;
-        coverPlanLoaderCallback = this;
 
         if(ds.username == null){
             restart();
@@ -143,6 +133,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
+    @SuppressLint("ApplySharedPref")
     private void setupDataStorage(){
         sharedPreferences = this.getSharedPreferences(SHARED_PREF, 0);
         sharedEditor = sharedPreferences.edit();
@@ -175,7 +166,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         contentMain         = findViewById(R.id.contentMainRl);
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
-
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -413,6 +403,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
@@ -435,7 +426,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=de.kgs.vertretungsplan")));
             }
         }else if(i==0){
-
+            // Daily Message
         } else{
             AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
 
@@ -449,9 +440,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
 
             if(!ci.get(i).Hour.trim().equals("")){
-                if(ci.get(i).getsDropped()){
-                    ((TextView)dialogView.findViewById(R.id.stundeTv)).setText(ci.get(i).Hour + "  (Entfall)");
-                }else {
+                if(ci.get(i).getsDropped()) {
+                    ((TextView) dialogView.findViewById(R.id.stundeTv)).setText(ci.get(i).Hour + "  (Entfall)");
+                } else {
                     ((TextView)dialogView.findViewById(R.id.stundeTv)).setText(ci.get(i).Hour);
                 }
             }else {
@@ -612,7 +603,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
 
-                        loader =  new CoverPlanLoader(context,coverPlanLoaderCallback,false);
+                        loader =  new CoverPlanLoader(MainActivity.this, MainActivity.this,false);
                         loader.execute();
 
 
@@ -627,14 +618,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 aBuilder.create().show();
 
                 break;
-
         }
-
 
     }
 
     public void refreshCoverPlan(){
-
         viewPagerManager.updateToolbar();
         navigationView.getMenu().getItem(viewPagerManager.viewPager.getCurrentItem()).setChecked(true);
         showInfoDialog();

@@ -42,12 +42,13 @@ public class DataStorage {
     public String school_webpage_url;
     public String school_mensa_url;
 
-    int currentGradeLevel,currentClass;
+
+    int currentGradeLevel, currentClass;
     long timeMillsLastView;
 
     public CoverPlan coverPlanToday,coverPlanTomorow;
     public Date lastUpdated;
-    public Integer responseCode = 0;
+    Integer responseCode = 0;
 
     public String username;
     public String password;
