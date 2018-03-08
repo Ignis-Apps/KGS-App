@@ -71,10 +71,16 @@ public class StableArrayAdapter extends ArrayAdapter<CoverItem> {
 
         View listItemView = convertView;
 
+
         // Falls es keinen ViewHolder gibt erstelle einen neuen und schreib ihn in den Tag
-        if(convertView.getTag()==null){
+        if(convertView==null){
             listItemView = inflater.inflate(R.layout.listview_item_standard,parent,false);
             listItemView.setTag(getViewHolder(listItemView));
+        }else {
+            if(convertView.getTag()==null){
+                listItemView = inflater.inflate(R.layout.listview_item_standard,parent,false);
+                listItemView.setTag(getViewHolder(listItemView));
+            }
         }
 
         // Extrahiere den ViewHolder aus dem convertView
