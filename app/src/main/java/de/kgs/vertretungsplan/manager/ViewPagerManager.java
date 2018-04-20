@@ -5,6 +5,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.text.format.Time;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -83,6 +84,8 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
             act.getSupportFragmentManager().executePendingTransactions();
         }
 
+
+
         viewPager = act.findViewById(R.id.viewpage);
 
         ListViewPagerAdapter ad = new ListViewPagerAdapter(act.getSupportFragmentManager());
@@ -98,7 +101,17 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
         viewPager.setOffscreenPageLimit(2);
 
         viewPager.setAdapter(ad);
-        viewPager.setCurrentItem(0);
+        //viewPager.setCurrentItem(0);
+
+        Time timeToday = new Time(Time.getCurrentTimezone());
+        timeToday.setToNow();
+        if(timeToday.hour > 6 && timeToday.hour < 15 && timeToday.weekDay != 6 && timeToday.weekDay != 0){
+            viewPager.setCurrentItem(1);
+        }else {
+            viewPager.setCurrentItem(2);
+        }
+
+
         viewPager.setDrawingCacheEnabled(true);
         viewPager.addOnPageChangeListener(this);
 
