@@ -6,7 +6,7 @@ android {
         applicationId "de.kgs.vertretungsplan"
         minSdkVersion 14
         targetSdkVersion 27
-        versionCode 5
+        versionCode 6
         versionName "1.0.4"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }

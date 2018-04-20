@@ -61,12 +61,15 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
                     coverplanLegendHeight = coverplanLegend.getHeight();
                     setupAnimations();
 
-                    coverplanLegend.setVisibility(View.GONE);
+                    //coverplanLegend.setVisibility(View.GONE);
+                    isLegendGroupVisible = true;
+                   // coverplanLegend.setVisibility(View.VISIBLE);
                 }
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                     coverplanLegend.getViewTreeObserver().removeOnGlobalLayoutListener (this);
                 }
+                //showLegendGroup();
             }
         });
 

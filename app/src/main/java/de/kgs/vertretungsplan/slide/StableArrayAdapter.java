@@ -22,6 +22,7 @@ public class StableArrayAdapter extends ArrayAdapter<CoverItem> {
     private final Context context;
     private final List<CoverItem> values;
     private String dailyInfoHeader,dailyInfoMessage;
+    private boolean hasDailyMessage;
     private String TAG = "ignislog arrayadapter";
 
     StableArrayAdapter(Context context, List<CoverItem> values) {
@@ -33,10 +34,8 @@ public class StableArrayAdapter extends ArrayAdapter<CoverItem> {
     void setDataSet(List<CoverItem> items){
 
         Log.d(TAG, "Setting new dataset ");
-
         values.clear();
-        // Fügt einen Platzhalter für die Tagesnachricht hinzu
-        values.add(new CoverItem());
+
         // Fügt alle Daten hinzu
         values.addAll(items);
         // Fügt einen Platzhalter für die Bewertung hinzu
@@ -49,6 +48,16 @@ public class StableArrayAdapter extends ArrayAdapter<CoverItem> {
 
         dailyInfoHeader = title;
         dailyInfoMessage = message;
+
+        // Überprüft ob die Tages Nachricht angezeigt werden soll
+        hasDailyMessage = !title.isEmpty()&&!message.isEmpty();
+
+        // Falls es eine Tagesnachricht gibt wird ein Platzhalter in die Daten eingebaut
+        if (hasDailyMessage) {
+            values.add(0, new CoverItem());
+        }
+
+        System.out.println("SETTING DAILY MESSAGE : " + hasDailyMessage);
     }
 
     @NonNull
@@ -61,11 +70,11 @@ public class StableArrayAdapter extends ArrayAdapter<CoverItem> {
         if(inflater==null)
             return new View(context);
 
-        // Die erste Position ist der Tagesnachricht vorbehalten, falls keine existiert geben wir einen leeren View zurück
-        if(position==0)
+        // Tagesnachricht
+        if(position==0&&hasDailyMessage)
             return getDailyMessageView(inflater,parent);
 
-        // Die letzte Position ist für den Bewerten View
+        // Die letzte Position ist für den Bewertungs View
         if(position==values.size()-1)
             return getShareView(inflater,parent);
 
