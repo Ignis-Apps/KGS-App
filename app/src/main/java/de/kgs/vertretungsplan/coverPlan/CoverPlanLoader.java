@@ -8,7 +8,7 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 import com.google.firebase.perf.FirebasePerformance;
 import com.google.firebase.perf.metrics.Trace;
 
@@ -120,7 +120,7 @@ public class CoverPlanLoader extends AsyncTask<String,Void,Integer> {
                     return RC_LOGIN_REQUIRED;
                 }
                 e.printStackTrace();
-                FirebaseCrash.report(e);
+                Crashlytics.logException(e);
                 return RC_ERROR;
             }
 
@@ -134,7 +134,7 @@ public class CoverPlanLoader extends AsyncTask<String,Void,Integer> {
                 coverPlanTomorrow = coverPlanAnalyser.getCoverPlan(documentTomorrow);
             } catch (Exception e) {
                 e.printStackTrace();
-                FirebaseCrash.report(e);
+                Crashlytics.logException(e);
                 return RC_ERROR;
             }
 
@@ -149,7 +149,7 @@ public class CoverPlanLoader extends AsyncTask<String,Void,Integer> {
                 storage.writeJSONToFile(c,JsonConverter.getJSONFromCoverPlan(coverPlanTomorrow), COVERPLAN_TOMORROW_FILE);
             } catch (Exception e) {
                 e.printStackTrace();
-                FirebaseCrash.report(e);
+                Crashlytics.logException(e);
             }
 
             Log.d("Time-Info", "Save-Time: " + (System.currentTimeMillis() - i) + " ms");
@@ -170,7 +170,7 @@ public class CoverPlanLoader extends AsyncTask<String,Void,Integer> {
                     dataStorage.coverPlanToday = coverPlanToday;
                     dataStorage.coverPlanTomorow = coverPlanTomorrow;
                 } catch (Exception e){
-                    FirebaseCrash.report(new Exception("Files (or Code is) are broken!"));
+                    Crashlytics.logException(new Exception("Files (or Code is) are broken!"));
                     System.err.println("Files (or Code is) are broken!");
                     return RC_NO_INTERNET_NO_DATASET;
                 }

@@ -1,6 +1,7 @@
 package de.kgs.vertretungsplan.coverPlan;
 
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
+
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -83,7 +84,7 @@ class JsonConverter {
 
 
         }catch (JSONException e){
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
             e.printStackTrace();
         }
 

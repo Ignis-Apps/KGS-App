@@ -1,9 +1,8 @@
 package de.kgs.vertretungsplan.coverPlan;
 
 import android.content.Context;
-import android.util.Log;
 
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,7 +36,7 @@ class JsonDataStorage {
             System.out.println("JSON successfully written to : " + f.getAbsolutePath());
 
         } catch (IOException e) {
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
             e.printStackTrace();
         }
 
@@ -63,13 +62,13 @@ class JsonDataStorage {
             j = new JSONObject(output.toString());
             System.out.println("JSON successfully read from : " + f.getAbsolutePath());
         }catch (FileNotFoundException fe){
-            FirebaseCrash.report(fe);
+            Crashlytics.logException(fe);;
             fe.printStackTrace();
         }catch (IOException ie){
-            FirebaseCrash.report(ie);
+            Crashlytics.logException(ie);
             ie.printStackTrace();
         }catch (JSONException e) {
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
             e.printStackTrace();
         }
 

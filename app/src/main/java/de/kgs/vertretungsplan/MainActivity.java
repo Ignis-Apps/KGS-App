@@ -2,7 +2,6 @@ package de.kgs.vertretungsplan;
 
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -29,7 +28,7 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 
 import java.util.List;
 
@@ -143,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             ds.currentGradeLevel = 0;
             sharedEditor.putInt(CURRENT_GRADE_LEVEL, 0);
             sharedEditor.commit();
-            FirebaseCrash.report(new Exception("Magic is happening (currentGradeLevel)"));
+            Crashlytics.logException(new Exception("Magic is happening (currentGradeLevel)"));
         }
         firebaseManager.setUserProperty("Stufe", ds.currentGradeLevel + "");
         ds.currentClass = sharedPreferences.getInt(CURRENT_CLASS,0);
@@ -151,7 +150,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             ds.currentClass = 0;
             sharedEditor.putInt(CURRENT_CLASS, 0);
             sharedEditor.commit();
-            FirebaseCrash.report(new Exception("Magic is happening (currentClass)"));
+            Crashlytics.logException(new Exception("Magic is happening (currentClass)"));
         }
         firebaseManager.setUserProperty("Klasse", ds.currentClass + "");
         ds.password = sharedPreferences.getString(PASSWORD, "");
@@ -238,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if(resultCode == LoginActivity.SUCCESS_RC){
             refreshCoverPlan();
         }else {
-            FirebaseCrash.report(new Exception("Login Crash: No Response Code!"));
+            Crashlytics.logException(new Exception("Login Crash: No Response Code!"));
             finish();
         }
     }

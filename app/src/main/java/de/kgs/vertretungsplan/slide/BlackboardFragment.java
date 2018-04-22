@@ -15,7 +15,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-
 import de.kgs.vertretungsplan.DataStorage;
 import de.kgs.vertretungsplan.manager.FirebaseManager;
 import de.kgs.vertretungsplan.R;

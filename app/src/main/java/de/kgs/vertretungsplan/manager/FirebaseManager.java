@@ -5,10 +5,10 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.perf.FirebasePerformance;
 import com.google.firebase.perf.metrics.Trace;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
@@ -77,7 +77,7 @@ public class FirebaseManager {
                             ds.school_mensa_url = firebaseRemoteConfig.getString(DataStorage.SCHOOL_MENSA_URL);
 
                         } else {
-                            FirebaseCrash.report(task.getException());
+                            Crashlytics.logException(task.getException());
                         }
                     }
                 });
