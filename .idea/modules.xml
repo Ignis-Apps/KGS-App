@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/KGS-App.iml" filepath="$PROJECT_DIR$/KGS-App.iml" />
-      <module fileurl="file://C:\Users\Andreas\Desktop\KGSApp\KGS-App\Vertretungsplan.iml" filepath="C:\Users\Andreas\Desktop\KGSApp\KGS-App\Vertretungsplan.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Vertretungsplan.iml" filepath="$PROJECT_DIR$/Vertretungsplan.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/jsoup-1.11.2/jsoup-1.11.2.iml" filepath="$PROJECT_DIR$/jsoup-1.11.2/jsoup-1.11.2.iml" />
     </modules>

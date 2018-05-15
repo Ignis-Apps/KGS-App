@@ -23,7 +23,7 @@ public class BlackboardFragment extends Fragment{
 
     private CardView newspaper;
     private CardView mensa;
-    private CardView powerCreative;
+    //private CardView powerCreative;
     private CardView contact;
 
     @Nullable
@@ -34,7 +34,7 @@ public class BlackboardFragment extends Fragment{
 
         newspaper = v.findViewById(R.id.card_newspaper);
         mensa = v.findViewById(R.id.card_mensa);
-        powerCreative = v.findViewById(R.id.card_power_creative);
+        //powerCreative = v.findViewById(R.id.card_power_creative);
         contact = v.findViewById(R.id.card_contact);
 
         return v;
@@ -43,7 +43,7 @@ public class BlackboardFragment extends Fragment{
    public void setOnClickListener(View.OnClickListener onClickListener){
         newspaper.setOnClickListener(onClickListener);
         mensa.setOnClickListener(onClickListener);
-        powerCreative.setOnClickListener(onClickListener);
+        //powerCreative.setOnClickListener(onClickListener);
         contact.setOnClickListener(onClickListener);
    }
 
@@ -53,7 +53,7 @@ public class BlackboardFragment extends Fragment{
 
            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(ds.school_mensa_url));
            startActivity(browserIntent);
-       }else if(view == powerCreative){
+       }/*else if(view == powerCreative){
            firebaseManager.logEventSelectContent("power.creative", FirebaseManager.ANALYTICS_BLACK_BOARD);
 
            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -89,7 +89,7 @@ public class BlackboardFragment extends Fragment{
 
            powerCreativeInfoDialogBuilder.create().show();
 
-       }else if(view == contact){
+       }*/else if(view == contact){
            firebaseManager.logEventSelectContent("contact", FirebaseManager.ANALYTICS_BLACK_BOARD);
 
            Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:ignis.apps@gmail.com"));
