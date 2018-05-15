@@ -14,6 +14,9 @@ import android.view.animation.ScaleAnimation;
 import android.view.animation.TranslateAnimation;
 import android.widget.LinearLayout;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import de.kgs.vertretungsplan.DataStorage;
 import de.kgs.vertretungsplan.MainActivity;
 import de.kgs.vertretungsplan.R;
@@ -100,6 +103,9 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
         ad.addFragment(blackboard);
         ad.addFragment(today);
         ad.addFragment(tomorrow);
+
+        today.setMainActivityInterface(act);
+        tomorrow.setMainActivityInterface(act);
 
         viewPager.setOffscreenPageLimit(2);
 
@@ -251,9 +257,11 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
         blackboard.onClick(view, context, firebaseManager, ds);
     }
 
+    private boolean executingAnimation;
+
     private void showLegendGroup(){
 
-        if(isLegendGroupVisible)
+        if(isLegendGroupVisible||executingAnimation)
             return;
 
         animationScheduler.removeCallbacks(null);
@@ -263,7 +271,7 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
 
     private void hideLegendGroup(){
 
-        if(!isLegendGroupVisible)
+        if(!isLegendGroupVisible||executingAnimation)
             return;
 
         animationScheduler.removeCallbacks(null);
@@ -289,11 +297,14 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
 
     @Override
     public void onAnimationStart(Animation animation) {
-
+        // FLAG die dafür sorgt, dass nur eine Animation aufeinmal abgespielt werden kann
+        executingAnimation = true;
     }
 
     @Override
     public void onAnimationEnd(Animation animation) {
+
+        executingAnimation = false;
 
         if(animation == animationLegendgroupShow){
             isLegendGroupVisible = true;
@@ -306,11 +317,38 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
         }else if(animation == animationViewpagerHide){
             viewPager.startAnimation(steady_animation);
         }
+        verifyAnimation();
 
+    }
+
+    private void verifyAnimation(){
+
+        // Falls die Legende nicht/ungewollt abgebildet ist , wird dies hier nachträglich behoben
+        if(coverplanLegend.getVisibility()==View.VISIBLE&&(viewPager.getCurrentItem()==0)){
+            hideLegendGroup();
+        }else if(coverplanLegend.getVisibility()==View.GONE&&(viewPager.getCurrentItem()!=0)){
+            showLegendGroup();
+        }
     }
 
     @Override
     public void onAnimationRepeat(Animation animation) {
+
+    }
+
+    public boolean hasDailyMessage(){
+
+        if(act.currentday==0)
+            return !ds.coverPlanToday.getDailyInfoMessage().isEmpty();
+        else if(act.currentday==1)
+            return !ds.coverPlanTomorow.getDailyInfoMessage().isEmpty();
+
+        // Vieleicht irgendwann mal...
+
+        //else if(act.currentday==2)
+        //    return !ds.coverPlanDayAfterTomorow.getDailyInfoMessage().isEmpty();
+
+        return false;
 
     }
 }

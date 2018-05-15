@@ -46,7 +46,7 @@ import static de.kgs.vertretungsplan.DataStorage.SHARED_PREF;
 import static de.kgs.vertretungsplan.DataStorage.SHOW_SWIPE_INFO;
 import static de.kgs.vertretungsplan.DataStorage.USERNAME;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,AdapterView.OnItemSelectedListener,CoverPlanLoaderCallback, AdapterView.OnItemClickListener, View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,AdapterView.OnItemSelectedListener,CoverPlanLoaderCallback, AdapterView.OnItemClickListener, View.OnClickListener, MainActivityInterface {
     public static final int SIGN_UP_RC = 7234;
 
     public FirebaseManager firebaseManager;
@@ -424,7 +424,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             } catch (android.content.ActivityNotFoundException anfe) {
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=de.kgs.vertretungsplan")));
             }
-        }else if(i==0){
+        }else if(i==0 &&viewPagerManager.hasDailyMessage()){
             // Daily Message
         } else{
             AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
@@ -627,4 +627,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         showInfoDialog();
         viewPagerManager.refreshPageViewer();
     }
+
+    @Override
+    public void onReloadRequested() {
+        loader = new CoverPlanLoader(this,this, false);
+        loader.execute();
+    }
 }
+
