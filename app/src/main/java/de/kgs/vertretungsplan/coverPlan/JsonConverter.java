@@ -55,12 +55,11 @@ class JsonConverter {
                 JSONObject item = new JSONObject();
                 item.put(key_class,ci.Class);
                 item.put(key_hour,ci.Hour);
-                item.put(key_dropped,ci.Dropped);
                 item.put(key_fach,ci.Fach);
                 item.put(key_room,ci.Room);
                 item.put(key_annotation,ci.Annotation);
                 item.put(key_ver,ci.Ver_From);
-                item.put(key_annotation_lesson,ci.Annotation_Lesson);
+                item.put(key_annotation_lesson,ci.New);
                 coverPlanItems.put(key_item+index,item);
                 index++;
             }
@@ -107,12 +106,11 @@ class JsonConverter {
             JSONObject item = items.getJSONObject(key_item+index);
             ci.Class             = item.getString(key_class);
             ci.Hour              = item.getString(key_hour);
-            ci.Dropped           = item.getString(key_dropped);
             ci.Fach              = item.getString(key_fach);
             ci.Room              = item.getString(key_room);
             ci.Annotation        = item.getString(key_annotation);
             ci.Ver_From          = item.getString(key_ver);
-            ci.Annotation_Lesson = item.getString(key_annotation_lesson);
+            ci.New = item.getString(key_annotation_lesson);
             p.coverItems.add(ci);
             index++;
         }

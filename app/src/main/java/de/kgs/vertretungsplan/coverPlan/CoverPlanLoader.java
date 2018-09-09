@@ -112,8 +112,8 @@ public class CoverPlanLoader extends AsyncTask<String,Void,Integer> {
                 documentToday       = httpHandler.getParsedDocument(ds.cover_plan_today);
                 documentTomorrow    = httpHandler.getParsedDocument(ds.cover_plan_tomorrow);
 
-                //documentToday       = httpHandler.getParsedDocument("http://www.sick-players.de/kgsvp/vp24-01-2018.html");
-                //documentTomorrow    = httpHandler.getParsedDocument("http://www.sick-players.de/kgsvp/vp25-01-2018.html");
+                //documentToday       = httpHandler.getParsedDocument("http://46.38.232.163/kgsvp/Wartung.html");
+                //documentTomorrow    = httpHandler.getParsedDocument("http://46.38.232.163/kgsvp/Wartung.html");
 
             } catch (Exception e) {
                 if(e.getMessage().equals("Login needed")){

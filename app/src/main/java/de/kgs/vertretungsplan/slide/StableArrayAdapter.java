@@ -13,7 +13,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.List;
-import java.util.zip.Inflater;
 
 import de.kgs.vertretungsplan.R;
 import de.kgs.vertretungsplan.coverPlan.CoverItem;
@@ -104,7 +103,7 @@ public class StableArrayAdapter extends ArrayAdapter<CoverItem> {
 
     private void insertDataIntoItem(ViewHolder holder, CoverItem data){
 
-        if(data.Annotation.concat(data.Ver_From).concat(data.Annotation_Lesson).equals(""))
+        if(data.Annotation.concat(data.Ver_From).concat(data.New).equals(""))
             holder.imageInfo.setVisibility(View.INVISIBLE);
         else {
             holder.imageInfo.setVisibility(View.VISIBLE);

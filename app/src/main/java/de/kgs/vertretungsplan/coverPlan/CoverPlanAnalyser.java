@@ -73,35 +73,31 @@ class CoverPlanAnalyser {
 			  }
 
 			  switch (index){
-			  case 0:
-			  	  // works best with child
-				  tableObject.Class = e.ownText();
-				  break;
-			  case 1:
-			  	 // works best with child
-				  tableObject.Hour = e.ownText();
-				  break;	
-			  case 2:
-				  // works best with child
-				  tableObject.Dropped = e.ownText();
-				  break;
-			  case 3:
-			  		// works best with root
-				  tableObject.Fach = el.text();
-				  break;
-			  case 4:
-			  	  // Works best with root
-				  tableObject.Room = el.text();
-				  break;
-			  case 5:
-				  tableObject.Annotation = e.ownText();
-				  break;
-			  case 6:
-				  tableObject.Ver_From = e.ownText();
-				  break;
-			  case 7:
-				  tableObject.Annotation_Lesson = e.ownText();
-				  break;
+				  case 0:
+					  // works best with child
+					  tableObject.Class = e.ownText();
+					  break;
+				  case 1:
+					  // works best with child
+					  tableObject.Hour = e.ownText();
+					  break;
+				  case 2:
+					  // works best with root
+					  tableObject.Fach = el.text();
+					  break;
+				  case 3:
+					  // Works best with root
+					  tableObject.Room = el.text();
+					  break;
+				  case 4:
+					  tableObject.Annotation = e.ownText();
+					  break;
+				  case 5:
+					  tableObject.Ver_From = e.ownText();
+					  break;
+				  case 6:
+					  tableObject.New = e.ownText();
+					  break;
 			  }
 			  
 			  index++;

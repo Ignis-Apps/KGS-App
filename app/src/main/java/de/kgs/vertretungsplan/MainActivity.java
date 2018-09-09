@@ -472,8 +472,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 dialogView.findViewById(R.id.llVerFrom).setVisibility(View.GONE);
             }
 
-            if(!ci.get(i).Annotation_Lesson.trim().equals("")){
-                ((TextView)dialogView.findViewById(R.id.annotation_lessonTv)).setText(ci.get(i).Annotation_Lesson);
+            if(!ci.get(i).New.trim().equals("")){
+                ((TextView)dialogView.findViewById(R.id.annotation_lessonTv)).setText(ci.get(i).New);
             }else {
                 dialogView.findViewById(R.id.llAnnotationLesson).setVisibility(View.GONE);
             }
