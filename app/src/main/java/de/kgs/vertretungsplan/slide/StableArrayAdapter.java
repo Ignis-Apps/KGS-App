@@ -103,7 +103,7 @@ public class StableArrayAdapter extends ArrayAdapter<CoverItem> {
 
     private void insertDataIntoItem(ViewHolder holder, CoverItem data){
 
-        if(data.Annotation.concat(data.Ver_From).concat(data.New).equals(""))
+        if(data.Annotation.concat(data.Ver_From).equals(""))
             holder.imageInfo.setVisibility(View.INVISIBLE);
         else {
             holder.imageInfo.setVisibility(View.VISIBLE);

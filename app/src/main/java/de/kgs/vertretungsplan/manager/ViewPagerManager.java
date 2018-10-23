@@ -238,10 +238,10 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
                 act.toolbar.setTitle("Schwarzes Brett");
                 break;
             case 1:
-                act.toolbar.setTitle(act.getResources().getString(R.string.app_title) + " - " + tag1);
+                act.toolbar.setTitle(tag1 + " | Stand:" + ds.coverPlanToday.lastUpdate.substring(ds.coverPlanToday.lastUpdate.indexOf(" ")));
                 break;
             case 2:
-                act.toolbar.setTitle(act.getResources().getString(R.string.app_title) + " - " + tag2);
+                act.toolbar.setTitle(tag2 + " | Stand:" + ds.coverPlanTomorow.lastUpdate.substring(ds.coverPlanTomorow.lastUpdate.indexOf(" ")));
                 break;
 
         }

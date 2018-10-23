@@ -98,6 +98,9 @@ class CoverPlanAnalyser {
 				  case 6:
 					  tableObject.New = e.ownText();
 					  break;
+				  case 7:
+					  tableObject.Entfall = e.ownText();
+					  break;
 			  }
 			  
 			  index++;

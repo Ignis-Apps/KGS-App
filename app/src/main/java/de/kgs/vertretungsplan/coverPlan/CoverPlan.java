@@ -6,7 +6,7 @@ import java.util.List;
 public class CoverPlan {
 
 	public String title;
-	String lastUpdate;
+	public String lastUpdate;
 	public String dailyInfoHeader = "";
 	List<String> dailyInfoRows = new ArrayList<>();
 	List<CoverItem> coverItems = new ArrayList<>();
@@ -19,7 +19,7 @@ public class CoverPlan {
 			if(!(class_id.isEmpty() || c.Class.contains("5") || c.Class.contains("6") || c.Class.contains("7") ||
 				c.Class.contains("8") || c.Class.contains("9") || c.Class.contains("10") || c.Class.contains("J1") ||
 				c.Class.contains("J2")|| c.Class.contains("A15")|| c.Class.contains("Pers.")|| c.Class.contains("Ber.")||
-				c.Class.contains("Sdm")))
+				c.Class.contains("Sdm") || c.Fach.contains("Aufsicht")))
 			{
 				cItems.add(c);
 			}

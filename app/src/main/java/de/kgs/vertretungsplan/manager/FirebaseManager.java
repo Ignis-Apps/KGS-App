@@ -54,7 +54,7 @@ public class FirebaseManager {
         ds.school_webpage_url = firebaseRemoteConfig.getString(DataStorage.SCHOOL_WEBPAGE_URL);
         ds.school_mensa_url = firebaseRemoteConfig.getString(DataStorage.SCHOOL_MENSA_URL);
 
-        firebaseRemoteConfig.fetch(86400)
+        firebaseRemoteConfig.fetch(1800)
                 .addOnCompleteListener((Activity) c, new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
