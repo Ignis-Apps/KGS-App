@@ -21,6 +21,6 @@ public class CoverItem {
 	}
 	
 	public boolean getsDropped(){
-		return Entfall.equals("x");
+		return Room.equals("---");
 	}
 }
