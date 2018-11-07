@@ -257,6 +257,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
 
+        toolbar.setSubtitle(null);
+
         if(id==R.id.nav_black_board){
             viewPagerManager.viewPager.setCurrentItem(0);
             viewPagerManager.updateToolbar();

@@ -14,8 +14,11 @@ import android.view.animation.ScaleAnimation;
 import android.view.animation.TranslateAnimation;
 import android.widget.LinearLayout;
 
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import de.kgs.vertretungsplan.DataStorage;
 import de.kgs.vertretungsplan.MainActivity;
@@ -224,24 +227,46 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
             return;
         }
 
-        String datum1 = ds.coverPlanToday.title.split(" ")[0];
-        String tag1 = ds.coverPlanToday.title.split(" ")[1].replace(",", "");
-        act.navigationView.getMenu().getItem(1).setTitle(tag1 + ", " + datum1);
+        DateFormat sourceFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.GERMANY);
+        DateFormat targetFormatToolbar = new SimpleDateFormat("d. MMMM | 'Stand:' HH:mm",Locale.GERMANY);
 
-        String datum2 = ds.coverPlanTomorow.title.split(" ")[0];
+        String datum1,datum2;
+
+        try {
+            Date d1 = sourceFormat.parse(ds.coverPlanToday.lastUpdate);
+            Date d2 = sourceFormat.parse(ds.coverPlanTomorow.lastUpdate);
+
+            datum1 = targetFormatToolbar.format(d1);
+            datum2 = targetFormatToolbar.format(d2);
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+            datum1 = "Fehler";
+            datum2 = "Fehler";
+        }
+
+
+        String weekDay1 = ds.coverPlanToday.title.split(" ")[0];
+        String tag1 = ds.coverPlanToday.title.split(" ")[1].replace(",", "");
+        act.navigationView.getMenu().getItem(1).setTitle(tag1 + ", " + weekDay1);
+
+        String weekDay2 = ds.coverPlanTomorow.title.split(" ")[0];
         String tag2 = ds.coverPlanTomorow.title.split(" ")[1].replace(",", "");
-        act.navigationView.getMenu().getItem(2).setTitle(tag2 + ", " + datum2);
+        act.navigationView.getMenu().getItem(2).setTitle(tag2 + ", " + weekDay2);
 
         switch(viewPager.getCurrentItem()){
 
             case 0:
                 act.toolbar.setTitle("Schwarzes Brett");
+                act.toolbar.setSubtitle(null);
                 break;
             case 1:
-                act.toolbar.setTitle(tag1 + " | Stand:" + ds.coverPlanToday.lastUpdate.substring(ds.coverPlanToday.lastUpdate.indexOf(" ")));
+                act.toolbar.setTitle( tag1);
+                act.toolbar.setSubtitle( datum1);
                 break;
             case 2:
-                act.toolbar.setTitle(tag2 + " | Stand:" + ds.coverPlanTomorow.lastUpdate.substring(ds.coverPlanTomorow.lastUpdate.indexOf(" ")));
+                act.toolbar.setTitle(tag2);
+                act.toolbar.setSubtitle(datum2);
                 break;
 
         }
