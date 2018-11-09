@@ -257,7 +257,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
 
-        toolbar.setSubtitle(null);
 
         if(id==R.id.nav_black_board){
             viewPagerManager.viewPager.setCurrentItem(0);
@@ -297,16 +296,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             firebaseManager.logEventSelectContent("nachrichten", FirebaseManager.ANALYTICS_MENU_INTERNAL);
 
             toolbar.setTitle("Nachrichten");
+            toolbar.setSubtitle(null);
             showPageInWebview(ds.school_news_url);
         } else if(id == R.id.nav_school_website_events){
             firebaseManager.logEventSelectContent("termine", FirebaseManager.ANALYTICS_MENU_INTERNAL);
 
             toolbar.setTitle("Termine");
+            toolbar.setSubtitle(null);
             showPageInWebview(ds.school_events_url);
         } else if( id == R.id.nav_school_website_press){
             firebaseManager.logEventSelectContent("presse", FirebaseManager.ANALYTICS_MENU_INTERNAL);
 
             toolbar.setTitle("Presse");
+            toolbar.setSubtitle(null);
             showPageInWebview(ds.school_press_url);
         }
 

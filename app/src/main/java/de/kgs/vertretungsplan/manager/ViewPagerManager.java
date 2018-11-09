@@ -228,7 +228,7 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
         }
 
         DateFormat sourceFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.GERMANY);
-        DateFormat targetFormatToolbar = new SimpleDateFormat("d. MMMM | 'Stand:' HH:mm",Locale.GERMANY);
+        DateFormat targetFormatToolbar = new SimpleDateFormat("'Stand:' d. MMMM | HH:mm",Locale.GERMANY);
 
         String datum1,datum2;
 
@@ -261,7 +261,7 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
                 act.toolbar.setSubtitle(null);
                 break;
             case 1:
-                act.toolbar.setTitle( tag1);
+                act.toolbar.setTitle(tag1);
                 act.toolbar.setSubtitle( datum1);
                 break;
             case 2:
