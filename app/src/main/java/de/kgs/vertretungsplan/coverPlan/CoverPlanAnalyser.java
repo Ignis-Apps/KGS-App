@@ -6,23 +6,22 @@ import org.jsoup.select.Elements;
 
 class CoverPlanAnalyser {
 
-	
-	CoverPlan getCoverPlan(Document document) throws Exception{
+
+	static CoverPlan getCoverPlan(Document document) throws Exception{
 		
 		CoverPlan coverPlan = new CoverPlan();
-		Elements elements = document.getAllElements();
 
-		int infoIndex=0;
+		validateParser(document.getElementsByClass("list").first());
 
-		for(Element e : elements ){
-			  		
-			CoverItem cItem = null;
-			  
+		int infoIndex = 0;
+
+		for(Element e : document.getAllElements() ){
+
 			switch (e.className()) {
 
 				case "info":
-					if(infoIndex==0){
-						getDailyInfos(e.getAllElements(),coverPlan);
+					if( infoIndex == 0 ){
+						processDailyInfo(e.getAllElements(),coverPlan);
 						infoIndex++;
 					}
 					break;
@@ -32,104 +31,66 @@ class CoverPlanAnalyser {
 					break;
 					
 				case "mon_head":
-					coverPlan.lastUpdate = getLastCoverPlanUpdate(e);
+					processLastCoverPlanUpdate(coverPlan, e);
 					break;
 
-				case "list odd":				
-					cItem = getCoverItem(e);
-					break;
-					
-				case "list even":			
-					cItem = getCoverItem(e);
+				case "list odd": case "list even":
+					processCoverItem(coverPlan, e);
 					break;
 
 			}
-			
-			if(cItem!=null)
-				coverPlan.coverItems.add(cItem);
 
 		}
 
 		return coverPlan;
 	}
-	
 
+	 private static final String[] correctHeaders = new String[]{"Klasse(n)","Stunde","Fach","Raum","Anmerkung","Vertr. von","Neu","Entfall"};
 
-	 private CoverItem getCoverItem(Element list){
-		  
-		  int index = 0;
-  
-		  CoverItem tableObject = new CoverItem();
-		  
-		  for(Element el: list.children()){
-			  
-			  Element e = el;
-			  // Check if it has a span child
-			  if(el.children()!=null){
-			  	Elements childs = e.children();
-			  	if(childs.size()>0){
-			  		e = childs.get(0);
-			  	}
-			  }
+	 // TODO : Error handling
+	 private static void validateParser(Element dataHeader){
 
-			  switch (index){
-				  case 0:
-					  // works best with child
-					  tableObject.Class = e.ownText();
-					  break;
-				  case 1:
-					  // works best with child
-					  tableObject.Hour = e.ownText();
-					  break;
-				  case 2:
-					  // works best with root
-					  tableObject.Fach = el.text();
-					  break;
-				  case 3:
-					  // Works best with root
-					  tableObject.Room = el.text();
-					  break;
-				  case 4:
-					  tableObject.Annotation = e.ownText();
-					  break;
-				  case 5:
-					  tableObject.Ver_From = e.ownText();
-					  break;
-				  case 6:
-					  tableObject.New = e.ownText();
-					  break;
-				  case 7:
-					  tableObject.Entfall = e.ownText();
-					  break;
-			  }
-			  
-			  index++;
-			  
-		  }
-		  if(tableObject.Class!=null){
-			  return tableObject;
-		  }
-		  
-		  return null;
+		if( dataHeader.children() == null || dataHeader.children().size() < 8 )
+			System.err.println("HTML Parser will not work");
+
+		for(int i = 0; i < 8; i++ )
+			if (!dataHeader.child(i).text().equals(correctHeaders[i])){
+				System.err.println("HTML might not work !");
+				return;
+			}
+	}
+
+	 private static void processCoverItem(CoverPlan plan, Element dataRow) throws IndexOutOfBoundsException{
+
+		plan.coverItems.add(new CoverItem.Builder()
+				 .setClass(dataRow.child(0).text())
+				 .setHour(dataRow.child(1).text())
+				 .setSubject(dataRow.child(2).text())
+				 .setRoom(dataRow.child(3).text())
+				 .setAnnotation(dataRow.child(4).text())
+				 .setRelocated(dataRow.child(5).text())
+				 .isNewEntry(dataRow.child(6).text().equals("X"))
+				 .isCanceled(dataRow.child(7).text().equals("X"))
+				 .build());
+
 	 }
-	
-	 private String getLastCoverPlanUpdate(Element mon_head){
+
+	 private static void processLastCoverPlanUpdate(CoverPlan coverplan, Element mon_head){
 		 
 		 Elements es = mon_head.children();
-		 
 		 String info = es.text();
-		 String oString = splitAfterWord(info, "Stand:");
-		 return oString.trim();
-		 
+		 final String split = "Stand:";
+		 coverplan.lastUpdate = info.substring(info.indexOf(split)+split.length()).trim();
+
 	 }
 
-	 private void getDailyInfos(Elements tElements,CoverPlan cp){
+	 private static void processDailyInfo(Elements tElements, CoverPlan cp){
 
 
-		 Elements tableHeaderEles = tElements.select("tbody tr th");
+		 Elements tableHeaderElements = tElements.select("tbody tr th");
 
-		 for (int i = 0; i < tableHeaderEles.size(); i++) {
-			 cp.dailyInfoHeader = tableHeaderEles.get(i).text();
+		 for (int i = 0; i < tableHeaderElements.size(); i++) {
+			 cp.dailyInfoHeader = tableHeaderElements.get(i).text();
 		 }
 
 		 Elements tableRowElements = tElements.select(":not(thead) tr");
@@ -149,30 +110,5 @@ class CoverPlanAnalyser {
 
 
 	 }
-	 
-	 private String splitAfterWord(String text, @SuppressWarnings("SameParameterValue") String split){
-		 
-		 StringBuilder output = new StringBuilder();
-		 char[] t = text.toCharArray();
-		 char[] cs= split.toCharArray();
-		 int mCounter = cs.length;
-		 
-		 for( char c:t){
 
-			 if(mCounter!=0){
-				 if(c == cs[cs.length-mCounter]){
-					 mCounter--;
-				 }else {
-					 mCounter = cs.length;
-				 }
-			 }else {
-				output.append(c);
-			}
-			  
-		 }
-		 
-		 return output.toString();
-		 
-	 }
-	 
 }

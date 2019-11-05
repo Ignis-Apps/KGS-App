@@ -38,7 +38,7 @@ public class StableArrayAdapter extends ArrayAdapter<CoverItem> {
         // Fügt alle Daten hinzu
         values.addAll(items);
         // Fügt einen Platzhalter für die Bewertung hinzu
-        values.add(new CoverItem());
+        values.add(new CoverItem.Builder().build());
         notifyDataSetChanged();
 
     }
@@ -53,7 +53,7 @@ public class StableArrayAdapter extends ArrayAdapter<CoverItem> {
 
         // Falls es eine Tagesnachricht gibt wird ein Platzhalter in die Daten eingebaut
         if (hasDailyMessage) {
-            values.add(0, new CoverItem());
+            values.add(0, new CoverItem.Builder().build());
         }
 
         System.out.println("SETTING DAILY MESSAGE : " + hasDailyMessage);
@@ -103,18 +103,18 @@ public class StableArrayAdapter extends ArrayAdapter<CoverItem> {
 
     private void insertDataIntoItem(ViewHolder holder, CoverItem data){
 
-        if(data.Annotation.concat(data.Ver_From).equals(""))
+        if(data.getAnnotation().concat(data.getRelocated()).equals(""))
             holder.imageInfo.setVisibility(View.INVISIBLE);
         else {
             holder.imageInfo.setVisibility(View.VISIBLE);
         }
 
-        adjustColors(holder,data.getsDropped());
+        adjustColors(holder,data.isCanceled());
 
-        holder.textKlasse.setText(data.Class);
-        holder.textStunde.setText(data.Hour);
-        holder.textFach.setText(data.Fach);
-        holder.textRaum.setText(data.Room);
+        holder.textKlasse.setText(data.getTargetClass());
+        holder.textStunde.setText(data.getHour());
+        holder.textFach.setText(data.getSubject());
+        holder.textRaum.setText(data.getRoom());
 
     }
 

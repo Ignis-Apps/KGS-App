@@ -52,7 +52,7 @@ public class BlackboardFragment extends Fragment{
            firebaseManager.logEventSelectContent("mensa", FirebaseManager.ANALYTICS_BLACK_BOARD);
 
            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(ds.school_mensa_url));
-           startActivity(browserIntent);
+           context.startActivity(browserIntent);
        }/*else if(view == powerCreative){
            firebaseManager.logEventSelectContent("power.creative", FirebaseManager.ANALYTICS_BLACK_BOARD);
 
@@ -94,7 +94,7 @@ public class BlackboardFragment extends Fragment{
 
            Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:ignis.apps@gmail.com"));
            emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Neuer Eintrag - Schwarzes Brett");
-           startActivity(Intent.createChooser(emailIntent, "Sende Email mit ..."));
+           context.startActivity(Intent.createChooser(emailIntent, "Sende Email mit ..."));
        }else if(view == newspaper){
            firebaseManager.logEventSelectContent("newspaper", FirebaseManager.ANALYTICS_BLACK_BOARD);
        }

@@ -40,8 +40,6 @@ public class ListViewFragment extends Fragment {
 
 
 
-        // EXPERIMENTEL
-        ////////////////////////////////////////////////////////////////////////////////////////////
         refreshLayout = f.findViewById(R.id.fragment_listview_refresh);
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
@@ -54,7 +52,7 @@ public class ListViewFragment extends Fragment {
                 int topRowVerticalPosition = (listView == null || listView.getChildCount() == 0) ? 0 : listView.getChildAt(0).getTop();
                 boolean enable = (firstVisibleItem == 0 && topRowVerticalPosition >= 0);
                 refreshLayout.setEnabled(enable);
-                System.out.println("SWIPE LAYOUT ENABLED : " + enable);
+                //System.out.println("SWIPE LAYOUT ENABLED : " + enable);
             }
         });
 
@@ -65,9 +63,9 @@ public class ListViewFragment extends Fragment {
                 refreshLayout.setRefreshing(false);
             }
         });
-        ////////////////////////////////////////////////////////////////////////////////////////////
 
-        System.out.println("NEW FRAGMENT CREATED");
+
+        //System.out.println("NEW FRAGMENT CREATED");
 
         return f;
     }

@@ -89,7 +89,7 @@ public class CoverPlanLoader extends AsyncTask<String,Void,Integer> {
     @Override
     protected Integer doInBackground(String... parameters) {
 
-        Long i = System.currentTimeMillis();
+        Long startTime = System.currentTimeMillis();
 
         Date currentTime = Calendar.getInstance().getTime();
         DataStorage dataStorage = DataStorage.getInstance();
@@ -100,15 +100,12 @@ public class CoverPlanLoader extends AsyncTask<String,Void,Integer> {
 
         if( isNetworkAvailable(c)&&!onlyLoadData){
 
-            CoverPlanAnalyser coverPlanAnalyser  = new CoverPlanAnalyser();
-
             Document documentToday;
             Document documentTomorrow;
 
             try {
 
                 HttpUrlConnectionHandler httpHandler = new HttpUrlConnectionHandler();
-
                 documentToday       = httpHandler.getParsedDocument(ds.cover_plan_today);
                 documentTomorrow    = httpHandler.getParsedDocument(ds.cover_plan_tomorrow);
 
@@ -124,21 +121,23 @@ public class CoverPlanLoader extends AsyncTask<String,Void,Integer> {
                 return RC_ERROR;
             }
 
-            Log.d("Time-Info", "Download-Time: " + (System.currentTimeMillis() - i) + " ms");
+            Log.d("Time-Info", "Download-Time: " + (System.currentTimeMillis() - startTime) + " ms");
+            startTime = System.currentTimeMillis();
 
             CoverPlan coverPlanToday;
             CoverPlan coverPlanTomorrow;
 
             try {
-                coverPlanToday = coverPlanAnalyser.getCoverPlan(documentToday);
-                coverPlanTomorrow = coverPlanAnalyser.getCoverPlan(documentTomorrow);
+                coverPlanToday = CoverPlanAnalyser.getCoverPlan(documentToday);
+                coverPlanTomorrow = CoverPlanAnalyser.getCoverPlan(documentTomorrow);
             } catch (Exception e) {
                 e.printStackTrace();
                 Crashlytics.logException(e);
                 return RC_ERROR;
             }
 
-            Log.d("Time-Info", "Analyze-Time: " + (System.currentTimeMillis() - i) + " ms");
+            Log.d("Time-Info", "Analyze-Time: " + (System.currentTimeMillis() - startTime) + " ms");
+            startTime = System.currentTimeMillis();
 
             dataStorage.lastUpdated     = currentTime;
             dataStorage.coverPlanToday  = coverPlanToday;
@@ -152,7 +151,7 @@ public class CoverPlanLoader extends AsyncTask<String,Void,Integer> {
                 Crashlytics.logException(e);
             }
 
-            Log.d("Time-Info", "Save-Time: " + (System.currentTimeMillis() - i) + " ms");
+            Log.d("Time-Info", "Save-Time: " + (System.currentTimeMillis() - startTime) + " ms");
 
             return RC_LATEST_DATASET;
 

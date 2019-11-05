@@ -1,5 +1,7 @@
 package de.kgs.vertretungsplan.coverPlan;
 
+import android.support.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,28 +14,27 @@ public class CoverPlan {
 	List<CoverItem> coverItems = new ArrayList<>();
 	
 	public List<CoverItem> getCoverItemsForClass(String class_id){
-		
+
 		List<CoverItem> cItems = new ArrayList<>();
 		for(CoverItem c:coverItems){
 
-			if(!(class_id.isEmpty() || c.Class.contains("5") || c.Class.contains("6") || c.Class.contains("7") ||
-				c.Class.contains("8") || c.Class.contains("9") || c.Class.contains("10") || c.Class.contains("J1") ||
-				c.Class.contains("J2")|| c.Class.contains("A15")|| c.Class.contains("Pers.")|| c.Class.contains("Ber.")||
-				c.Class.contains("Sdm") || c.Fach.contains("Aufsicht")))
-			{
-				cItems.add(c);
-			}
+			// Blacklist - Those elements will never be shown
+			if(c.getTargetClass().matches(".*(A15|Pers.|Ber.|Sdm|Aufsicht).*"))
+				continue;
 
-			if(c.Class.contains(class_id)) {
-				cItems.add(c);
-			}
-			
+			// Check if item is a type of class and doesn't match to the selected class id ( Constant / Do not change )
+			if((c.getTargetClass().matches(".*(5|6|7|8|9|10|J1|J2).*") && !c.getTargetClass().contains(class_id)))
+				continue;
+
+			cItems.add(c);
+
 		}
-		
+
 		return cItems;
-		
+
 	}
 
+	@NonNull
 	public String toString(){
 
 		StringBuilder out = new StringBuilder();

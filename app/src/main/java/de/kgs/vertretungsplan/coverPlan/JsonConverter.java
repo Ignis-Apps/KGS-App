@@ -53,13 +53,13 @@ class JsonConverter {
             for(CoverItem ci:p.getCoverItems()) {
 
                 JSONObject item = new JSONObject();
-                item.put(key_class,ci.Class);
-                item.put(key_hour,ci.Hour);
-                item.put(key_fach,ci.Fach);
-                item.put(key_room,ci.Room);
-                item.put(key_annotation,ci.Annotation);
-                item.put(key_ver,ci.Ver_From);
-                item.put(key_annotation_lesson,ci.New);
+                item.put(key_class,ci.getTargetClass());
+                item.put(key_hour,ci.getHour());
+                item.put(key_fach,ci.getSubject());
+                item.put(key_room,ci.getRoom());
+                item.put(key_annotation,ci.getAnnotation());
+                item.put(key_ver,ci.getRelocated());
+                item.put(key_annotation_lesson,ci.isNewEntry());
                 coverPlanItems.put(key_item+index,item);
                 index++;
             }
@@ -101,17 +101,21 @@ class JsonConverter {
         p.dailyInfoHeader = coverPlanInfos.optString(key_dailymessage_header);
         int itemAmount = coverPlanInfos.getInt(key_item_amount);
         int index = 0;
-        while(index<itemAmount){
-            CoverItem ci=new CoverItem();
+
+        while( index < itemAmount ){
+
             JSONObject item = items.getJSONObject(key_item+index);
-            ci.Class             = item.getString(key_class);
-            ci.Hour              = item.getString(key_hour);
-            ci.Fach              = item.getString(key_fach);
-            ci.Room              = item.getString(key_room);
-            ci.Annotation        = item.getString(key_annotation);
-            ci.Ver_From          = item.getString(key_ver);
-            ci.New = item.getString(key_annotation_lesson);
-            p.coverItems.add(ci);
+
+            CoverItem coverItem = new CoverItem.Builder()
+                    .setClass(item.getString(key_class))
+                    .setHour(item.getString(key_hour))
+                    .setSubject(item.getString(key_fach))
+                    .setAnnotation(item.getString(key_annotation))
+                    .setRelocated(item.getString(key_ver))
+                    .isNewEntry(item.getString(key_annotation_lesson).equals("X"))
+                    .build();
+
+            p.coverItems.add(coverItem);
             index++;
         }
         items = o.optJSONObject(key_dailymessage_items);

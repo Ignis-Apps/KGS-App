@@ -28,6 +28,8 @@ public class DataStorage {
     static final String PASSWORD = "password";
     static final String SHOW_SWIPE_INFO = "swipe_tutorial_2";
 
+    static final String LAST_VALID_MOODLE_COOKIE = "lastValidMoodleCookie";
+
     public String login_page_url;
 
     public String cover_plan_today;
@@ -52,6 +54,7 @@ public class DataStorage {
 
     public String username;
     public String password;
+    public String moodleCookie;
 
     public static DataStorage getInstance() {
         return ourInstance;

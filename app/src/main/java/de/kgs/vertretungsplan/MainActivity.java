@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Debug;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -41,6 +42,7 @@ import de.kgs.vertretungsplan.coverPlan.CoverPlanLoaderCallback;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static de.kgs.vertretungsplan.DataStorage.CURRENT_CLASS;
 import static de.kgs.vertretungsplan.DataStorage.CURRENT_GRADE_LEVEL;
+import static de.kgs.vertretungsplan.DataStorage.LAST_VALID_MOODLE_COOKIE;
 import static de.kgs.vertretungsplan.DataStorage.PASSWORD;
 import static de.kgs.vertretungsplan.DataStorage.SHARED_PREF;
 import static de.kgs.vertretungsplan.DataStorage.SHOW_SWIPE_INFO;
@@ -121,14 +123,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         ds = DataStorage.getInstance();
 
         firebaseManager = new FirebaseManager(this, ds);
         setupDataStorage();
         setupUI();
         viewPagerManager = new ViewPagerManager(this, ds, firebaseManager);
-        setupBrowser();
+        //setupBrowser();
 
     }
 
@@ -155,6 +156,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         firebaseManager.setUserProperty("Klasse", ds.currentClass + "");
         ds.password = sharedPreferences.getString(PASSWORD, "");
         ds.username = sharedPreferences.getString(USERNAME, "");
+        ds.moodleCookie = sharedPreferences.getString(LAST_VALID_MOODLE_COOKIE,"");
     }
 
     private void setupUI(){
@@ -436,48 +438,48 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             LayoutInflater inflater = this.getLayoutInflater();
             View dialogView = inflater.inflate(R.layout.alertdialog_item_info, null);
 
-            if(!ci.get(i).Class.trim().equals("")){
-                ((TextView)dialogView.findViewById(R.id.klasseTv)).setText(ci.get(i).Class);
+            if(!ci.get(i).getTargetClass().trim().equals("")){
+                ((TextView)dialogView.findViewById(R.id.klasseTv)).setText(ci.get(i).getTargetClass());
             }else {
                 dialogView.findViewById(R.id.llClass).setVisibility(View.GONE);
             }
 
-            if(!ci.get(i).Hour.trim().equals("")){
-                if(ci.get(i).getsDropped()) {
-                    ((TextView) dialogView.findViewById(R.id.stundeTv)).setText(ci.get(i).Hour + "  (Entfall)");
+            if(!ci.get(i).getHour().trim().equals("")){
+                if(ci.get(i).isCanceled()) {
+                    ((TextView) dialogView.findViewById(R.id.stundeTv)).setText(ci.get(i).getHour() + "  (Entfall)");
                 } else {
-                    ((TextView)dialogView.findViewById(R.id.stundeTv)).setText(ci.get(i).Hour);
+                    ((TextView)dialogView.findViewById(R.id.stundeTv)).setText(ci.get(i).getHour());
                 }
             }else {
                 dialogView.findViewById(R.id.llHour).setVisibility(View.GONE);
             }
 
-            if(!ci.get(i).Fach.trim().equals("")){
-                ((TextView)dialogView.findViewById(R.id.fachTv)).setText(ci.get(i).Fach);
+            if(!ci.get(i).getSubject().trim().equals("")){
+                ((TextView)dialogView.findViewById(R.id.fachTv)).setText(ci.get(i).getSubject());
             }else {
                 dialogView.findViewById(R.id.llFach).setVisibility(View.GONE);
             }
 
-            if(!ci.get(i).Room.trim().equals("")){
-                ((TextView)dialogView.findViewById(R.id.raumTv)).setText(ci.get(i).Room);
+            if(!ci.get(i).getRoom().trim().equals("")){
+                ((TextView)dialogView.findViewById(R.id.raumTv)).setText(ci.get(i).getRoom());
             }else {
                 dialogView.findViewById(R.id.llRoom).setVisibility(View.GONE);
             }
 
-            if(!ci.get(i).Annotation.trim().equals("")){
-                ((TextView)dialogView.findViewById(R.id.annotationTv)).setText(ci.get(i).Annotation);
+            if(!ci.get(i).getAnnotation().trim().equals("")){
+                ((TextView)dialogView.findViewById(R.id.annotationTv)).setText(ci.get(i).getAnnotation());
             }else {
                 dialogView.findViewById(R.id.llAnnotation).setVisibility(View.GONE);
             }
 
-            if(!ci.get(i).Ver_From.trim().equals("")){
-                ((TextView)dialogView.findViewById(R.id.ver_fromTv)).setText(ci.get(i).Ver_From);
+            if(!ci.get(i).getRelocated().trim().equals("")){
+                ((TextView)dialogView.findViewById(R.id.ver_fromTv)).setText(ci.get(i).getRelocated());
             }else {
                 dialogView.findViewById(R.id.llVerFrom).setVisibility(View.GONE);
             }
 
-            if(!ci.get(i).New.trim().equals("")){
-                ((TextView)dialogView.findViewById(R.id.annotation_lessonTv)).setText(ci.get(i).New);
+            if(ci.get(i).isNewEntry()){
+                ((TextView)dialogView.findViewById(R.id.annotation_lessonTv)).setText("X");
             }else {
                 dialogView.findViewById(R.id.llAnnotationLesson).setVisibility(View.GONE);
             }
@@ -510,6 +512,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void showPageInWebview(String url){
 
+        if(webView==null){
+            setupBrowser();
+        }
+
         firebaseManager.loadWebpageTrace.start();
 
         webView.loadUrl(url);
@@ -522,7 +528,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void showViewPager(){
 
-        webView.setVisibility(View.GONE);
+        if(webView!=null){
+            webView.setVisibility(View.GONE);
+        }
+
         showsWebView = false;
     }
 
@@ -560,6 +569,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             case CoverPlanLoader.RC_LATEST_DATASET:
                 refreshCoverPlan();
+                sharedPreferences = this.getSharedPreferences(SHARED_PREF, 0);
+                sharedEditor = sharedPreferences.edit();
+                sharedEditor.putString(LAST_VALID_MOODLE_COOKIE,ds.moodleCookie);
+                sharedEditor.apply();
                 break;
 
             case CoverPlanLoader.RC_NO_INTERNET_DATASET_EXIST:
