@@ -40,4 +40,8 @@
         <key>school_mensa_url</key>
         <value>http://www.kurpfalz-gymnasium-schriesheim.de/fileadmin/kgs/user_upload/mensa/Speiseplan_Schriesheim.pdf</value>
     </entry>
+    <entry>
+        <key>student_newspaper</key>
+        <value>https://freistunde.blog</value>
+    </entry>
 </defaultsMap>

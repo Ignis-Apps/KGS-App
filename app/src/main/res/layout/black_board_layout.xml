@@ -71,7 +71,7 @@
                         android:layout_toRightOf="@+id/imageViewSchuelerzeitung"
                         android:layout_marginLeft="10dp"
                         android:layout_marginStart="10dp"
-                        android:text="Maybe Coming Soon ..." />
+                        android:text="Lies jetzt die neusten Artikel der Schülerzeitung des KGS "/>
 
                 </RelativeLayout>
 

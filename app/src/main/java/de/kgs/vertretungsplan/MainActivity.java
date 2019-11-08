@@ -250,7 +250,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+
+            if(showsWebView && webView.canGoBack()){
+                webView.goBack();
+            }else{
+                super.onBackPressed();
+            }
+
         }
     }
 

@@ -12,6 +12,8 @@ public class DataStorage {
     public final static String COVER_PLAN_TODAY = "cover_plan_today";
     public final static String COVER_PLAN_TOMORROW = "cover_plan_tomorrow";
 
+    public final static String STUDENT_NEWSPAPER = "student_newspaper";
+
     public final static String SCHOOL_NEWS_URL = "school_news_url";
     public final static String SCHOOL_EVENTS_URL = "school_events_url";
     public final static String SCHOOL_PRESS_URL ="school_press_url";
@@ -38,6 +40,8 @@ public class DataStorage {
     public String school_news_url;
     public String school_events_url;
     public String school_press_url;
+
+    public String student_newspaper;
 
     public String school_newsletter_url;
     public String school_moodle_url;

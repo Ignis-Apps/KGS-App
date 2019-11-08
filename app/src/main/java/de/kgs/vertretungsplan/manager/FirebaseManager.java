@@ -71,6 +71,8 @@ public class FirebaseManager {
                             ds.school_events_url = firebaseRemoteConfig.getString(DataStorage.SCHOOL_EVENTS_URL);
                             ds.school_press_url = firebaseRemoteConfig.getString(DataStorage.SCHOOL_PRESS_URL);
 
+                            ds.student_newspaper = firebaseRemoteConfig.getString(DataStorage.STUDENT_NEWSPAPER);
+
                             ds.school_newsletter_url = firebaseRemoteConfig.getString(DataStorage.SCHOOL_NEWSLETTER_URL);
                             ds.school_moodle_url = firebaseRemoteConfig.getString(DataStorage.SCHOOL_MOODLE_URL);
                             ds.school_webpage_url = firebaseRemoteConfig.getString(DataStorage.SCHOOL_WEBPAGE_URL);
