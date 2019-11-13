@@ -23,8 +23,14 @@ public class CoverPlan {
 				continue;
 
 			// Check if item is a type of class and doesn't match to the selected class id ( Constant / Do not change )
-			if((c.getTargetClass().matches(".*(5|6|7|8|9|10|J1|J2).*") && !c.getTargetClass().contains(class_id)))
+			if((c.getTargetClass().matches(".*(5|6|7|8|9|10|J1|J2).*"))) {
+
+				if(c.getTargetClass().contains(class_id))
+					cItems.add(c);
+
 				continue;
+
+			}
 
 			cItems.add(c);
 
