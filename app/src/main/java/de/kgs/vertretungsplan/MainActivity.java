@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Debug;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -43,6 +42,7 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static de.kgs.vertretungsplan.DataStorage.CURRENT_CLASS;
 import static de.kgs.vertretungsplan.DataStorage.CURRENT_GRADE_LEVEL;
 import static de.kgs.vertretungsplan.DataStorage.LAST_VALID_MOODLE_COOKIE;
+import static de.kgs.vertretungsplan.DataStorage.MOODLE_COOKIE_LAST_USE;
 import static de.kgs.vertretungsplan.DataStorage.PASSWORD;
 import static de.kgs.vertretungsplan.DataStorage.SHARED_PREF;
 import static de.kgs.vertretungsplan.DataStorage.SHOW_SWIPE_INFO;
@@ -157,6 +157,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ds.password = sharedPreferences.getString(PASSWORD, "");
         ds.username = sharedPreferences.getString(USERNAME, "");
         ds.moodleCookie = sharedPreferences.getString(LAST_VALID_MOODLE_COOKIE,"");
+        ds.moodleCookieLastUse = sharedPreferences.getLong(MOODLE_COOKIE_LAST_USE,0L);
     }
 
     private void setupUI(){
@@ -578,6 +579,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 sharedPreferences = this.getSharedPreferences(SHARED_PREF, 0);
                 sharedEditor = sharedPreferences.edit();
                 sharedEditor.putString(LAST_VALID_MOODLE_COOKIE,ds.moodleCookie);
+                sharedEditor.putLong(MOODLE_COOKIE_LAST_USE,ds.moodleCookieLastUse);
                 sharedEditor.apply();
                 break;
 

@@ -44,4 +44,11 @@
         <key>student_newspaper</key>
         <value>https://freistunde.blog</value>
     </entry>
+    <entry>
+        <key>moodle_cookie_max_age_secounds</key>
+        <value>7199</value>
+    </entry>
+
+
+
 </defaultsMap>

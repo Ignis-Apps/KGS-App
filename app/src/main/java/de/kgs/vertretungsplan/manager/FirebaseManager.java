@@ -78,6 +78,8 @@ public class FirebaseManager {
                             ds.school_webpage_url = firebaseRemoteConfig.getString(DataStorage.SCHOOL_WEBPAGE_URL);
                             ds.school_mensa_url = firebaseRemoteConfig.getString(DataStorage.SCHOOL_MENSA_URL);
 
+                            ds.moodleCookieMaxAgeSecounds = firebaseRemoteConfig.getLong(DataStorage.MOODLE_COOKIE_MAX_AGE_SECOUNDS);
+
                         } else {
                             Crashlytics.logException(task.getException());
                         }

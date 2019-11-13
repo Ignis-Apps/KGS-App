@@ -23,6 +23,8 @@ public class DataStorage {
     public final static String SCHOOL_WEBPAGE_URL = "school_webpage_url";
     public final static String SCHOOL_MENSA_URL = "school_mensa_url";
 
+    public static final String MOODLE_COOKIE_MAX_AGE_SECOUNDS = "moodle_cookie_max_age_secounds";
+
     static final String SHARED_PREF = "privateSharedPreferences";
     static final String CURRENT_GRADE_LEVEL = "currentGradeLevel";
     static final String CURRENT_CLASS = "currentClass";
@@ -31,6 +33,7 @@ public class DataStorage {
     static final String SHOW_SWIPE_INFO = "swipe_tutorial_2";
 
     static final String LAST_VALID_MOODLE_COOKIE = "lastValidMoodleCookie";
+    static final String MOODLE_COOKIE_LAST_USE = "moodleCookieAgeSecounds";
 
     public String login_page_url;
 
@@ -58,7 +61,10 @@ public class DataStorage {
 
     public String username;
     public String password;
+
     public String moodleCookie;
+    public long moodleCookieMaxAgeSecounds;
+    public long moodleCookieLastUse;
 
     public static DataStorage getInstance() {
         return ourInstance;
