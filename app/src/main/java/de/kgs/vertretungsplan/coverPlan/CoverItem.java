@@ -1,6 +1,6 @@
 package de.kgs.vertretungsplan.coverPlan;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 public class CoverItem {
 
