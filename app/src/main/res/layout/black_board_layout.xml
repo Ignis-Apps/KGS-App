@@ -67,11 +67,11 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/textViewSchuelerzeitungTitle"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginLeft="10dp"
                         android:layout_toEndOf="@+id/imageViewSchuelerzeitung"
                         android:layout_toRightOf="@+id/imageViewSchuelerzeitung"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginStart="10dp"
-                        android:text="Lies jetzt die neusten Artikel der Schülerzeitung des KGS "/>
+                        android:text="Lies jetzt jetzt die neusten Artikel auf freistunde.blog" />
 
                 </RelativeLayout>
 
