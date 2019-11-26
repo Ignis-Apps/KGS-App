@@ -110,6 +110,7 @@ class JsonConverter {
                     .setClass(item.getString(key_class))
                     .setHour(item.getString(key_hour))
                     .setSubject(item.getString(key_fach))
+                    .setRoom(item.getString(key_room))
                     .setAnnotation(item.getString(key_annotation))
                     .setRelocated(item.getString(key_ver))
                     .isNewEntry(item.getString(key_annotation_lesson).equals("X"))
