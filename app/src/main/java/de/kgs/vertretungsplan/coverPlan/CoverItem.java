@@ -2,7 +2,7 @@ package de.kgs.vertretungsplan.coverPlan;
 
 import androidx.annotation.NonNull;
 
-public class CoverItem {
+public final class CoverItem {
 
 	private String mClass;		// Betroffene Klasse
 	private String mHour;		// Betroffene Schulstunde/n
@@ -13,82 +13,7 @@ public class CoverItem {
 	private boolean mNewEntry;	// Ist ein neuer Eintrag
 	private boolean mCanceled;	// Fällt aus;
 
-	public static class Builder{
-
-		private String mClass;
-		private String mHour;
-		private String mSubject;
-		private String mRoom;
-		private String mAnnotation;
-		private String mRelocated;
-		private boolean mNewEntry;
-		private boolean mCanceled;
-
-		public Builder(){
-
-		}
-
-		public Builder setClass(String vClass){
-			this.mClass = vClass;
-			return this;
-		}
-
-		public Builder setHour(String vHour){
-			this.mHour = vHour;
-			return this;
-		}
-
-		public Builder setSubject(String vSubject){
-			this.mSubject = vSubject;
-			return this;
-		}
-
-		public Builder setRoom(String vRoom){
-			this.mRoom = vRoom;
-			return this;
-		}
-
-		public Builder setAnnotation(String vAnnotation){
-			this.mAnnotation = vAnnotation;
-			return this;
-		}
-
-		public Builder setRelocated(String vRelocated){
-			this.mRelocated = vRelocated;
-			return this;
-		}
-
-		public Builder isNewEntry(boolean vNewEntry){
-			this.mNewEntry = vNewEntry;
-			return this;
-		}
-
-		public Builder isCanceled(boolean vCanceled){
-			this.mCanceled = vCanceled;
-			return this;
-		}
-
-		public CoverItem build(){
-
-			CoverItem item = new CoverItem();
-			item.mClass	= this.mClass;
-			item.mHour = this.mHour;
-			item.mSubject = this.mSubject;
-			item.mRoom = this.mRoom;
-			item.mAnnotation = this.mAnnotation;
-			item.mRelocated = this.mRelocated;
-			item.mNewEntry = this.mNewEntry;
-			item.mCanceled = this.mCanceled;
-
-			return item;
-
-		}
-
-	}
-
-	private CoverItem(){
-
-	}
+	private CoverItem(){}
 
 	// getClass() ist reserviert :/
 	public String getTargetClass(){
@@ -135,6 +60,74 @@ public class CoverItem {
 				"Ist ein neuer Eintrag : " + mNewEntry + "\n" +
 				"Entfällt : " + mCanceled + "\n";
 
+	}
+
+	public final static class Builder{
+
+		private String mClass;
+		private String mHour;
+		private String mSubject;
+		private String mRoom;
+		private String mAnnotation;
+		private String mRelocated;
+		private boolean mNewEntry;
+		private boolean mCanceled;
+
+		Builder setClass(String vClass){
+			this.mClass = vClass;
+			return this;
+		}
+
+		Builder setHour(String vHour){
+			this.mHour = vHour;
+			return this;
+		}
+
+		Builder setSubject(String vSubject){
+			this.mSubject = vSubject;
+			return this;
+		}
+
+		Builder setRoom(String vRoom){
+			this.mRoom = vRoom;
+			return this;
+		}
+
+		Builder setAnnotation(String vAnnotation){
+			this.mAnnotation = vAnnotation;
+			return this;
+		}
+
+		Builder setRelocated(String vRelocated){
+			this.mRelocated = vRelocated;
+			return this;
+		}
+
+		Builder isNewEntry(boolean vNewEntry){
+			this.mNewEntry = vNewEntry;
+			return this;
+		}
+
+		Builder isCanceled(boolean vCanceled){
+			this.mCanceled = vCanceled;
+			return this;
+		}
+
+		public CoverItem build(){
+
+			CoverItem item = new CoverItem();
+			item.mClass	= this.mClass;
+			item.mHour = this.mHour;
+			item.mSubject = this.mSubject;
+			item.mRoom = this.mRoom;
+			item.mAnnotation = this.mAnnotation;
+			item.mRelocated = this.mRelocated;
+			item.mNewEntry = this.mNewEntry;
+			item.mCanceled = this.mCanceled;
+
+			return item;
+
+		}
 
 	}
 
