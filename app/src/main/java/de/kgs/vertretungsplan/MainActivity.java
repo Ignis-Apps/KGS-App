@@ -1,121 +1,105 @@
 package de.kgs.vertretungsplan;
 
-import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.snackbar.Snackbar;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
+import android.text.format.Time;
+import android.view.View.OnClickListener;
+import android.widget.RelativeLayout;
+
 import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import android.text.format.Time;
-import android.view.LayoutInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.RelativeLayout;
-import android.widget.Spinner;
-import android.widget.TextView;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.crashlytics.android.Crashlytics;
+import com.google.android.material.snackbar.Snackbar;
 
-import java.util.List;
-
-import de.kgs.vertretungsplan.manager.FirebaseManager;
-import de.kgs.vertretungsplan.manager.ViewPagerManager;
-import de.kgs.vertretungsplan.coverPlan.CoverItem;
+import de.kgs.vertretungsplan.broadcaster.Broadcast;
+import de.kgs.vertretungsplan.broadcaster.BroadcastEvent;
 import de.kgs.vertretungsplan.coverPlan.CoverPlanLoader;
 import de.kgs.vertretungsplan.coverPlan.CoverPlanLoaderCallback;
+import de.kgs.vertretungsplan.coverPlan.DataInjector;
+import de.kgs.vertretungsplan.manager.FirebaseManager;
+import de.kgs.vertretungsplan.manager.ViewPagerManager;
+import de.kgs.vertretungsplan.singetones.DataStorage;
+import de.kgs.vertretungsplan.storage.StorageKeys;
+import de.kgs.vertretungsplan.views.AppToolBar;
+import de.kgs.vertretungsplan.views.KgsWebView;
+import de.kgs.vertretungsplan.views.NavigationHandler;
+import de.kgs.vertretungsplan.views.NavigationItem;
+import de.kgs.vertretungsplan.views.SpinnerHandler;
+import de.kgs.vertretungsplan.views.dialogs.DownloadError;
+import de.kgs.vertretungsplan.views.dialogs.LoginRequired;
+import de.kgs.vertretungsplan.views.dialogs.SwipeHintDialog;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
-import static de.kgs.vertretungsplan.DataStorage.CURRENT_CLASS;
-import static de.kgs.vertretungsplan.DataStorage.CURRENT_GRADE_LEVEL;
-import static de.kgs.vertretungsplan.DataStorage.LAST_VALID_MOODLE_COOKIE;
-import static de.kgs.vertretungsplan.DataStorage.MOODLE_COOKIE_LAST_USE;
-import static de.kgs.vertretungsplan.DataStorage.PASSWORD;
-import static de.kgs.vertretungsplan.DataStorage.SHARED_PREF;
-import static de.kgs.vertretungsplan.DataStorage.SHOW_SWIPE_INFO;
-import static de.kgs.vertretungsplan.DataStorage.USERNAME;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,AdapterView.OnItemSelectedListener,CoverPlanLoaderCallback, AdapterView.OnItemClickListener, View.OnClickListener, MainActivityInterface {
+public class MainActivity extends AppCompatActivity implements CoverPlanLoaderCallback, MainActivityInterface {
     public static final int SIGN_UP_RC = 7234;
 
+    public Broadcast broadcast;
+    public RelativeLayout contentMain;
+    public int currentDay;
     public FirebaseManager firebaseManager;
+    public KgsWebView kgsWebView;
+    public NavigationHandler navigationHandler;
+    public CoverPlanLoader loader;
+    public Editor sharedEditor;
+    public SharedPreferences sharedPreferences;
+    public SpinnerHandler spinnerHandler;
+    public AppToolBar toolbar2;
     public ViewPagerManager viewPagerManager;
 
-    public int currentday;
-    public String currentGradeLevel ="";
-    public String currentClass = "";
-    public boolean showsWebView = false;
-
-    private DataStorage ds;
-    public SharedPreferences sharedPreferences;
-    public SharedPreferences.Editor sharedEditor;
-
-    public NavigationView navigationView;
-    public RelativeLayout contentMain;
-    public Toolbar toolbar;
-    public WebView webView;
-    public ProgressDialog progressLoadingPage;
-    public Spinner spinnerClass;
-
-    public CoverPlanLoader loader;
+    private DataStorage dateStorage;
 
     @Override
     protected void onPause() {
-        super.onPause();
-        if(loader!=null)
-            loader.onPause();
 
-        if(ds.responseCode == CoverPlanLoader.RC_LATEST_DATASET)
-            ds.timeMillsLastView = System.currentTimeMillis();
+        super.onPause();
+        CoverPlanLoader coverPlanLoader = this.loader;
+        if (coverPlanLoader != null) {
+            coverPlanLoader.onPause();
+        }
+        if (dateStorage.responseCode == CoverPlanLoader.RC_LATEST_DATASET) {
+            dateStorage.timeMillsLastView = System.currentTimeMillis();
+        }
     }
 
     @Override
     protected void onStart() {
         super.onStart();
 
-        ds = DataStorage.getInstance();
+        DataInjector.inject(this);
 
-        if(ds.username == null){
-            restart();
+        loader = new CoverPlanLoader(this, this, false);
+        loader.onlyLoadData = true;
+        dateStorage = DataStorage.getInstance();
+
+        setupBrowser();
+        CoverPlanLoader coverPlanLoader = this.loader;
+        if (coverPlanLoader != null && coverPlanLoader.isRunning) {
+            loader.onStart();
         }
-
-        if(loader != null){
-            if(loader.isRunning){
-                loader.onStart();
-            }
-        }
-
-        if(System.currentTimeMillis() - ds.timeMillsLastView > 600000){
-            loader = new CoverPlanLoader(this,this, false);
+        if (System.currentTimeMillis() - this.dateStorage.timeMillsLastView > 600000) {
+            loader = new CoverPlanLoader(this, this, false);
             loader.execute();
-            showViewPager();
         }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-        ds.timeMillsLastView = 0;
+        this.dateStorage.timeMillsLastView = 0;
     }
 
-    public void restart(){
+
+    public void restart() {
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
-        this.startActivity(intent);
+        startActivity(intent);
         finish();
         Runtime.getRuntime().exit(0);
     }
@@ -123,572 +107,150 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ds = DataStorage.getInstance();
-
-        firebaseManager = new FirebaseManager(this, ds);
+        dateStorage = DataStorage.getInstance();
+        firebaseManager = new FirebaseManager(this, this.dateStorage);
+        broadcast = new Broadcast();
         setupDataStorage();
         setupUI();
-        viewPagerManager = new ViewPagerManager(this, ds, firebaseManager);
-        //setupBrowser();
-
+        spinnerHandler = new SpinnerHandler(this, this.broadcast);
+        viewPagerManager = new ViewPagerManager(this, broadcast, firebaseManager);
     }
 
-    @SuppressLint("ApplySharedPref")
-    private void setupDataStorage(){
-        sharedPreferences = this.getSharedPreferences(SHARED_PREF, 0);
+    private void setupDataStorage() {
+
+        sharedPreferences = getSharedPreferences(StorageKeys.SHARED_PREF, 0);
         sharedEditor = sharedPreferences.edit();
-        sharedEditor.commit();
-        ds.currentGradeLevel = sharedPreferences.getInt(CURRENT_GRADE_LEVEL, 0);
-        if(ds.currentGradeLevel > 8 || ds.currentGradeLevel < 0) {
-            ds.currentGradeLevel = 0;
-            sharedEditor.putInt(CURRENT_GRADE_LEVEL, 0);
-            sharedEditor.commit();
+        sharedEditor.apply();
+        DataStorage dataStorage = this.dateStorage;
+        SharedPreferences sharedPreferences2 = this.sharedPreferences;
+        String str = StorageKeys.CURRENT_GRADE_LEVEL;
+        dataStorage.currentGradeLevel = sharedPreferences2.getInt(str, 0);
+        if (this.dateStorage.currentGradeLevel > 8 || this.dateStorage.currentGradeLevel < 0) {
+            this.dateStorage.currentGradeLevel = 0;
+            this.sharedEditor.putInt(str, 0);
+            this.sharedEditor.apply();
             Crashlytics.logException(new Exception("Magic is happening (currentGradeLevel)"));
         }
-        firebaseManager.setUserProperty("Stufe", ds.currentGradeLevel + "");
-        ds.currentClass = sharedPreferences.getInt(CURRENT_CLASS,0);
-        if(ds.currentClass > 5 || ds.currentClass < 0) {
-            ds.currentClass = 0;
-            sharedEditor.putInt(CURRENT_CLASS, 0);
-            sharedEditor.commit();
+        FirebaseManager firebaseManager2 = this.firebaseManager;
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.dateStorage.currentGradeLevel);
+        String str2 = "";
+        sb.append(str2);
+        firebaseManager2.setUserProperty("Stufe", sb.toString());
+        DataStorage dataStorage2 = this.dateStorage;
+        SharedPreferences sharedPreferences3 = this.sharedPreferences;
+        String str3 = StorageKeys.CURRENT_CLASS;
+        dataStorage2.currentClass = sharedPreferences3.getInt(str3, 0);
+        if (this.dateStorage.currentClass > 5 || this.dateStorage.currentClass < 0) {
+            this.dateStorage.currentClass = 0;
+            this.sharedEditor.putInt(str3, 0);
+            this.sharedEditor.commit();
             Crashlytics.logException(new Exception("Magic is happening (currentClass)"));
         }
-        firebaseManager.setUserProperty("Klasse", ds.currentClass + "");
-        ds.password = sharedPreferences.getString(PASSWORD, "");
-        ds.username = sharedPreferences.getString(USERNAME, "");
-        ds.moodleCookie = sharedPreferences.getString(LAST_VALID_MOODLE_COOKIE,"");
-        ds.moodleCookieLastUse = sharedPreferences.getLong(MOODLE_COOKIE_LAST_USE,0L);
+        FirebaseManager firebaseManager3 = this.firebaseManager;
+        StringBuilder sb2 = new StringBuilder();
+        sb2.append(this.dateStorage.currentClass);
+        sb2.append(str2);
+        firebaseManager3.setUserProperty("Klasse", sb2.toString());
+        this.dateStorage.password = this.sharedPreferences.getString(StorageKeys.PASSWORD, str2);
+        this.dateStorage.username = this.sharedPreferences.getString(StorageKeys.USERNAME, str2);
+        this.dateStorage.moodleCookie = this.sharedPreferences.getString(StorageKeys.LAST_VALID_MOODLE_COOKIE, str2);
+        this.dateStorage.moodleCookieLastUse = this.sharedPreferences.getLong(StorageKeys.MOODLE_COOKIE_LAST_USE, 0);
     }
 
-    private void setupUI(){
-        setContentView(R.layout.activity_main);
-        toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle(getResources().getString(R.string.app_title));
-        setSupportActionBar(toolbar);
+    private void setupUI() {
 
-        contentMain         = findViewById(R.id.contentMainRl);
+        setContentView((int) R.layout.activity_main);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        this.toolbar2 = new AppToolBar(this, toolbar);
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
-
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        this.navigationHandler = new NavigationHandler(this, drawer);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-
+        this.contentMain = findViewById(R.id.contentMainRl);
         Time today = new Time(Time.getCurrentTimezone());
         today.setToNow();
-        if(today.hour > 6 && today.hour < 15 && today.weekDay != 6 && today.weekDay != 0){
-            currentday = 0;
-        }else {
-            currentday = 1;
+        if (today.hour <= 6 || today.hour >= 15 || today.weekDay == 6 || today.weekDay == 0) {
+            dateStorage.currentNavigationItem = NavigationItem.COVER_PLAN_TOMORROW;
+            this.currentDay = 1;
+        } else {
+            dateStorage.currentNavigationItem = NavigationItem.COVER_PLAN_TODAY;
+            this.currentDay = 0;
         }
-
-        navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-
-        setupSpinner();
     }
 
-    public void setupSpinner(){
-        Spinner spinnerGradeLevel = findViewById(R.id.spinnerGrade);
-
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.spinner_array, R.layout.spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerGradeLevel.setAdapter(adapter);
-        spinnerGradeLevel.setSelection(ds.currentGradeLevel);
-        spinnerGradeLevel.setOnItemSelectedListener(this);
-
-        spinnerClass = findViewById(R.id.spinnerClass);
-
-        ArrayAdapter<CharSequence> adapterClass = ArrayAdapter.createFromResource(this, R.array.spinner_array_class, R.layout.spinner_item);
-        adapterClass.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerClass.setAdapter(adapterClass);
-        spinnerClass.setSelection(ds.currentClass);
-        spinnerClass.setOnItemSelectedListener(this);
-
-        if(ds.currentGradeLevel!=0&&ds.currentGradeLevel<7)
-            spinnerClass.setVisibility(View.VISIBLE);
-        else
-            spinnerClass.setVisibility(View.GONE);
-
+    private void setupBrowser() {
+        this.kgsWebView = new KgsWebView(this, this.broadcast);
+        this.contentMain.addView(this.kgsWebView);
     }
 
-    private boolean needClearHistory;
-
-    public void setupBrowser(){
-        RelativeLayout.LayoutParams parms = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,RelativeLayout.LayoutParams.MATCH_PARENT);
-
-        webView = new WebView(this);
-        webView.setLayoutParams(parms);
-        webView.setWebViewClient(new WebViewClient(){
-
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                firebaseManager.loadWebpageTrace.stop();
-
-                if(progressLoadingPage != null)
-                    progressLoadingPage.dismiss();
-
-                view.setVisibility(View.VISIBLE);
-
-            }
-
-            @Override
-            public void doUpdateVisitedHistory(WebView view, String url, boolean isReload) {
-                super.doUpdateVisitedHistory(view, url, isReload);
-                if (needClearHistory) {
-                    needClearHistory = false;
-                    view.clearHistory();
-                }
-            }
-
-
-
-        });
-
-        webView.setVisibility(View.GONE);
-        contentMain.addView(webView);
-
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    /* access modifiers changed from: protected */
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        if(resultCode == LoginActivity.SUCCESS_RC){
+        if (resultCode == 111) {
             refreshCoverPlan();
-        }else {
-            Crashlytics.logException(new Exception("Login Crash: No Response Code!"));
-            finish();
+            return;
         }
+        Crashlytics.logException(new Exception("Login Crash: No Response Code!"));
+        finish();
     }
 
-    @Override
     public void onBackPressed() {
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else {
-
-            if(showsWebView){
-
-                if(webView.canGoBack()){
-                    webView.goBack();
-                }else {
-                    showViewPager();
-                    viewPagerManager.updateToolbar();
-                    navigationView.getMenu().getItem(viewPagerManager.viewPager.getCurrentItem()).setChecked(true);
-                }
-
-
-            }else{
-                super.onBackPressed();
-            }
-
+        } else if (!this.kgsWebView.consumesBackPress()) {
+            this.broadcast.send(BroadcastEvent.CURRENT_PAGE_CHANGED);
         }
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        int id = item.getItemId();
-
-
-        if(id==R.id.nav_black_board){
-            viewPagerManager.viewPager.setCurrentItem(0);
-            viewPagerManager.updateToolbar();
-            showViewPager();
-        } else if (id == R.id.nav_today) {
-            currentday = 0;
-            viewPagerManager.updateToolbar();
-            viewPagerManager.viewPager.setCurrentItem(1);
-            showViewPager();
-        } else if (id == R.id.nav_tomorrow) {
-            currentday = 1;
-            viewPagerManager.updateToolbar();
-            viewPagerManager.viewPager.setCurrentItem(2);
-            showViewPager();
-        } else if (id == R.id.nav_school_mensa) {
-            firebaseManager.logEventSelectContent("mensa", FirebaseManager.ANALYTICS_MENU_EXTERNAL);
-
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(ds.school_mensa_url));
-            startActivity(browserIntent);
-        } else if (id == R.id.nav_school_website) {
-            firebaseManager.logEventSelectContent("schulwebseite", FirebaseManager.ANALYTICS_MENU_EXTERNAL);
-
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(ds.school_webpage_url));
-            startActivity(browserIntent);
-        } else if (id == R.id.nav_moodle) {
-            firebaseManager.logEventSelectContent("moodle", FirebaseManager.ANALYTICS_MENU_EXTERNAL);
-
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(ds.school_moodle_url));
-            startActivity(browserIntent);
-        } else if(id == R.id.nav_school_newsletter){
-            firebaseManager.logEventSelectContent("newsletter", FirebaseManager.ANALYTICS_MENU_EXTERNAL);
-
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(ds.school_newsletter_url));
-            startActivity(browserIntent);
-        } else if(id == R.id.nav_school_website_news){
-            firebaseManager.logEventSelectContent("nachrichten", FirebaseManager.ANALYTICS_MENU_INTERNAL);
-
-            toolbar.setTitle("Nachrichten");
-            toolbar.setSubtitle(null);
-            showPageInWebview(ds.school_news_url);
-        } else if(id == R.id.nav_school_website_events){
-            firebaseManager.logEventSelectContent("termine", FirebaseManager.ANALYTICS_MENU_INTERNAL);
-
-            toolbar.setTitle("Termine");
-            toolbar.setSubtitle(null);
-            showPageInWebview(ds.school_events_url);
-        } else if( id == R.id.nav_school_website_press){
-            firebaseManager.logEventSelectContent("presse", FirebaseManager.ANALYTICS_MENU_INTERNAL);
-
-            toolbar.setTitle("Presse");
-            toolbar.setSubtitle(null);
-            showPageInWebview(ds.school_press_url);
+    public void showInfoDialog() {
+        SharedPreferences sharedPreferences2 = this.sharedPreferences;
+        String str = StorageKeys.SHOW_SWIPE_INFO;
+        if (sharedPreferences2.getBoolean(str, true)) {
+            SwipeHintDialog.show(this);
+            this.sharedEditor.putBoolean(str, false);
+            this.sharedEditor.commit();
         }
-
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
     }
 
-    @Override
-    public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id) {
-
-        switch (adapterView.getItemAtPosition(pos).toString()){
-
-            case "Alle Klassen":
-                currentGradeLevel = "";
-                sharedEditor.putInt(CURRENT_GRADE_LEVEL, 0);
-                spinnerClass.setVisibility(View.GONE);
-                break;
-            case "5. Klasse":
-                currentGradeLevel = "5";
-                sharedEditor.putInt(CURRENT_GRADE_LEVEL, 1);
-                spinnerClass.setVisibility(View.VISIBLE);
-                break;
-            case "6. Klasse":
-                currentGradeLevel = "6";
-                sharedEditor.putInt(CURRENT_GRADE_LEVEL, 2);
-                spinnerClass.setVisibility(View.VISIBLE);
-                break;
-            case "7. Klasse":
-                currentGradeLevel = "7";
-                sharedEditor.putInt(CURRENT_GRADE_LEVEL, 3);
-                spinnerClass.setVisibility(View.VISIBLE);
-                break;
-            case "8. Klasse":
-                currentGradeLevel = "8";
-                sharedEditor.putInt(CURRENT_GRADE_LEVEL, 4);
-                spinnerClass.setVisibility(View.VISIBLE);
-                break;
-            case "9. Klasse":
-                currentGradeLevel = "9";
-                sharedEditor.putInt(CURRENT_GRADE_LEVEL, 5);
-                spinnerClass.setVisibility(View.VISIBLE);
-                break;
-            case "10. Klasse":
-                currentGradeLevel = "10";
-                sharedEditor.putInt(CURRENT_GRADE_LEVEL, 6);
-                spinnerClass.setVisibility(View.VISIBLE);
-                break;
-            case "Jahrgangsstufe 1":
-                currentGradeLevel = "J1";
-                sharedEditor.putInt(CURRENT_GRADE_LEVEL, 7);
-                spinnerClass.setVisibility(View.GONE);
-                break;
-            case "Jahrgangsstufe 2":
-                currentGradeLevel = "J2";
-                sharedEditor.putInt(CURRENT_GRADE_LEVEL, 8);
-                spinnerClass.setVisibility(View.GONE);
-                break;
-
-            case "Alle":
-                currentClass ="";
-                sharedEditor.putInt(CURRENT_CLASS, 0);
-                break;
-
-            case "a":
-                currentClass ="a";
-                sharedEditor.putInt(CURRENT_CLASS, 1);
-                break;
-
-            case "b":
-                currentClass ="b";
-                sharedEditor.putInt(CURRENT_CLASS, 2);
-                break;
-
-            case "c":
-                currentClass ="c";
-                sharedEditor.putInt(CURRENT_CLASS, 3);
-                break;
-
-            case "d":
-                currentClass ="d";
-                sharedEditor.putInt(CURRENT_CLASS, 4);
-                break;
-
-            case "e":
-                currentClass ="e";
-                sharedEditor.putInt(CURRENT_CLASS, 5);
-                break;
-
-        }
-
-        sharedEditor.commit();
-
-        refreshCoverPlan();
-
-    }
-
-    @SuppressLint("SetTextI18n")
-    @Override
-    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-
-        List<CoverItem> ci;
-
-        if(currentday == 0){
-            ci = viewPagerManager.today.getDataset();
-        }else if(currentday == 1){
-            ci = viewPagerManager.tomorrow.getDataset();
-        }else {
-            ci = viewPagerManager.today.getDataset();
-        }
-
-        if(i == ci.size()-1){
-            firebaseManager.logEvent("rate_app");
-
-            try {
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=de.kgs.vertretungsplan")));
-            } catch (android.content.ActivityNotFoundException anfe) {
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=de.kgs.vertretungsplan")));
-            }
-        }else if(i==0 &&viewPagerManager.hasDailyMessage()){
-            // Daily Message
-        } else{
-            AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
-
-            LayoutInflater inflater = this.getLayoutInflater();
-            View dialogView = inflater.inflate(R.layout.alertdialog_item_info, null);
-
-            if(!ci.get(i).getTargetClass().trim().equals("")){
-                ((TextView)dialogView.findViewById(R.id.klasseTv)).setText(ci.get(i).getTargetClass());
-            }else {
-                dialogView.findViewById(R.id.llClass).setVisibility(View.GONE);
-            }
-
-            if(!ci.get(i).getHour().trim().equals("")){
-                if(ci.get(i).isCanceled()) {
-                    ((TextView) dialogView.findViewById(R.id.stundeTv)).setText(ci.get(i).getHour() + "  (Entfall)");
-                } else {
-                    ((TextView)dialogView.findViewById(R.id.stundeTv)).setText(ci.get(i).getHour());
-                }
-            }else {
-                dialogView.findViewById(R.id.llHour).setVisibility(View.GONE);
-            }
-
-            if(!ci.get(i).getSubject().trim().equals("")){
-                ((TextView)dialogView.findViewById(R.id.fachTv)).setText(ci.get(i).getSubject());
-            }else {
-                dialogView.findViewById(R.id.llFach).setVisibility(View.GONE);
-            }
-
-            if(!ci.get(i).getRoom().trim().equals("")){
-                ((TextView)dialogView.findViewById(R.id.raumTv)).setText(ci.get(i).getRoom());
-            }else {
-                dialogView.findViewById(R.id.llRoom).setVisibility(View.GONE);
-            }
-
-            if(!ci.get(i).getAnnotation().trim().equals("")){
-                ((TextView)dialogView.findViewById(R.id.annotationTv)).setText(ci.get(i).getAnnotation());
-            }else {
-                dialogView.findViewById(R.id.llAnnotation).setVisibility(View.GONE);
-            }
-
-            if(!ci.get(i).getRelocated().trim().equals("")){
-                ((TextView)dialogView.findViewById(R.id.ver_fromTv)).setText(ci.get(i).getRelocated());
-            }else {
-                dialogView.findViewById(R.id.llVerFrom).setVisibility(View.GONE);
-            }
-
-            if(ci.get(i).isNewEntry()){
-                ((TextView)dialogView.findViewById(R.id.annotation_lessonTv)).setText("X");
-            }else {
-                dialogView.findViewById(R.id.llAnnotationLesson).setVisibility(View.GONE);
-            }
-
-            alertBuilder.setTitle("Informationen");
-            alertBuilder.setIcon(R.drawable.ic_action_info);
-
-            alertBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    dialogInterface.cancel();
-                }
-            });
-
-            alertBuilder.setView(dialogView);
-            alertBuilder.create().show();
-        }
-
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> adapterView) {
-
-    }
-
-    @Override
-    public void onClick(View v) {
-        viewPagerManager.onClick(v);
-    }
-
-    public void showPageInWebview(String url){
-
-        if(webView==null){
-            setupBrowser();
-        }
-
-        firebaseManager.loadWebpageTrace.start();
-
-        needClearHistory = true;
-        webView.clearHistory();
-        webView.loadUrl(url);
-
-        showsWebView = true;
-
-        progressLoadingPage = ProgressDialog.show(this, null , "Lädt ...", true);
-
-    }
-
-    public void showViewPager(){
-
-        if(webView!=null){
-            webView.goBackOrForward(-10);
-            webView.getSettings().setJavaScriptEnabled(false);
-            webView.setVisibility(View.GONE);
-
-
-        }
-
-        showsWebView = false;
-    }
-
-    public void showInfoDialog(){
-
-        if(sharedPreferences.getBoolean(SHOW_SWIPE_INFO,true)){
-
-            AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
-            alertBuilder.setCancelable(true);
-            alertBuilder.setTitle("Info");
-            alertBuilder.setMessage("Wische nach links bzw. nach rechts, um zwischen den Tagen oder dem Schwarzen Brett zu wechseln.");
-            alertBuilder.setIcon(R.drawable.ic_action_info);
-            alertBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-
-                }
-            });
-
-            alertBuilder.create().show();
-
-            sharedEditor.putBoolean(SHOW_SWIPE_INFO,false);
-            sharedEditor.commit();
-
-        }
-
-    }
-
-    @Override
     public void loaderFinishedWithResponseCode(int ResponseCode) {
-
-        ds.responseCode = ResponseCode;
-
-        switch (ResponseCode){
-
+        this.dateStorage.responseCode = ResponseCode;
+        switch (ResponseCode) {
+            case CoverPlanLoader.RC_LOGIN_REQUIRED:
+                LoginRequired.show(this);
+                return;
+            case CoverPlanLoader.RC_ERROR:
+                DownloadError.show(this);
+                return;
+            case CoverPlanLoader.RC_NO_INTERNET_NO_DATASET:
+                Snackbar.make(this.contentMain, "Keine Internetverbindung! Bitte aktiviere WLAN oder mobile Daten.", Snackbar.LENGTH_LONG).show();
+                return;
             case CoverPlanLoader.RC_LATEST_DATASET:
                 refreshCoverPlan();
-                sharedPreferences = this.getSharedPreferences(SHARED_PREF, 0);
-                sharedEditor = sharedPreferences.edit();
-                sharedEditor.putString(LAST_VALID_MOODLE_COOKIE,ds.moodleCookie);
-                sharedEditor.putLong(MOODLE_COOKIE_LAST_USE,ds.moodleCookieLastUse);
+                sharedPreferences = getSharedPreferences(StorageKeys.SHARED_PREF, 0);
+                sharedEditor = this.sharedPreferences.edit();
+                sharedEditor.putString(StorageKeys.LAST_VALID_MOODLE_COOKIE, this.dateStorage.moodleCookie);
+                sharedEditor.putLong(StorageKeys.MOODLE_COOKIE_LAST_USE, this.dateStorage.moodleCookieLastUse);
                 sharedEditor.apply();
-                break;
-
+                return;
             case CoverPlanLoader.RC_NO_INTERNET_DATASET_EXIST:
                 refreshCoverPlan();
-                Snackbar.make(contentMain, "Keine Internetverbindung! Der Vertretungsplan ist möglicherweise veraltet.", Snackbar.LENGTH_LONG).show();
-                break;
-
-            case CoverPlanLoader.RC_NO_INTERNET_NO_DATASET:
-                Snackbar.make(contentMain, "Keine Internetverbindung! Bitte aktiviere WLAN oder mobile Daten.", Snackbar.LENGTH_LONG).show();
-                break;
-
-            case CoverPlanLoader.RC_LOGIN_REQUIRED:
-
-                AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
-                alertBuilder.setCancelable(false);
-                alertBuilder.setTitle("Anmeldung erforderlich");
-                alertBuilder.setMessage("Um auf den Vertretungsplan zugreifen zu können, müssen Sie sich aus Datenschutzgründen mit ihrem Moodle-Account oder dem offiziellen Zugang anmelden. Um den offiziellen Zugang zu erhalten wenden Sie sich bitte an die Schulleitung. Der Nutzername und das Passwort für diesen Zugang werden aus Sicherheitsgründen in regelmäßigen Abständen geändert.");
-                alertBuilder.setIcon(R.drawable.ic_alert_error);
-                alertBuilder.setPositiveButton("Anmelden", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                        startActivityForResult(intent, SIGN_UP_RC);
-                    }
-                });
-                alertBuilder.setNegativeButton("App beenden", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        System.exit(0);
-                    }
-                });
-                alertBuilder.create().show();
-
-                break;
-
-            case CoverPlanLoader.RC_ERROR:
-
-                AlertDialog.Builder aBuilder = new AlertDialog.Builder(this);
-                aBuilder.setCancelable(false);
-                aBuilder.setTitle("Netzwerkfehler");
-                aBuilder.setMessage("Beim Herrunterladen der Daten ist ein Fehler aufgetreten. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.");
-                aBuilder.setIcon(R.drawable.ic_alert_error);
-                aBuilder.setPositiveButton("Wiederholen", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-
-                        loader =  new CoverPlanLoader(MainActivity.this, MainActivity.this,false);
-                        loader.execute();
-
-
-                    }
-                });
-                aBuilder.setNegativeButton("App beenden", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        System.exit(0);
-                    }
-                });
-                aBuilder.create().show();
-
-                break;
+                Snackbar.make(this.contentMain, "Keine Internetverbindung! Der Vertretungsplan ist möglicherweise veraltet.", Snackbar.LENGTH_LONG).show();
+                return;
+            default:
         }
-
     }
 
-    public void refreshCoverPlan(){
-        viewPagerManager.updateToolbar();
-        navigationView.getMenu().getItem(viewPagerManager.viewPager.getCurrentItem()).setChecked(true);
+    public void refreshCoverPlan() {
+        this.broadcast.send(BroadcastEvent.DATA_PROVIDED);
         showInfoDialog();
-        viewPagerManager.refreshPageViewer();
+        this.viewPagerManager.refreshPageViewer();
     }
 
-    @Override
     public void onReloadRequested() {
-        loader = new CoverPlanLoader(this,this, false);
-        loader.execute();
+        this.loader = new CoverPlanLoader(this, this, false);
+        this.loader.execute();
     }
 }
-

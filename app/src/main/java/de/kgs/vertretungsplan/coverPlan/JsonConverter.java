@@ -39,11 +39,11 @@ class JsonConverter {
             json = new JSONObject();
 
             JSONObject coverPlanInfos = new JSONObject();
-                coverPlanInfos.put(key_title,p.title);
-                coverPlanInfos.put(key_last_updated,p.lastUpdate);
-                coverPlanInfos.put(key_item_amount,p.getCoverItems().length);
-                coverPlanInfos.put(key_dailymessage_header,p.dailyInfoHeader);
-                coverPlanInfos.put(key_dailymessage_item_amount,p.dailyInfoRows.size());
+            coverPlanInfos.put(key_title,p.title);
+            coverPlanInfos.put(key_last_updated,p.lastUpdate);
+            coverPlanInfos.put(key_item_amount,p.getCoverItems().length);
+            coverPlanInfos.put(key_dailymessage_header,p.dailyInfoHeader);
+            coverPlanInfos.put(key_dailymessage_item_amount,p.dailyInfoRows.size());
             json.put(key_coverplan_info,coverPlanInfos);
 
             JSONObject coverPlanItems = new JSONObject();

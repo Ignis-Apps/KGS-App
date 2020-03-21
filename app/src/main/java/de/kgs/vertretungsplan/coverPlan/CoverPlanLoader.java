@@ -3,8 +3,6 @@ package de.kgs.vertretungsplan.coverPlan;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -18,7 +16,8 @@ import org.jsoup.nodes.Document;
 import java.util.Calendar;
 import java.util.Date;
 
-import de.kgs.vertretungsplan.DataStorage;
+import de.kgs.vertretungsplan.singetones.DataStorage;
+
 
 public class CoverPlanLoader extends AsyncTask<String,Void,Integer> {
 
@@ -139,13 +138,13 @@ public class CoverPlanLoader extends AsyncTask<String,Void,Integer> {
             Log.d("Time-Info", "Analyze-Time: " + (System.currentTimeMillis() - startTime) + " ms");
             startTime = System.currentTimeMillis();
 
-            dataStorage.lastUpdated     = currentTime;
-            dataStorage.coverPlanToday  = coverPlanToday;
-            dataStorage.coverPlanTomorow= coverPlanTomorrow;
+            ds.lastUpdated = currentTime;
+            ds.coverPlanToday = coverPlanToday;
+            ds.coverPlanTomorow = coverPlanTomorrow;
 
             try {
                 storage.writeJSONToFile(c,JsonConverter.getJSONFromCoverPlan(coverPlanToday), COVERPLAN_TODAY_FILE);
-                storage.writeJSONToFile(c,JsonConverter.getJSONFromCoverPlan(coverPlanTomorrow), COVERPLAN_TOMORROW_FILE);
+                storage.writeJSONToFile(c, JsonConverter.getJSONFromCoverPlan(coverPlanTomorrow), COVERPLAN_TOMORROW_FILE);
             } catch (Exception e) {
                 e.printStackTrace();
                 Crashlytics.logException(e);
@@ -196,12 +195,16 @@ public class CoverPlanLoader extends AsyncTask<String,Void,Integer> {
     }
 
     private boolean isNetworkAvailable(Context context) {
+
+        return false;
+        /*
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = null;
         if (connectivityManager != null) {
             activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         }
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+
+         */
     }
 }
-

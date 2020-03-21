@@ -2,20 +2,21 @@ package de.kgs.vertretungsplan;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
-
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import de.kgs.vertretungsplan.coverPlan.CoverPlanLoader;
 import de.kgs.vertretungsplan.coverPlan.CoverPlanLoaderCallback;
+import de.kgs.vertretungsplan.singetones.DataStorage;
 
-import static de.kgs.vertretungsplan.DataStorage.PASSWORD;
-import static de.kgs.vertretungsplan.DataStorage.SHARED_PREF;
-import static de.kgs.vertretungsplan.DataStorage.USERNAME;
+import static de.kgs.vertretungsplan.storage.StorageKeys.PASSWORD;
+import static de.kgs.vertretungsplan.storage.StorageKeys.SHARED_PREF;
+import static de.kgs.vertretungsplan.storage.StorageKeys.USERNAME;
 
 public class LoginActivity extends AppCompatActivity implements CoverPlanLoaderCallback {
     public static final int SUCCESS_RC = 111;

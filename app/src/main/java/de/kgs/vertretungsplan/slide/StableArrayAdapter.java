@@ -172,7 +172,7 @@ public class StableArrayAdapter extends ArrayAdapter<CoverItem> {
         return holder;
     }
 
-    private View getDailyMessageView(LayoutInflater inflater,ViewGroup parent){
+    private View getDailyMessageView(LayoutInflater inflater, ViewGroup parent){
 
         View listItemView = inflater.inflate(R.layout.listview_item_daily_info, parent, false);
         TextView dailyMessageTitle = listItemView.findViewById(R.id.dailyViewTitle);
@@ -193,6 +193,9 @@ public class StableArrayAdapter extends ArrayAdapter<CoverItem> {
         return inflater.inflate(R.layout.listview_item_share, parent, false);
     }
 
+    public boolean hasDailyMessage() {
+        return hasDailyMessage;
+    }
 
     static class ViewHolder{
 

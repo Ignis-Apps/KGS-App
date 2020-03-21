@@ -1,7 +1,6 @@
 package de.kgs.vertretungsplan;
 
-public interface MainActivityInterface{
-
+/* renamed from: de.kgs.vertretungsplan.MainActivityInterface */
+public interface MainActivityInterface {
     void onReloadRequested();
-
 }

@@ -1,134 +1,134 @@
 package de.kgs.vertretungsplan.coverPlan;
 
-import androidx.annotation.NonNull;
+public class CoverItem {
 
-public final class CoverItem {
+    private String mClass;
+    private String mHour;
+    private String mSubject;
+    private String mRoom;
 
-	private String mClass;		// Betroffene Klasse
-	private String mHour;		// Betroffene Schulstunde/n
-	private String mSubject; 	// Betroffenes Fach
-	private String mRoom;		// Raum in dem es stattfindet
-	private String mAnnotation;	// Anmerkung
-	private String mRelocated;	// Verlegt von
-	private boolean mNewEntry;	// Ist ein neuer Eintrag
-	private boolean mCanceled;	// Fällt aus;
+    private String mAnnotation;
+    private String mRelocated;
 
-	private CoverItem(){}
+    private boolean mNewEntry;
+    private boolean mCanceled;
 
-	// getClass() ist reserviert :/
-	public String getTargetClass(){
-		return mClass;
-	}
+    public static class Builder {
 
-	public String getHour(){
-		return mHour;
-	}
+        private String mClass;
+        private String mHour;
+        private String mSubject;
+        private String mRoom;
 
-	public String getSubject(){
-		return mSubject;
-	}
+        private String mAnnotation;
+        private String mRelocated;
+        private boolean mNewEntry;
+        private boolean mCanceled;
 
-	public String getRoom(){
-		return mRoom;
-	}
+        public Builder setClass(String vClass) {
+            this.mClass = vClass;
+            return this;
+        }
 
-	public String getAnnotation(){
-		return mAnnotation;
-	}
+        public Builder setHour(String vHour) {
+            this.mHour = vHour;
+            return this;
+        }
 
-	public String getRelocated(){
-		return mRelocated;
-	}
+        public Builder setSubject(String vSubject) {
+            this.mSubject = vSubject;
+            return this;
+        }
 
-	public boolean isNewEntry(){
-		return mNewEntry;
-	}
+        public Builder setRoom(String vRoom) {
+            this.mRoom = vRoom;
+            return this;
+        }
 
-	public boolean isCanceled(){
-		// return mCanceled;	TODO Es tut zwar was es soll, aber vileicht nimmt man den Wert aus der (Entfällt) Spalte
-		return mRoom.equals("---");
-	}
+        public Builder setAnnotation(String vAnnotation) {
+            this.mAnnotation = vAnnotation;
+            return this;
+        }
 
-	@NonNull
-	public String toString(){
+        public Builder setRelocated(String vRelocated) {
+            this.mRelocated = vRelocated;
+            return this;
+        }
 
-		return "Klasse : " + mClass + "\n" +
-				"Betroffene Stunde : " + mHour + "\n" +
-				"Betroffenes Fach : " + mSubject + "\n" +
-				"Raum : " + mRoom + "\n" +
-				"Verlegt von : " + mRelocated + "\n" +
-				"Ist ein neuer Eintrag : " + mNewEntry + "\n" +
-				"Entfällt : " + mCanceled + "\n";
+        public Builder isNewEntry(boolean vNewEntry) {
+            this.mNewEntry = vNewEntry;
+            return this;
+        }
 
-	}
+        public Builder isCanceled(boolean vCanceled) {
+            this.mCanceled = vCanceled;
+            return this;
+        }
 
-	public final static class Builder{
+        public CoverItem build() {
+            CoverItem item = new CoverItem();
+            item.mClass = this.mClass;
+            item.mHour = this.mHour;
+            item.mSubject = this.mSubject;
+            item.mRoom = this.mRoom;
+            item.mAnnotation = this.mAnnotation;
+            item.mRelocated = this.mRelocated;
+            item.mNewEntry = this.mNewEntry;
+            item.mCanceled = this.mCanceled;
+            return item;
+        }
+    }
 
-		private String mClass;
-		private String mHour;
-		private String mSubject;
-		private String mRoom;
-		private String mAnnotation;
-		private String mRelocated;
-		private boolean mNewEntry;
-		private boolean mCanceled;
+    private CoverItem() {
+    }
 
-		Builder setClass(String vClass){
-			this.mClass = vClass;
-			return this;
-		}
+    public String getTargetClass() {
+        return this.mClass;
+    }
 
-		Builder setHour(String vHour){
-			this.mHour = vHour;
-			return this;
-		}
+    public String getHour() {
+        return this.mHour;
+    }
 
-		Builder setSubject(String vSubject){
-			this.mSubject = vSubject;
-			return this;
-		}
+    public String getSubject() {
+        return this.mSubject;
+    }
 
-		Builder setRoom(String vRoom){
-			this.mRoom = vRoom;
-			return this;
-		}
+    public String getRoom() {
+        return this.mRoom;
+    }
 
-		Builder setAnnotation(String vAnnotation){
-			this.mAnnotation = vAnnotation;
-			return this;
-		}
+    public String getAnnotation() {
+        return this.mAnnotation;
+    }
 
-		Builder setRelocated(String vRelocated){
-			this.mRelocated = vRelocated;
-			return this;
-		}
+    public String getRelocated() {
+        return this.mRelocated;
+    }
 
-		Builder isNewEntry(boolean vNewEntry){
-			this.mNewEntry = vNewEntry;
-			return this;
-		}
+    public boolean isNewEntry() {
+        return this.mNewEntry;
+    }
 
-		Builder isCanceled(boolean vCanceled){
-			this.mCanceled = vCanceled;
-			return this;
-		}
+    public boolean isCanceled() {
+        return this.mRoom.equals("---");
+    }
 
-		public CoverItem build(){
-
-			CoverItem item = new CoverItem();
-			item.mClass	= this.mClass;
-			item.mHour = this.mHour;
-			item.mSubject = this.mSubject;
-			item.mRoom = this.mRoom;
-			item.mAnnotation = this.mAnnotation;
-			item.mRelocated = this.mRelocated;
-			item.mNewEntry = this.mNewEntry;
-			item.mCanceled = this.mCanceled;
-
-			return item;
-
-		}
-
-	}
-
+    public String toString() {
+        return "Klasse : " +
+                this.mClass +
+                "\nBetroffene Stunde : " +
+                this.mHour +
+                "\nBetroffenes Fach : " +
+                this.mSubject +
+                "\nRaum : " +
+                this.mRoom +
+                "\nVerlegt von : " +
+                this.mRelocated +
+                "\nIst ein neuer Eintrag : " +
+                this.mNewEntry +
+                "\nEntfällt : " +
+                this.mCanceled +
+                "\n";
+    }
 }

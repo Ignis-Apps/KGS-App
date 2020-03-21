@@ -1,104 +1,87 @@
 package de.kgs.vertretungsplan.manager;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.analytics.FirebaseAnalytics.Event;
+import com.google.firebase.analytics.FirebaseAnalytics.Param;
 import com.google.firebase.perf.FirebasePerformance;
 import com.google.firebase.perf.metrics.Trace;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 
-import de.kgs.vertretungsplan.DataStorage;
 import de.kgs.vertretungsplan.R;
-
+import de.kgs.vertretungsplan.singetones.DataStorage;
 
 public class FirebaseManager {
-    public static final String ANALYTICS_MENU_INTERNAL = "internal";
-    public static final String ANALYTICS_MENU_EXTERNAL = "external";
+
     public static final String ANALYTICS_BLACK_BOARD = "black_board";
+    public static final String ANALYTICS_MENU_EXTERNAL = "external";
+    public static final String ANALYTICS_MENU_INTERNAL = "internal";
 
-    private Context c;
-    private DataStorage ds;
+    private Context context;
 
-    public Trace loadWebpageTrace;
+    /* renamed from: ds */
+    private DataStorage ds = DataStorage.getInstance();
     private FirebaseAnalytics firebaseAnalytics;
-    private FirebaseRemoteConfig firebaseRemoteConfig;
+    private FirebaseRemoteConfig firebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
 
-    public FirebaseManager(Context context, DataStorage dataStorage){
-        c = context;
-        ds = dataStorage;
+    private Trace loadWebpageTrace = FirebasePerformance.getInstance().newTrace("load_webpage");
 
-        firebaseAnalytics = FirebaseAnalytics.getInstance(c);
+    public FirebaseManager(Context context, DataStorage dataStorage) {
+        firebaseAnalytics = FirebaseAnalytics.getInstance(context);
+        this.context = context;
+        loadIntoSingleton();
 
-        loadWebpageTrace = FirebasePerformance.getInstance().newTrace("load_webpage");
+        firebaseRemoteConfig.fetch(1800).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    firebaseRemoteConfig.activateFetched();
+                    loadIntoSingleton();
+                    return;
+                }
+                Crashlytics.logException(task.getException());
+            }
+        });
+    }
 
-        firebaseRemoteConfig  = FirebaseRemoteConfig.getInstance();
+    private void loadIntoSingleton() {
+
+        firebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
         firebaseRemoteConfig.setDefaults(R.xml.remote_config_defaults);
 
-        ds.login_page_url = firebaseRemoteConfig.getString(DataStorage.LOGIN_PAGE_URL);
-
-        ds.cover_plan_today = firebaseRemoteConfig.getString(DataStorage.COVER_PLAN_TODAY);
-        ds.cover_plan_tomorrow = firebaseRemoteConfig.getString(DataStorage.COVER_PLAN_TOMORROW);
-
-        ds.school_news_url = firebaseRemoteConfig.getString(DataStorage.SCHOOL_NEWS_URL);
-        ds.school_events_url = firebaseRemoteConfig.getString(DataStorage.SCHOOL_EVENTS_URL);
-        ds.school_press_url = firebaseRemoteConfig.getString(DataStorage.SCHOOL_PRESS_URL);
-
-        ds.school_newsletter_url = firebaseRemoteConfig.getString(DataStorage.SCHOOL_NEWSLETTER_URL);
-        ds.school_moodle_url = firebaseRemoteConfig.getString(DataStorage.SCHOOL_MOODLE_URL);
-        ds.school_webpage_url = firebaseRemoteConfig.getString(DataStorage.SCHOOL_WEBPAGE_URL);
-        ds.school_mensa_url = firebaseRemoteConfig.getString(DataStorage.SCHOOL_MENSA_URL);
-
-        firebaseRemoteConfig.fetch(1800)
-                .addOnCompleteListener((Activity) c, new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-
-                            firebaseRemoteConfig.activateFetched();
-
-                            ds.login_page_url = firebaseRemoteConfig.getString(DataStorage.LOGIN_PAGE_URL);
-
-                            ds.cover_plan_today = firebaseRemoteConfig.getString(DataStorage.COVER_PLAN_TODAY);
-                            ds.cover_plan_tomorrow = firebaseRemoteConfig.getString(DataStorage.COVER_PLAN_TOMORROW);
-
-                            ds.school_news_url = firebaseRemoteConfig.getString(DataStorage.SCHOOL_NEWS_URL);
-                            ds.school_events_url = firebaseRemoteConfig.getString(DataStorage.SCHOOL_EVENTS_URL);
-                            ds.school_press_url = firebaseRemoteConfig.getString(DataStorage.SCHOOL_PRESS_URL);
-
-                            ds.student_newspaper = firebaseRemoteConfig.getString(DataStorage.STUDENT_NEWSPAPER);
-
-                            ds.school_newsletter_url = firebaseRemoteConfig.getString(DataStorage.SCHOOL_NEWSLETTER_URL);
-                            ds.school_moodle_url = firebaseRemoteConfig.getString(DataStorage.SCHOOL_MOODLE_URL);
-                            ds.school_webpage_url = firebaseRemoteConfig.getString(DataStorage.SCHOOL_WEBPAGE_URL);
-                            ds.school_mensa_url = firebaseRemoteConfig.getString(DataStorage.SCHOOL_MENSA_URL);
-
-                            ds.moodleCookieMaxAgeSecounds = firebaseRemoteConfig.getLong(DataStorage.MOODLE_COOKIE_MAX_AGE_SECOUNDS);
-
-                        } else {
-                            Crashlytics.logException(task.getException());
-                        }
-                    }
-                });
+        ds.login_page_url = this.firebaseRemoteConfig.getString("login_page_url");
+        ds.cover_plan_today = this.firebaseRemoteConfig.getString("cover_plan_today");
+        ds.cover_plan_tomorrow = this.firebaseRemoteConfig.getString("cover_plan_tomorrow");
+        ds.school_news_url = this.firebaseRemoteConfig.getString("school_news_url");
+        ds.school_events_url = this.firebaseRemoteConfig.getString("school_events_url");
+        ds.school_press_url = this.firebaseRemoteConfig.getString("school_press_url");
+        ds.student_newspaper = this.firebaseRemoteConfig.getString("student_newspaper");
+        ds.school_newsletter_url = this.firebaseRemoteConfig.getString("school_newsletter_url");
+        ds.school_moodle_url = this.firebaseRemoteConfig.getString("school_moodle_url");
+        ds.school_webpage_url = this.firebaseRemoteConfig.getString("school_webpage_url");
+        ds.school_mensa_url = this.firebaseRemoteConfig.getString("school_mensa_url");
+        ds.moodleCookieMaxAgeSecounds = this.firebaseRemoteConfig.getLong("moodle_cookie_max_age_secounds");
     }
 
-    public void setUserProperty(String key, String content){
-        firebaseAnalytics.setUserProperty(key, content);
+    public void setUserProperty(String key, String content) {
+        this.firebaseAnalytics.setUserProperty(key, content);
     }
 
-    public void logEventSelectContent(String itemId, String contentType){
+    public void logEventSelectContent(String itemId, String contentType) {
         Bundle bundle = new Bundle();
-        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, itemId);
-        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, contentType);
-        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+        bundle.putString(Param.ITEM_ID, itemId);
+        bundle.putString(Param.CONTENT_TYPE, contentType);
+        this.firebaseAnalytics.logEvent(Event.SELECT_CONTENT, bundle);
     }
 
-    public void logEvent(String event){
-        firebaseAnalytics.logEvent(event, new Bundle());
+    public void logEvent(String event) {
+        this.firebaseAnalytics.logEvent(event, new Bundle());
     }
 }

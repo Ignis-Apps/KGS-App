@@ -3,39 +3,37 @@ package de.kgs.vertretungsplan.manager;
 import android.content.Context;
 import android.os.Build;
 import android.os.Handler;
-import androidx.fragment.app.Fragment;
-import androidx.viewpager.widget.ViewPager;
 import android.text.format.Time;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
 import android.view.animation.ScaleAnimation;
 import android.view.animation.TranslateAnimation;
 import android.widget.LinearLayout;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
+import androidx.fragment.app.Fragment;
+import androidx.viewpager.widget.ViewPager;
+import androidx.viewpager.widget.ViewPager.OnPageChangeListener;
 
-import de.kgs.vertretungsplan.DataStorage;
 import de.kgs.vertretungsplan.MainActivity;
 import de.kgs.vertretungsplan.R;
+import de.kgs.vertretungsplan.broadcaster.Broadcast;
+import de.kgs.vertretungsplan.broadcaster.BroadcastEvent;
+import de.kgs.vertretungsplan.singetones.DataStorage;
 import de.kgs.vertretungsplan.slide.BlackboardFragment;
 import de.kgs.vertretungsplan.slide.ListViewFragment;
 import de.kgs.vertretungsplan.slide.ListViewPagerAdapter;
 
-public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animation.AnimationListener{
+public class ViewPagerManager implements OnPageChangeListener, AnimationListener {
 
-    private Context context;
     private MainActivity act;
     private DataStorage ds;
     private FirebaseManager firebaseManager;
 
-    public ViewPager viewPager;
-    public ListViewFragment today;
-    public ListViewFragment tomorrow;
+    private ViewPager viewPager;
+    private ListViewFragment today;
+    private ListViewFragment tomorrow;
     private BlackboardFragment blackboard;
 
     private LinearLayout coverplanLegend;
@@ -43,7 +41,7 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
     private boolean isLegendGroupVisible;
 
     private ScaleAnimation animationLegendgroupHide, animationLegendgroupShow;
-    private TranslateAnimation animationViewpagerHide,animationViewpagerShow,steady_animation;
+    private TranslateAnimation animationViewpagerHide, animationViewpagerShow, steady_animation;
 
     private final Handler animationScheduler = new Handler();
 
@@ -51,13 +49,18 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
     private int animationDuration = 400;
     private int animationDelay = 100;
 
-    public ViewPagerManager(Context context, DataStorage dataStorage, FirebaseManager firebaseManager){
-        this.context = context;
+    private Broadcast broadcast;
+
+    public ViewPagerManager(Context context, Broadcast broadcast, FirebaseManager firebaseManager) {
+
+        this.broadcast = broadcast;
         this.act = (MainActivity) context;
-        this.ds = dataStorage;
+        this.ds = DataStorage.getInstance();
         this.firebaseManager = firebaseManager;
+        setupObserver(broadcast);
 
         coverplanLegend = act.findViewById(R.id.listview_legend_group);
+
 
         coverplanLegend.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
@@ -68,7 +71,7 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
 
                     //coverplanLegend.setVisibility(View.GONE);
                     isLegendGroupVisible = true;
-                   // coverplanLegend.setVisibility(View.VISIBLE);
+                    // coverplanLegend.setVisibility(View.VISIBLE);
                 }
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -77,7 +80,6 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
                 //showLegendGroup();
             }
         });
-
         if(act.getSupportFragmentManager().getFragments().size()>0){
 
             for(int pos = 0;pos<act.getSupportFragmentManager().getFragments().size();pos++){
@@ -92,27 +94,21 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
             act.getSupportFragmentManager().executePendingTransactions();
         }
 
-
-
         viewPager = act.findViewById(R.id.viewpage);
 
         ListViewPagerAdapter ad = new ListViewPagerAdapter(act.getSupportFragmentManager());
 
         blackboard  = new BlackboardFragment();
-        today       = new ListViewFragment();
-        tomorrow    = new ListViewFragment();
+        today = new ListViewFragment(broadcast);
+        tomorrow = new ListViewFragment(broadcast);
 
         ad.addFragment(blackboard);
         ad.addFragment(today);
         ad.addFragment(tomorrow);
 
-        today.setMainActivityInterface(act);
-        tomorrow.setMainActivityInterface(act);
-
         viewPager.setOffscreenPageLimit(2);
 
         viewPager.setAdapter(ad);
-        //viewPager.setCurrentItem(0);
 
         Time timeToday = new Time(Time.getCurrentTimezone());
         timeToday.setToNow();
@@ -152,6 +148,44 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
 
     }
 
+    private void setupObserver(Broadcast broadcast) {
+
+        broadcast.subscribe(new Broadcast.Observer() {
+            @Override
+            public void onEventTriggered(BroadcastEvent event) {
+
+                switch (ds.currentNavigationItem) {
+                    case BLACK_BOARD:
+                    case COVER_PLAN_TODAY:
+                    case COVER_PLAN_TOMORROW:
+                        viewPager.setCurrentItem(ds.currentlySelectedViewPage);
+                }
+            }
+        }, BroadcastEvent.CURRENT_MENU_ITEM_CHANGED);
+
+        broadcast.subscribe(new Broadcast.Observer() {
+            @Override
+            public void onEventTriggered(BroadcastEvent broadcastEvent) {
+                refreshDataSet();
+            }
+        }, BroadcastEvent.CURRENT_CLASS_CHANGED, BroadcastEvent.CURRENT_GRADE_CHANGED);
+
+        broadcast.subscribe(new Broadcast.Observer() {
+            @Override
+            public void onEventTriggered(BroadcastEvent event) {
+                refreshPageViewer();
+            }
+        }, BroadcastEvent.DATA_PROVIDED);
+    }
+
+    private void refreshDataSet() {
+        this.today.setDataset(ds.coverPlanToday.getCoverItems(ds.currentGrade, ds.currentGradeSubClass));
+        this.tomorrow.setDataset(ds.coverPlanTomorow.getCoverItems(ds.currentGrade, ds.currentGradeSubClass));
+
+        this.today.setDailyMessage(ds.coverPlanToday.dailyInfoHeader, ds.coverPlanToday.getDailyInfoMessage());
+        this.tomorrow.setDailyMessage(ds.coverPlanTomorow.dailyInfoHeader, ds.coverPlanTomorow.getDailyInfoMessage());
+    }
+
     private final Handler scheduledRefresher = new Handler();
 
     private Runnable refreshLaterRunnable = new Runnable() {
@@ -161,125 +195,37 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
         }
     };
 
-    public void refreshPageViewer(){
-
-        // Falls die Fragmente noch nicht da sind, fügen wir die Daten einfach später hinzu.
-        if(!today.isCreated()||!tomorrow.isCreated()){
-            scheduledRefresher.postDelayed(refreshLaterRunnable,50);
+    public void refreshPageViewer() {
+        if (!this.today.isCreated() || !this.tomorrow.isCreated()) {
+            scheduledRefresher.postDelayed(refreshLaterRunnable, 50);
             return;
         }
-
-        blackboard.setOnClickListener(act);
-
         System.out.println("REFRESHING PAGE VIEWER");
-
-        if(ds.coverPlanToday==null||ds.coverPlanTomorow==null){
-            return;
+        if (this.ds.coverPlanToday != null && this.ds.coverPlanTomorow != null) {
+            refreshDataSet();
         }
-
-        if(act.spinnerClass.getVisibility()==View.VISIBLE){
-            today.setDataset(ds.coverPlanToday.getCoverItemsForClass(act.currentGradeLevel+act.currentClass));
-            tomorrow.setDataset(ds.coverPlanTomorow.getCoverItemsForClass(act.currentGradeLevel+act.currentClass));
-        }
-        else{
-            today.setDataset(ds.coverPlanToday.getCoverItemsForClass(act.currentGradeLevel));
-            tomorrow.setDataset(ds.coverPlanTomorow.getCoverItemsForClass(act.currentGradeLevel));
-        }
-
-        today.setDailyMessage(ds.coverPlanToday.dailyInfoHeader,ds.coverPlanToday.getDailyInfoMessage());
-        tomorrow.setDailyMessage(ds.coverPlanTomorow.dailyInfoHeader,ds.coverPlanTomorow.getDailyInfoMessage());
-
-        today.setItemClickListener(act);
-        tomorrow.setItemClickListener(act);
     }
 
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
     }
 
     @Override
-    public void onPageSelected(int position){
+    public void onPageSelected(int position) {
 
-        System.out.println("Page Selected: "  + position + "  coverplanHeight : " + coverplanLegendHeight );
-        if(position == 1){
-            act.currentday = 0;
-        }else if(position == 2){
-            act.currentday = 1;
-        }
-
-        act.navigationView.getMenu().getItem(position).setChecked(true);
-
-        if(position==0)
+        if (position == 0) {
             hideLegendGroup();
-
-        if(position==1||position==2){
+        } else if (position == 1 || position == 2) {
             showLegendGroup();
         }
-
-        updateToolbar();
-}
-
-    public void updateToolbar(){
-
-        if(ds.coverPlanToday==null||ds.coverPlanTomorow==null){
-            return;
-        }
-
-        DateFormat sourceFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.GERMANY);
-        DateFormat targetFormatToolbar = new SimpleDateFormat("'Stand:' d. MMMM | HH:mm",Locale.GERMANY);
-
-        String datum1,datum2;
-
-        try {
-            Date d1 = sourceFormat.parse(ds.coverPlanToday.lastUpdate);
-            Date d2 = sourceFormat.parse(ds.coverPlanTomorow.lastUpdate);
-
-            datum1 = targetFormatToolbar.format(d1);
-            datum2 = targetFormatToolbar.format(d2);
-
-        } catch (ParseException e) {
-            e.printStackTrace();
-            datum1 = "Fehler";
-            datum2 = "Fehler";
-        }
-
-
-        String weekDay1 = ds.coverPlanToday.title.split(" ")[0];
-        String tag1 = ds.coverPlanToday.title.split(" ")[1].replace(",", "");
-        act.navigationView.getMenu().getItem(1).setTitle(tag1 + ", " + weekDay1);
-
-        String weekDay2 = ds.coverPlanTomorow.title.split(" ")[0];
-        String tag2 = ds.coverPlanTomorow.title.split(" ")[1].replace(",", "");
-        act.navigationView.getMenu().getItem(2).setTitle(tag2 + ", " + weekDay2);
-
-        switch(viewPager.getCurrentItem()){
-
-            case 0:
-                act.toolbar.setTitle("Schwarzes Brett");
-                act.toolbar.setSubtitle(null);
-                break;
-            case 1:
-                act.toolbar.setTitle(tag1);
-                act.toolbar.setSubtitle( datum1);
-                break;
-            case 2:
-                act.toolbar.setTitle(tag2);
-                act.toolbar.setSubtitle(datum2);
-                break;
-
-        }
-
+        DataStorage.getInstance().currentlySelectedViewPage = position;
+        this.broadcast.send(BroadcastEvent.CURRENT_PAGE_CHANGED);
     }
 
     @Override
     public void onPageScrollStateChanged(int state) {
-
     }
 
-    public void onClick(View view){
-        blackboard.onClick(view, context, firebaseManager, ds);
-    }
 
     private boolean executingAnimation;
 
@@ -361,7 +307,9 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
     }
 
     public boolean hasDailyMessage(){
+/*
 
+/
         if(act.currentday==0)
             return !ds.coverPlanToday.getDailyInfoMessage().isEmpty();
         else if(act.currentday==1)
@@ -371,8 +319,9 @@ public class ViewPagerManager implements ViewPager.OnPageChangeListener, Animati
 
         //else if(act.currentday==2)
         //    return !ds.coverPlanDayAfterTomorow.getDailyInfoMessage().isEmpty();
-
+*/
         return false;
 
     }
+
 }

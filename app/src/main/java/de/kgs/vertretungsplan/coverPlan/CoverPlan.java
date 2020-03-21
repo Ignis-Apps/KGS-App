@@ -1,87 +1,80 @@
 package de.kgs.vertretungsplan.coverPlan;
 
-import androidx.annotation.NonNull;
-
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+
+import de.kgs.vertretungsplan.views.Grade;
+import de.kgs.vertretungsplan.views.GradeSubClass;
+
 
 public class CoverPlan {
 
-	public String title;
-	public String lastUpdate;
-	public String dailyInfoHeader = "";
-	List<String> dailyInfoRows = new ArrayList<>();
-	List<CoverItem> coverItems = new ArrayList<>();
-	
-	public List<CoverItem> getCoverItemsForClass(String class_id){
+    public String title;
+    public String lastUpdate;
+    public String dailyInfoHeader = "";
 
-		List<CoverItem> cItems = new ArrayList<>();
-		for(CoverItem c:coverItems){
+    List<CoverItem> coverItems = new ArrayList<>();
+    List<String> dailyInfoRows = new ArrayList<>();
 
-			// Blacklist - Those elements will never be shown
-			if(c.getTargetClass().matches(".*(A15|Pers.|Ber.|Sdm|Aufsicht).*"))
-				continue;
+    public List<CoverItem> getCoverItems(Grade grade, GradeSubClass gradeSubClass) {
+        List<CoverItem> items = new LinkedList<>();
+        for (CoverItem cItem : this.coverItems) {
 
-			// Check if item is a type of class and doesn't match to the selected class id ( Constant / Do not change )
-			if((c.getTargetClass().matches(".*(5|6|7|8|9|10|J1|J2).*"))) {
+            if (cItem.getTargetClass().matches(".*(A15|Pers.|Ber.|Sdm|Aufsicgt).*"))
+                continue;
 
-				if(c.getTargetClass().contains(class_id))
-					cItems.add(c);
+            if (!cItem.getTargetClass().contains(grade.getGradeInitials()))
+                continue;
 
-				continue;
+            if(!cItem.getTargetClass().contains(gradeSubClass.getClassInitials()))
+                continue;
 
-			}
+            items.add(cItem);
 
-			cItems.add(c);
+        }
+        return items;
+    }
 
-		}
+    public String toString() {
+        StringBuilder out = new StringBuilder();
+        out.append(this.title);
+        out.append("\nZuletzt Aktualiesiert");
+        out.append(this.lastUpdate);
+        out.append("\nHeaders : ");
+        out.append(this.dailyInfoHeader);
+        out.append("\nRows : ");
+        for (String r : this.dailyInfoRows) {
+            out.append(" ");
+            out.append(r);
+        }
+        for (CoverItem c : this.coverItems) {
+            String str = "\n-------------------------------------";
+            out.append(str);
+            out.append("\n");
+            out.append(c.toString());
+            out.append(str);
+        }
+        return out.toString();
+    }
 
-		return cItems;
+    /* access modifiers changed from: 0000 */
+    public CoverItem[] getCoverItems() {
+        CoverItem[] c = new CoverItem[this.coverItems.size()];
+        for (int i = 0; i < this.coverItems.size(); i++) {
+            c[i] = (CoverItem) this.coverItems.get(i);
+        }
+        return c;
+    }
 
-	}
-
-	@NonNull
-	public String toString(){
-
-		StringBuilder out = new StringBuilder();
-		out.append(title);
-		out.append("\nZuletzt Aktualiesiert").append(lastUpdate);
-		out.append("\nHeaders : ").append(dailyInfoHeader);
-
-		out.append("\nRows : ");
-		for(String r:dailyInfoRows){
-			out.append(" ").append(r);
-		}
-
-		for(CoverItem c:coverItems){
-			out.append("\n-------------------------------------");
-			out.append("\n").append(c.toString());
-			out.append("\n-------------------------------------");
-		}
-		return out.toString();
-	}
-
-	CoverItem[] getCoverItems(){
-
-		CoverItem[] c = new CoverItem[coverItems.size()];
-
-		for (int i=0;i<coverItems.size();i++){
-			c[i] = coverItems.get(i);
-		}
-
-		return c;
-
-	}
-
-	public String getDailyInfoMessage(){
-		StringBuilder out = new StringBuilder();
-		for(String s:dailyInfoRows){
-			out.append(s);
-			if(dailyInfoRows.size()>1){
-				out.append("\n");
-			}
-		}
-		return out.toString();
-	}
-	
+    public String getDailyInfoMessage() {
+        StringBuilder out = new StringBuilder();
+        for (String s : this.dailyInfoRows) {
+            out.append(s);
+            if (this.dailyInfoRows.size() > 1) {
+                out.append("\n");
+            }
+        }
+        return out.toString();
+    }
 }
