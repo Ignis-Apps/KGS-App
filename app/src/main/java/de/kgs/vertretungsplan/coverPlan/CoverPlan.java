@@ -1,21 +1,76 @@
 package de.kgs.vertretungsplan.coverPlan;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 
-import de.kgs.vertretungsplan.views.Grade;
-import de.kgs.vertretungsplan.views.GradeSubClass;
-
+import de.kgs.vertretungsplan.singetones.ApplicationData;
 
 public class CoverPlan {
 
-    public String title;
-    public String lastUpdate;
-    public String dailyInfoHeader = "";
+    // Legacy ( cant change them now since i have no test data and they are used for saving )
+    private String title;
+    private String lastUpdate;
+    private String dailyInfoHead;
+    private List<CoverItem> coverItems = new ArrayList<>();
+    private List<String> dailyInfoBody = new ArrayList<>();
 
-    List<CoverItem> coverItems = new ArrayList<>();
-    List<String> dailyInfoRows = new ArrayList<>();
+    // New Values ( Those get parsed from the legacy ones, but they are not involved in the save process)
+    private String affectedWeekday;         // ( Montag, Dienstag, ... )
+    private String dailyMessageTitle;
+    private String dailyMessageText;
+    private String lastUpdateText;
+
+
+    private CoverPlan() {
+
+    }
+
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public String getDailyInfoHead() {
+        return dailyInfoHead;
+    }
+
+    public List<String> getDailyInfoBody() {
+        return dailyInfoBody;
+    }
+
+    public CoverItem[] getCoverItems() {
+        return coverItems.toArray(new CoverItem[0]);
+    }
+
+
+    public List<CoverItem> getCoverItemsFiltered() {
+
+        ApplicationData data = ApplicationData.getInstance();
+        return getCoverItems(data.getCurrentGrade(), data.getCurrentGradeSubClass());
+
+    }
+
+    public String getWeekDay() {
+        return affectedWeekday;
+    }
+
+    public String getLastUpdateText() {
+        return lastUpdateText;
+    }
+
+    public String getNavigationText() {
+        return affectedWeekday + ", " + title.split(" ")[0];
+    }
 
     public List<CoverItem> getCoverItems(Grade grade, GradeSubClass gradeSubClass) {
         List<CoverItem> items = new LinkedList<>();
@@ -27,7 +82,7 @@ public class CoverPlan {
             if (!cItem.getTargetClass().contains(grade.getGradeInitials()))
                 continue;
 
-            if(!cItem.getTargetClass().contains(gradeSubClass.getClassInitials()))
+            if (grade.hasSubClasses() && !cItem.getTargetClass().contains(gradeSubClass.getClassInitials()))
                 continue;
 
             items.add(cItem);
@@ -36,45 +91,81 @@ public class CoverPlan {
         return items;
     }
 
-    public String toString() {
-        StringBuilder out = new StringBuilder();
-        out.append(this.title);
-        out.append("\nZuletzt Aktualiesiert");
-        out.append(this.lastUpdate);
-        out.append("\nHeaders : ");
-        out.append(this.dailyInfoHeader);
-        out.append("\nRows : ");
-        for (String r : this.dailyInfoRows) {
-            out.append(" ");
-            out.append(r);
-        }
-        for (CoverItem c : this.coverItems) {
-            String str = "\n-------------------------------------";
-            out.append(str);
-            out.append("\n");
-            out.append(c.toString());
-            out.append(str);
-        }
-        return out.toString();
-    }
-
-    /* access modifiers changed from: 0000 */
-    public CoverItem[] getCoverItems() {
-        CoverItem[] c = new CoverItem[this.coverItems.size()];
-        for (int i = 0; i < this.coverItems.size(); i++) {
-            c[i] = (CoverItem) this.coverItems.get(i);
-        }
-        return c;
-    }
-
     public String getDailyInfoMessage() {
+
         StringBuilder out = new StringBuilder();
-        for (String s : this.dailyInfoRows) {
+        for (String s : dailyInfoBody) {
             out.append(s);
-            if (this.dailyInfoRows.size() > 1) {
+            if (this.dailyInfoBody.size() > 1) {
                 out.append("\n");
             }
         }
         return out.toString();
     }
+
+    public static class Builder {
+
+        private String title;
+        private String lastUpdate;
+        private String dailyInfo;
+        private List<CoverItem> items;
+        private List<String> dailyInfoBody;
+
+        private static String getWeekDay(String title) {
+            return title.split(" ")[1].replace(",", "");
+        }
+
+        private static String getLastUpdateText(String lastUpdate) {
+            String str = "Fehler";
+            DateFormat sourceFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.GERMANY);
+            DateFormat targetFormatToolbar = new SimpleDateFormat("'Stand:' d. MMMM | HH:mm", Locale.GERMANY);
+            try {
+                Date date = sourceFormat.parse(lastUpdate);
+                return targetFormatToolbar.format(date != null ? date : str);
+            } catch (ParseException e) {
+                return str;
+            }
+        }
+
+        public Builder setTitle(String title) {
+            this.title = title;
+            return this;
+        }
+
+        public Builder setLastUpdate(String lastUpdate) {
+            this.lastUpdate = lastUpdate;
+            return this;
+        }
+
+        public Builder setCoverItems(List<CoverItem> items) {
+            this.items = items;
+            return this;
+        }
+
+        public Builder setDailyInfoBody(List<String> dailyInfoBody) {
+            this.dailyInfoBody = dailyInfoBody;
+            return this;
+        }
+
+        public Builder setDailyInfo(String dailyInfo) {
+            this.dailyInfo = dailyInfo;
+            return this;
+        }
+
+        public CoverPlan build() {
+            CoverPlan coverPlan = new CoverPlan();
+            coverPlan.title = title;
+            coverPlan.lastUpdate = lastUpdate;
+            coverPlan.coverItems = items;
+            coverPlan.dailyInfoHead = dailyInfo;
+            coverPlan.dailyInfoBody = dailyInfoBody;
+
+            coverPlan.affectedWeekday = getWeekDay(title);
+            coverPlan.lastUpdateText = getLastUpdateText(lastUpdate);
+            return coverPlan;
+        }
+
+
+    }
+
 }

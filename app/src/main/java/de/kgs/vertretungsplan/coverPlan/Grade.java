@@ -1,7 +1,7 @@
-package de.kgs.vertretungsplan.views;
-
+package de.kgs.vertretungsplan.coverPlan;
 
 public enum Grade {
+
     ALL("Alle Klassen", "", 0),
     FIFTH_CLASS("5. Klasse", "5", 1),
     SIXTH_CLASS("6. Klasse", "6", 2),
@@ -16,10 +16,27 @@ public enum Grade {
     private final int gradeLevel;
     private final String gradeName;
 
-    private Grade(String gradeName2, String gradeInitials2, int gradeLevel2) {
+    Grade(String gradeName2, String gradeInitials2, int gradeLevel2) {
         this.gradeLevel = gradeLevel2;
         this.gradeName = gradeName2;
         this.gradeInitials = gradeInitials2;
+    }
+
+    public static Grade getGradeByName(String gradeName2) {
+        for (Grade grade : values()) {
+            if (grade.getGradeName().equals(gradeName2)) {
+                return grade;
+            }
+        }
+        throw new AssertionError("requested grade name does not exist !");
+    }
+
+    public static Grade getGradeByGradeLevel(int gradeLevel) {
+        for (Grade grade : values()) {
+            if (grade.getGradeLevel() == gradeLevel)
+                return grade;
+        }
+        throw new AssertionError("requested grade level does not exist !");
     }
 
     public boolean hasSubClasses() {
@@ -38,13 +55,4 @@ public enum Grade {
         return this.gradeInitials;
     }
 
-    public static Grade getGradeByName(String gradeName2) {
-        Grade[] values;
-        for (Grade grade : values()) {
-            if (grade.getGradeName().equals(gradeName2)) {
-                return grade;
-            }
-        }
-        return null;
-    }
 }

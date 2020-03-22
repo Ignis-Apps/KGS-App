@@ -16,7 +16,7 @@ import com.google.firebase.perf.metrics.Trace;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 
 import de.kgs.vertretungsplan.R;
-import de.kgs.vertretungsplan.singetones.DataStorage;
+import de.kgs.vertretungsplan.singetones.GlobalVariables;
 
 public class FirebaseManager {
 
@@ -27,13 +27,13 @@ public class FirebaseManager {
     private Context context;
 
     /* renamed from: ds */
-    private DataStorage ds = DataStorage.getInstance();
+    private GlobalVariables ds = GlobalVariables.getInstance();
     private FirebaseAnalytics firebaseAnalytics;
     private FirebaseRemoteConfig firebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
 
     private Trace loadWebpageTrace = FirebasePerformance.getInstance().newTrace("load_webpage");
 
-    public FirebaseManager(Context context, DataStorage dataStorage) {
+    public FirebaseManager(Context context) {
         firebaseAnalytics = FirebaseAnalytics.getInstance(context);
         this.context = context;
         loadIntoSingleton();
@@ -57,8 +57,8 @@ public class FirebaseManager {
         firebaseRemoteConfig.setDefaults(R.xml.remote_config_defaults);
 
         ds.login_page_url = this.firebaseRemoteConfig.getString("login_page_url");
-        ds.cover_plan_today = this.firebaseRemoteConfig.getString("cover_plan_today");
-        ds.cover_plan_tomorrow = this.firebaseRemoteConfig.getString("cover_plan_tomorrow");
+        ds.cover_plan_today_url = this.firebaseRemoteConfig.getString("cover_plan_today");
+        ds.cover_plan_tomorrow_url = this.firebaseRemoteConfig.getString("cover_plan_tomorrow");
         ds.school_news_url = this.firebaseRemoteConfig.getString("school_news_url");
         ds.school_events_url = this.firebaseRemoteConfig.getString("school_events_url");
         ds.school_press_url = this.firebaseRemoteConfig.getString("school_press_url");

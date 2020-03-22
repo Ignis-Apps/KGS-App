@@ -1,4 +1,4 @@
-package de.kgs.vertretungsplan.coverPlan;
+package de.kgs.vertretungsplan.storage;
 
 import android.content.Context;
 
@@ -15,9 +15,9 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-class JsonDataStorage {
+public class JsonDataStorage {
 
-    void writeJSONToFile(Context c,JSONObject jo,String filename) throws Exception  {
+    public void writeJSONToFile(Context c,JSONObject jo,String filename) throws Exception  {
 
         File file = new File(c.getFilesDir(),"json_data");
 
@@ -42,7 +42,7 @@ class JsonDataStorage {
 
     }
 
-    JSONObject readJSONFromFile(Context c, String filename) {
+    public JSONObject readJSONFromFile(Context c, String filename) {
 
         File file = new File(c.getFilesDir(),"json_data");
         File f = new File(file,filename);

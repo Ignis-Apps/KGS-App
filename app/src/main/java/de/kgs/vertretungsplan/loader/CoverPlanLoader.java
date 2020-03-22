@@ -1,4 +1,4 @@
-package de.kgs.vertretungsplan.coverPlan;
+package de.kgs.vertretungsplan.loader;
 
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
@@ -16,10 +16,14 @@ import org.jsoup.nodes.Document;
 import java.util.Calendar;
 import java.util.Date;
 
-import de.kgs.vertretungsplan.singetones.DataStorage;
+import de.kgs.vertretungsplan.coverPlan.CoverPlan;
+import de.kgs.vertretungsplan.singetones.ApplicationData;
+import de.kgs.vertretungsplan.singetones.GlobalVariables;
+import de.kgs.vertretungsplan.storage.JsonConverter;
+import de.kgs.vertretungsplan.storage.JsonDataStorage;
 
 
-public class CoverPlanLoader extends AsyncTask<String,Void,Integer> {
+public class CoverPlanLoader extends AsyncTask<String, Void, Integer> {
 
     public static final int RC_LOGIN_REQUIRED = 98;
     public static final int RC_ERROR = 99;
@@ -40,12 +44,13 @@ public class CoverPlanLoader extends AsyncTask<String,Void,Integer> {
 
     private Trace loadDataTrace;
 
-    private DataStorage ds = DataStorage.getInstance();
+    private GlobalVariables global = GlobalVariables.getInstance();
+    private ApplicationData applicationData = ApplicationData.getInstance();
 
 
-    public CoverPlanLoader(Context c, CoverPlanLoaderCallback cpli, boolean login){
-        this.c= c;
-        this.callback=cpli;
+    public CoverPlanLoader(Context c, CoverPlanLoaderCallback cpli, boolean login) {
+        this.c = c;
+        this.callback = cpli;
         this.login = login;
 
         loadDataTrace = FirebasePerformance.getInstance().newTrace("load_data");
@@ -60,7 +65,7 @@ public class CoverPlanLoader extends AsyncTask<String,Void,Integer> {
 
         loadDataTrace.start();
 
-        if(login)
+        if (login)
             dialog = ProgressDialog.show(c, "", "Anmeldung...", true);
         else
             dialog = ProgressDialog.show(c, "", "Lade Vertretungsplan...", true);
@@ -77,7 +82,7 @@ public class CoverPlanLoader extends AsyncTask<String,Void,Integer> {
         loadDataTrace.stop();
 
         callback.loaderFinishedWithResponseCode(i);
-        if(dialog != null) {
+        if (dialog != null) {
             if (dialog.getWindow() != null) {
                 dialog.dismiss();
             }
@@ -91,13 +96,12 @@ public class CoverPlanLoader extends AsyncTask<String,Void,Integer> {
         Long startTime = System.currentTimeMillis();
 
         Date currentTime = Calendar.getInstance().getTime();
-        DataStorage dataStorage = DataStorage.getInstance();
         JsonDataStorage storage = new JsonDataStorage();
 
         String COVERPLAN_TODAY_FILE = "coverPlanToday.json";
         String COVERPLAN_TOMORROW_FILE = "coverPlanTomorrow.json";
 
-        if( isNetworkAvailable(c)&&!onlyLoadData){
+        if (isNetworkAvailable(c) && !onlyLoadData) {
 
             Document documentToday;
             Document documentTomorrow;
@@ -105,14 +109,14 @@ public class CoverPlanLoader extends AsyncTask<String,Void,Integer> {
             try {
 
                 HttpUrlConnectionHandler httpHandler = new HttpUrlConnectionHandler();
-                documentToday       = httpHandler.getParsedDocument(ds.cover_plan_today);
-                documentTomorrow    = httpHandler.getParsedDocument(ds.cover_plan_tomorrow);
+                documentToday = httpHandler.getParsedDocument(global.cover_plan_today_url);
+                documentTomorrow = httpHandler.getParsedDocument(global.cover_plan_tomorrow_url);
 
                 //documentToday       = httpHandler.getParsedDocument("http://46.38.232.163/kgsvp/Wartung.html");
                 //documentTomorrow    = httpHandler.getParsedDocument("http://46.38.232.163/kgsvp/Wartung.html");
 
             } catch (Exception e) {
-                if(e.getMessage().equals("Login needed")){
+                if (e.getMessage().equals("Login needed")) {
                     return RC_LOGIN_REQUIRED;
                 }
                 e.printStackTrace();
@@ -138,12 +142,15 @@ public class CoverPlanLoader extends AsyncTask<String,Void,Integer> {
             Log.d("Time-Info", "Analyze-Time: " + (System.currentTimeMillis() - startTime) + " ms");
             startTime = System.currentTimeMillis();
 
-            ds.lastUpdated = currentTime;
-            ds.coverPlanToday = coverPlanToday;
-            ds.coverPlanTomorow = coverPlanTomorrow;
+            global.lastUpdated = currentTime;
+            // global.coverPlanToday = coverPlanToday;
+            // global.coverPlanTomorow = coverPlanTomorrow;
+            // TODO
+            applicationData.setCoverPlanToday(coverPlanToday);
+            applicationData.setCoverPlanTomorrow(coverPlanTomorrow);
 
             try {
-                storage.writeJSONToFile(c,JsonConverter.getJSONFromCoverPlan(coverPlanToday), COVERPLAN_TODAY_FILE);
+                storage.writeJSONToFile(c, JsonConverter.getJSONFromCoverPlan(coverPlanToday), COVERPLAN_TODAY_FILE);
                 storage.writeJSONToFile(c, JsonConverter.getJSONFromCoverPlan(coverPlanTomorrow), COVERPLAN_TOMORROW_FILE);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -154,43 +161,47 @@ public class CoverPlanLoader extends AsyncTask<String,Void,Integer> {
 
             return RC_LATEST_DATASET;
 
-        }else {
+        } else {
 
             JSONObject json_today = storage.readJSONFromFile(c, COVERPLAN_TODAY_FILE);
             JSONObject json_tomorrow = storage.readJSONFromFile(c, COVERPLAN_TOMORROW_FILE);
 
-            if(json_today!=null&&json_tomorrow!=null){
+            if (json_today != null && json_tomorrow != null) {
 
                 try {
                     CoverPlan coverPlanToday = JsonConverter.getCoverPlanFromJSON(json_today);
                     CoverPlan coverPlanTomorrow = JsonConverter.getCoverPlanFromJSON(json_tomorrow);
 
-                    dataStorage.coverPlanToday = coverPlanToday;
-                    dataStorage.coverPlanTomorow = coverPlanTomorrow;
-                } catch (Exception e){
+                    // globalVariables.coverPlanToday = coverPlanToday;
+                    // globalVariables.coverPlanTomorow = coverPlanTomorrow;
+
+                    applicationData.setCoverPlanToday(coverPlanToday);
+                    applicationData.setCoverPlanTomorrow(coverPlanTomorrow);
+
+                } catch (Exception e) {
                     Crashlytics.logException(new Exception("Files (or Code is) are broken!"));
                     System.err.println("Files (or Code is) are broken!");
                     return RC_NO_INTERNET_NO_DATASET;
                 }
 
-                if(onlyLoadData)
+                if (onlyLoadData)
                     return RC_LATEST_DATASET;
 
                 return RC_NO_INTERNET_DATASET_EXIST;
 
-            }else {
+            } else {
 
                 return RC_NO_INTERNET_NO_DATASET;
             }
         }
     }
 
-    public void onPause(){
-        if(dialog!=null)
+    public void onPause() {
+        if (dialog != null)
             dialog.dismiss();
     }
 
-    public void onStart(){
+    public void onStart() {
         dialog = ProgressDialog.show(c, "", "Lade Vertretungsplan...", true);
     }
 

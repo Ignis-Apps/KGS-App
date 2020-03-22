@@ -1,12 +1,18 @@
-package de.kgs.vertretungsplan.coverPlan;
+package de.kgs.vertretungsplan.storage;
 
 import com.crashlytics.android.Crashlytics;
-
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-class JsonConverter {
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
+import de.kgs.vertretungsplan.coverPlan.CoverItem;
+import de.kgs.vertretungsplan.coverPlan.CoverPlan;
+
+public class JsonConverter {
 
     private static final String key_class = "class";
     private static final String key_hour = "hour";
@@ -30,59 +36,58 @@ class JsonConverter {
     private static final String key_dailymessage_item_amount = "dailyMessageItemAmount";
 
 
-    static JSONObject getJSONFromCoverPlan(CoverPlan p)  {
+    public static JSONObject getJSONFromCoverPlan(CoverPlan p) {
 
         JSONObject json = null;
 
-        try{
+        try {
 
             json = new JSONObject();
 
             JSONObject coverPlanInfos = new JSONObject();
-            coverPlanInfos.put(key_title,p.title);
-            coverPlanInfos.put(key_last_updated,p.lastUpdate);
-            coverPlanInfos.put(key_item_amount,p.getCoverItems().length);
-            coverPlanInfos.put(key_dailymessage_header,p.dailyInfoHeader);
-            coverPlanInfos.put(key_dailymessage_item_amount,p.dailyInfoRows.size());
-            json.put(key_coverplan_info,coverPlanInfos);
+            coverPlanInfos.put(key_title, p.getTitle());
+            coverPlanInfos.put(key_last_updated, p.getLastUpdate());
+            coverPlanInfos.put(key_item_amount, p.getCoverItems().length);
+            coverPlanInfos.put(key_dailymessage_header, p.getDailyInfoHead());
+            coverPlanInfos.put(key_dailymessage_item_amount, p.getDailyInfoBody().size());
+            json.put(key_coverplan_info, coverPlanInfos);
 
             JSONObject coverPlanItems = new JSONObject();
 
             int index = 0;
 
-            for(CoverItem ci:p.getCoverItems()) {
+            for (CoverItem ci : p.getCoverItems()) {
 
                 JSONObject item = new JSONObject();
-                item.put(key_class,ci.getTargetClass());
-                item.put(key_hour,ci.getHour());
-                item.put(key_fach,ci.getSubject());
-                item.put(key_room,ci.getRoom());
-                item.put(key_annotation,ci.getAnnotation());
-                item.put(key_ver,ci.getRelocated());
-                item.put(key_annotation_lesson,ci.isNewEntry());
-                coverPlanItems.put(key_item+index,item);
+                item.put(key_class, ci.getTargetClass());
+                item.put(key_hour, ci.getHour());
+                item.put(key_fach, ci.getSubject());
+                item.put(key_room, ci.getRoom());
+                item.put(key_annotation, ci.getAnnotation());
+                item.put(key_ver, ci.getRelocated());
+                item.put(key_annotation_lesson, ci.isNewEntry());
+                coverPlanItems.put(key_item + index, item);
                 index++;
             }
 
-            json.put(key_coverplan_items,coverPlanItems);
+            json.put(key_coverplan_items, coverPlanItems);
 
             JSONObject dailyMessageRows = new JSONObject();
 
             index = 0;
 
-            for(String s:p.dailyInfoRows){
+            for (String s : p.getDailyInfoBody()) {
 
                 JSONObject item = new JSONObject();
-                item.put(key_dailymessage_item_text,s);
-                dailyMessageRows.put(key_dailymessage_item+index,item);
+                item.put(key_dailymessage_item_text, s);
+                dailyMessageRows.put(key_dailymessage_item + index, item);
                 index++;
             }
 
-            json.put(key_dailymessage_items,dailyMessageRows);
+            json.put(key_dailymessage_items, dailyMessageRows);
 
 
-
-        }catch (JSONException e){
+        } catch (JSONException e) {
             Crashlytics.logException(e);
             e.printStackTrace();
         }
@@ -91,20 +96,24 @@ class JsonConverter {
 
     }
 
-    static CoverPlan getCoverPlanFromJSON(JSONObject o) throws Exception {
+    public static CoverPlan getCoverPlanFromJSON(JSONObject o) throws Exception {
 
-        CoverPlan p = new CoverPlan();
+        CoverPlan.Builder p = new CoverPlan.Builder();
         JSONObject coverPlanInfos = o.getJSONObject(key_coverplan_info);
         JSONObject items = o.getJSONObject(key_coverplan_items);
-        p.title = coverPlanInfos.getString(key_title);
-        p.lastUpdate = coverPlanInfos.getString(key_last_updated);
-        p.dailyInfoHeader = coverPlanInfos.optString(key_dailymessage_header);
+
+        p.setTitle(coverPlanInfos.getString(key_title));
+        p.setLastUpdate(coverPlanInfos.getString(key_last_updated));
+        p.setDailyInfo(coverPlanInfos.optString(key_dailymessage_header));
+
         int itemAmount = coverPlanInfos.getInt(key_item_amount);
         int index = 0;
 
-        while( index < itemAmount ){
+        List<CoverItem> coverItems = new ArrayList<>();
 
-            JSONObject item = items.getJSONObject(key_item+index);
+        while (index < itemAmount) {
+
+            JSONObject item = items.getJSONObject(key_item + index);
 
             CoverItem coverItem = new CoverItem.Builder()
                     .setClass(item.getString(key_class))
@@ -116,19 +125,23 @@ class JsonConverter {
                     .isNewEntry(item.getString(key_annotation_lesson).equals("X"))
                     .build();
 
-            p.coverItems.add(coverItem);
+            coverItems.add(coverItem);
             index++;
         }
+        p.setCoverItems(coverItems);
+
         items = o.optJSONObject(key_dailymessage_items);
         itemAmount = coverPlanInfos.getInt(key_dailymessage_item_amount);
         index = 0;
-        while(index<itemAmount){
-            JSONObject rowItem = items.optJSONObject(key_dailymessage_item+index);
-            p.dailyInfoRows.add(rowItem.getString(key_dailymessage_item_text));
+
+        List<String> dailyInfoRows = new LinkedList<>();
+        while (index < itemAmount) {
+            JSONObject rowItem = items.optJSONObject(key_dailymessage_item + index);
+            dailyInfoRows.add(rowItem.getString(key_dailymessage_item_text));
             index++;
         }
-
-        return p;
+        p.setDailyInfoBody(dailyInfoRows);
+        return p.build();
 
     }
 

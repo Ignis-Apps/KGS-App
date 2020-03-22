@@ -10,9 +10,9 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import de.kgs.vertretungsplan.coverPlan.CoverPlanLoader;
-import de.kgs.vertretungsplan.coverPlan.CoverPlanLoaderCallback;
-import de.kgs.vertretungsplan.singetones.DataStorage;
+import de.kgs.vertretungsplan.loader.CoverPlanLoader;
+import de.kgs.vertretungsplan.loader.CoverPlanLoaderCallback;
+import de.kgs.vertretungsplan.singetones.GlobalVariables;
 
 import static de.kgs.vertretungsplan.storage.StorageKeys.PASSWORD;
 import static de.kgs.vertretungsplan.storage.StorageKeys.SHARED_PREF;
@@ -22,7 +22,7 @@ public class LoginActivity extends AppCompatActivity implements CoverPlanLoaderC
     public static final int SUCCESS_RC = 111;
     private static final String TAG = "LoginActivity";
 
-    private DataStorage ds = DataStorage.getInstance();
+    private GlobalVariables ds = GlobalVariables.getInstance();
     public SharedPreferences sharedPreferences;
     public SharedPreferences.Editor sharedEditor;
 

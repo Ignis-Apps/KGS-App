@@ -7,42 +7,62 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-
 public class Broadcast {
 
     private static final String TAG = "Broadcaster";
-    private final Map<Observer, List<BroadcastEvent>> observers = new HashMap<>();
+    private final Map<Receiver, List<BroadcastEvent>> observers = new HashMap<>();
 
-    public interface Observer {
-        void onEventTriggered(BroadcastEvent broadcastEvent);
-    }
+    /**
+     * Subscribes the given observer to the given broadcast events.
+     * The observer will receive events until the subscription is canceled.
+     *
+     * @param receiver the observer that should subscribe
+     * @param event    the event/s to which the observer will subscribe
+     */
+    public void subscribe(Receiver receiver, BroadcastEvent... event) {
 
-    public void subscribe(Observer observer, BroadcastEvent... event) {
-
-        List<BroadcastEvent> list = observers.get(observer);
+        List<BroadcastEvent> list = observers.get(receiver);
         if (list == null)
             list = new LinkedList<>();
-
         for (BroadcastEvent e : event) {
             if (list.contains(e))
                 continue;
             list.add(e);
-            observers.put(observer, list);
+            observers.put(receiver, list);
         }
     }
 
-    public void send(BroadcastEvent event) {
+    /**
+     * Sends the given command to all subscribed observers
+     *
+     * @param events the events that should be send
+     */
+    public void send(BroadcastEvent... events) {
 
-        Log.d(TAG, "send : " + event);
-        for (Observer observer : observers.keySet()) {
-            List<BroadcastEvent> subscribedEvents = observers.get(observer);
-            if (subscribedEvents == null)
-                throw new AssertionError("Bug");
-            observer.onEventTriggered(event);
+        for (BroadcastEvent event : events) {
+
+            Log.d(TAG, "send: " + event);
+
+            for (Receiver receiver : observers.keySet()) {
+                List<BroadcastEvent> subscribedEvents = observers.get(receiver);
+                if (subscribedEvents == null) {
+                    throw new AssertionError("Bug");
+                }
+                if (subscribedEvents.contains(event)) {
+                    receiver.onEventTriggered(event);
+                }
+            }
+
         }
+
     }
 
-    public void unsubscribe(Observer observer) {
-        this.observers.remove(observer);
+    // Not yet implemented. Beware of Concurrent Modification !.
+    public void unsubscribe(Receiver receiver) {
+        //observers.remove(observer);
+    }
+
+    public interface Receiver {
+        void onEventTriggered(BroadcastEvent broadcastEvent);
     }
 }

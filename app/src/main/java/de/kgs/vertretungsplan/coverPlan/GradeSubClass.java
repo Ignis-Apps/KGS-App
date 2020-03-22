@@ -1,4 +1,4 @@
-package de.kgs.vertretungsplan.views;
+package de.kgs.vertretungsplan.coverPlan;
 
 public enum GradeSubClass {
     ALL("Alle", "", 0),
@@ -7,7 +7,7 @@ public enum GradeSubClass {
     C("c", "c", 3),
     D("d", "d", 4),
     E("e", "e", 5);
-    
+
     private final String classInitials;
     private final int classLevel;
     private final String className;
@@ -16,6 +16,24 @@ public enum GradeSubClass {
         this.className = className;
         this.classInitials = classInitials;
         this.classLevel = classLevel;
+    }
+
+    public static GradeSubClass getByClassName(String className) {
+        for (GradeSubClass subClass : values()) {
+            if (subClass.className.equals(className)) {
+                return subClass;
+            }
+        }
+        throw new AssertionError("Requested class name does not exist !" + className);
+    }
+
+    public static GradeSubClass getClassByClassLevel(int classLevel) {
+
+        for (GradeSubClass subClass : values()) {
+            if (subClass.classLevel == classLevel)
+                return subClass;
+        }
+        throw new AssertionError("Requested class level does not exist !");
     }
 
     public int getClassLevel() {
@@ -28,14 +46,5 @@ public enum GradeSubClass {
 
     public String getClassInitials() {
         return this.classInitials;
-    }
-
-    public static GradeSubClass getByClassName(String className) {
-        for (GradeSubClass subClass : values()) {
-            if (subClass.className.equals(className)) {
-                return subClass;
-            }
-        }
-        return null;
     }
 }

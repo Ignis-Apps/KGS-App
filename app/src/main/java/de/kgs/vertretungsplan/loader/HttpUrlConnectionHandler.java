@@ -1,4 +1,4 @@
-package de.kgs.vertretungsplan.coverPlan;
+package de.kgs.vertretungsplan.loader;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -9,7 +9,7 @@ import java.net.URL;
 import java.util.List;
 import javax.net.ssl.HttpsURLConnection;
 
-import de.kgs.vertretungsplan.singetones.DataStorage;
+import de.kgs.vertretungsplan.singetones.GlobalVariables;
 
 class HttpUrlConnectionHandler {
 
@@ -20,7 +20,6 @@ class HttpUrlConnectionHandler {
             System.out.println("Cookie is too old !");
             performLogin();
         }
-
 
 
         URL obj = new URL(url);
@@ -35,14 +34,14 @@ class HttpUrlConnectionHandler {
         // MoodleSession expired / invalid
         if( responseCode == 303 ){
             performLogin();
-            return getCoverplanData(url, DataStorage.getInstance().moodleCookie);
+            return getCoverplanData(url, GlobalVariables.getInstance().moodleCookie);
         }
 
         if( responseCode != 200){
             throw new Exception("Error while loading page");
         }
 
-        DataStorage.getInstance().moodleCookieLastUse = System.nanoTime();
+        GlobalVariables.getInstance().moodleCookieLastUse = System.nanoTime();
 
         BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         String inputLine;
@@ -60,9 +59,9 @@ class HttpUrlConnectionHandler {
     public static void performLogin() throws Exception{
 
         System.out.println("Performing Login");
-        String parameterString = "username=" + DataStorage.getInstance().username + "&password=" + DataStorage.getInstance().password +"&ajax=true";
+        String parameterString = "username=" + GlobalVariables.getInstance().username + "&password=" + GlobalVariables.getInstance().password +"&ajax=true";
 
-        URL obj = new URL(DataStorage.getInstance().login_page_url);
+        URL obj = new URL(GlobalVariables.getInstance().login_page_url);
         HttpsURLConnection conn = (HttpsURLConnection) obj.openConnection();
 
         conn.setUseCaches(false);
@@ -101,19 +100,19 @@ class HttpUrlConnectionHandler {
 
 
         String moodleCoockie = cookieConcad.substring(cookieConcad.indexOf("MoodleSession"));
-        DataStorage.getInstance().moodleCookie = moodleCoockie.substring(0,40);
+        GlobalVariables.getInstance().moodleCookie = moodleCoockie.substring(0,40);
 
     }
 
 
     private static boolean isCookieExpired(){
 
-        long elapsedTime = ( System.nanoTime() - DataStorage.getInstance().moodleCookieLastUse ) / 1000000000;
-        return elapsedTime > DataStorage.getInstance().moodleCookieMaxAgeSecounds;
+        long elapsedTime = ( System.nanoTime() - GlobalVariables.getInstance().moodleCookieLastUse ) / 1000000000;
+        return elapsedTime > GlobalVariables.getInstance().moodleCookieMaxAgeSecounds;
 
     }
 
     Document getParsedDocument(String url)throws Exception{
-        return Jsoup.parse(getCoverplanData(url,DataStorage.getInstance().moodleCookie));
+        return Jsoup.parse(getCoverplanData(url, GlobalVariables.getInstance().moodleCookie));
     }
 }

@@ -8,7 +8,7 @@ import androidx.appcompat.app.AlertDialog.Builder;
 
 import de.kgs.vertretungsplan.MainActivity;
 import de.kgs.vertretungsplan.R;
-import de.kgs.vertretungsplan.coverPlan.CoverPlanLoader;
+import de.kgs.vertretungsplan.loader.CoverPlanLoader;
 
 public final class DownloadError {
 

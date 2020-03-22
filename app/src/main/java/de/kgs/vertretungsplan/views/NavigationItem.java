@@ -4,30 +4,32 @@ import de.kgs.vertretungsplan.R;
 
 public enum NavigationItem {
 
-    BLACK_BOARD(R.id.nav_black_board),
+    BLACK_BOARD(R.id.nav_black_board, true),
 
-    COVER_PLAN_TODAY(R.id.nav_today),
+    COVER_PLAN_TODAY(R.id.nav_today, true),
 
-    COVER_PLAN_TOMORROW(R.id.nav_tomorrow),
+    COVER_PLAN_TOMORROW(R.id.nav_tomorrow, true),
 
-    NEWS(R.id.nav_school_website_news),
+    NEWS(R.id.nav_school_website_news, false),
 
-    APPOINTMENTS(R.id.nav_school_website_events),
+    APPOINTMENTS(R.id.nav_school_website_events, false),
 
-    PRESS(R.id.nav_school_website_press),
+    PRESS(R.id.nav_school_website_press, false),
 
-    CANTEEN_PLAN(R.id.nav_school_mensa),
+    CANTEEN_PLAN(R.id.nav_school_mensa, false),
 
-    WEBSITE(R.id.nav_school_website),
+    WEBSITE(R.id.nav_school_website, false),
 
-    MOODLE(R.id.nav_moodle),
+    MOODLE(R.id.nav_moodle, false),
 
-    NEWSLETTER(R.id.nav_school_newsletter);
+    NEWSLETTER(R.id.nav_school_newsletter, false);
 
     private final int resourceId;
+    private final boolean onPageViewer;
 
-    NavigationItem(int resourceId2) {
-        this.resourceId = resourceId2;
+    NavigationItem(int resourceId, boolean onPageViewer) {
+        this.resourceId = resourceId;
+        this.onPageViewer = onPageViewer;
     }
 
     public static NavigationItem getNavigationItemById(int resourceId) {
@@ -38,5 +40,13 @@ public enum NavigationItem {
             }
         }
         throw new AssertionError("Enum not implemented !");
+    }
+
+    /**
+     * Returns whether the enum is an element of the viewpager or not
+     * @return True if enum is element. False otherwise
+     */
+    public boolean isOnPageViewer() {
+        return onPageViewer;
     }
 }

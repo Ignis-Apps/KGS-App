@@ -1,4 +1,4 @@
-package de.kgs.vertretungsplan.views;
+package de.kgs.vertretungsplan.views.handler;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -8,9 +8,10 @@ import android.widget.RelativeLayout;
 
 import de.kgs.vertretungsplan.broadcaster.Broadcast;
 import de.kgs.vertretungsplan.broadcaster.BroadcastEvent;
-import de.kgs.vertretungsplan.singetones.DataStorage;
+import de.kgs.vertretungsplan.singetones.ApplicationData;
+import de.kgs.vertretungsplan.views.NavigationItem;
 
-public class KgsWebView extends WebView implements Broadcast.Observer {
+public class WebViewHandler extends WebView implements Broadcast.Receiver {
 
     private static final String LOADING_MSG = "Lädt ...";
 
@@ -18,12 +19,12 @@ public class KgsWebView extends WebView implements Broadcast.Observer {
     private Broadcast broadcast;
     private ProgressDialog progressDialog;
 
-    public KgsWebView(Context context) {
+    public WebViewHandler(Context context) {
         super(context);
         initView();
     }
 
-    public KgsWebView(Context context, Broadcast broadcast2) {
+    public WebViewHandler(Context context, Broadcast broadcast2) {
         this(context);
         this.broadcast = broadcast2;
     }
@@ -45,15 +46,14 @@ public class KgsWebView extends WebView implements Broadcast.Observer {
     }
 
     public void loadWebPage(String url, boolean allowJs) {
-        this.broadcast.subscribe(this, BroadcastEvent.CURRENT_MENU_ITEM_CHANGED);
-        this.progressDialog = ProgressDialog.show(getContext(), null, LOADING_MSG, true);
-        this.clearHistoryWhenLoaded = true;
+        broadcast.subscribe(this, BroadcastEvent.CURRENT_MENU_ITEM_CHANGED);
+        progressDialog = ProgressDialog.show(getContext(), null, LOADING_MSG, true);
+        clearHistoryWhenLoaded = true;
         getSettings().setJavaScriptEnabled(allowJs);
         loadUrl(url);
     }
 
     public void close() {
-        this.broadcast.unsubscribe(this);
         dismissLoadingDialog();
         getSettings().setJavaScriptEnabled(false);
         setVisibility(GONE);
@@ -61,24 +61,27 @@ public class KgsWebView extends WebView implements Broadcast.Observer {
     }
 
     public boolean consumesBackPress() {
+
+        if (getVisibility() == GONE)
+            return false;
+
         if (canGoBack()) {
             goBack();
-            return true;
+        } else {
+            close();
         }
-        close();
-        return false;
+        return true;
     }
 
     private void dismissLoadingDialog() {
-        ProgressDialog progressDialog2 = this.progressDialog;
-        if (progressDialog2 != null) {
-            progressDialog2.dismiss();
+        if (this.progressDialog != null) {
+            progressDialog.dismiss();
         }
     }
 
     @Override
     public void onEventTriggered(BroadcastEvent event) {
-        NavigationItem current = DataStorage.getInstance().currentNavigationItem;
+        NavigationItem current = ApplicationData.getInstance().getCurrentNavigationItem();
         if (current != NavigationItem.NEWS && current != NavigationItem.APPOINTMENTS && current != NavigationItem.PRESS) {
             close();
         }

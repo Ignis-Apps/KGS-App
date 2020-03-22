@@ -1,4 +1,4 @@
-package de.kgs.vertretungsplan.views;
+package de.kgs.vertretungsplan.views.handler;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -15,111 +15,88 @@ import de.kgs.vertretungsplan.R;
 import de.kgs.vertretungsplan.broadcaster.Broadcast;
 import de.kgs.vertretungsplan.broadcaster.BroadcastEvent;
 import de.kgs.vertretungsplan.manager.FirebaseManager;
-import de.kgs.vertretungsplan.manager.ViewPagerManager;
-import de.kgs.vertretungsplan.singetones.DataStorage;
-
+import de.kgs.vertretungsplan.singetones.ApplicationData;
+import de.kgs.vertretungsplan.singetones.GlobalVariables;
+import de.kgs.vertretungsplan.views.NavigationItem;
 
 public final class NavigationHandler implements OnNavigationItemSelectedListener {
 
     private Broadcast broadcast;
-    private DataStorage dataStorage = DataStorage.getInstance();
+    private GlobalVariables globalVariables = GlobalVariables.getInstance();
     private DrawerLayout drawerLayout;
     private MainActivity mainActivity;
     private NavigationView navigationView;
-    private ViewPagerManager viewPagerManager;
-    private KgsWebView webView;
 
     public NavigationHandler(MainActivity activity, DrawerLayout drawerLayout2) {
         this.broadcast = activity.broadcast;
         this.mainActivity = activity;
         this.drawerLayout = drawerLayout2;
-        this.viewPagerManager = activity.viewPagerManager;
-        this.webView = activity.kgsWebView;
         this.navigationView = activity.findViewById(R.id.nav_view);
         this.navigationView.setNavigationItemSelectedListener(this);
-        setupObserver(activity.broadcast);
+        setupReceiver(activity.broadcast);
     }
 
     public boolean onNavigationItemSelected(MenuItem menuItem) {
         String str = "nachrichten";
         switch (menuItem.getItemId()) {
             case R.id.nav_black_board:
-                updateViewPager(0);
+            case R.id.nav_today:
+            case R.id.nav_tomorrow:
                 break;
             case R.id.nav_moodle:
                 logEvent("moodle", false);
-                openInBrowser(this.dataStorage.school_moodle_url, false);
+                openInBrowser(globalVariables.school_moodle_url, false);
                 break;
             case R.id.nav_school_mensa:
                 logEvent("mensa", false);
-                openInBrowser(this.dataStorage.school_mensa_url, false);
+                openInBrowser(globalVariables.school_mensa_url, false);
                 break;
             case R.id.nav_school_newsletter:
                 logEvent("newsletter", false);
-                openInBrowser(this.dataStorage.school_newsletter_url, false);
+                openInBrowser(globalVariables.school_newsletter_url, false);
                 break;
             case R.id.nav_school_website:
                 logEvent("schulwebseite", false);
-                openInBrowser(this.dataStorage.school_webpage_url, false);
+                openInBrowser(globalVariables.school_webpage_url, false);
                 break;
             case R.id.nav_school_website_events:
                 logEvent("termine", true);
-                openInBrowser(this.dataStorage.school_events_url, true);
+                openInBrowser(globalVariables.school_events_url, true);
                 break;
             case R.id.nav_school_website_news:
                 logEvent(str, true);
-                openInBrowser(this.dataStorage.school_news_url, true);
+                openInBrowser(globalVariables.school_news_url, true);
                 break;
             case R.id.nav_school_website_press:
                 logEvent(str, true);
-                openInBrowser(this.dataStorage.school_press_url, true);
-                break;
-            case R.id.nav_today:
-                this.mainActivity.currentDay = 0;
-                updateViewPager(1);
-                break;
-            case R.id.nav_tomorrow:
-                this.mainActivity.currentDay = 1;
-                updateViewPager(2);
+                openInBrowser(globalVariables.school_press_url, true);
                 break;
             default:
                 throw new AssertionError("NavigationHandler case not covered");
         }
 
-        dataStorage.currentNavigationItem = NavigationItem.getNavigationItemById(menuItem.getItemId());
+        ApplicationData.getInstance().setCurrentNavigationItem(NavigationItem.getNavigationItemById(menuItem.getItemId()));
         broadcast.send(BroadcastEvent.CURRENT_MENU_ITEM_CHANGED);
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
 
-    private void setupObserver(Broadcast broadcast) {
-        broadcast.subscribe(new Broadcast.Observer() {
-            @Override
-            public void onEventTriggered(BroadcastEvent event) {
-                NavigationHandler.this.setCurrentSelectedItem(DataStorage.getInstance().currentlySelectedViewPage);
-            }
-        }, BroadcastEvent.CURRENT_PAGE_CHANGED);
+    private void setupReceiver(Broadcast broadcast) {
 
-        broadcast.subscribe(new Broadcast.Observer() {
+        broadcast.subscribe(event -> setCurrentSelectedItem(ApplicationData.getInstance().getCurrentlySelectedViewPage()), BroadcastEvent.CURRENT_PAGE_CHANGED);
 
-            public void onEventTriggered(BroadcastEvent event) {
-                DataStorage dataStorage = DataStorage.getInstance();
-
-                String day1 = dataStorage.coverPlanToday.title.split(" ")[0];
-                String date1 = dataStorage.coverPlanToday.title.split(" ")[1].replace(",", "");
-                setTextOfMenuItem(date1 + ", " + day1, 1);
-
-                String day2 = dataStorage.coverPlanTomorow.title.split(" ")[0];
-                String date2 = dataStorage.coverPlanTomorow.title.split(" ")[1].replace(",", "");
-                setTextOfMenuItem(date2 + ", " + day2, 2);
-
-
-            }
+        broadcast.subscribe(event -> {
+            ApplicationData data = ApplicationData.getInstance();
+            setTextOfMenuItem(data.getCoverPlanToday().getNavigationText(),1);
+            setTextOfMenuItem(data.getCoverPlanTomorrow().getNavigationText(),2);
         }, BroadcastEvent.DATA_PROVIDED);
     }
 
     private void setCurrentSelectedItem(int index) {
-        this.navigationView.getMenu().getItem(index).setChecked(true);
+
+        MenuItem current = navigationView.getMenu().getItem(index);
+        current.setChecked(true);
+        ApplicationData.getInstance().setCurrentNavigationItem(NavigationItem.getNavigationItemById(current.getItemId()));
     }
 
     private void setTextOfMenuItem(String text, int index) {
@@ -136,14 +113,9 @@ public final class NavigationHandler implements OnNavigationItemSelectedListener
         }
     }
 
-    private void updateViewPager(int index) {
-        this.dataStorage.currentlySelectedViewPage = index;
-        this.broadcast.send(BroadcastEvent.CURRENT_PAGE_CHANGED);
-    }
-
     private void openInBrowser(String url, boolean inApp) {
         if (inApp) {
-            this.mainActivity.kgsWebView.loadWebPage(url, false);
+            this.mainActivity.webViewHandler.loadWebPage(url, false);
             return;
         }
         this.mainActivity.startActivity(new Intent("android.intent.action.VIEW", Uri.parse(url)));

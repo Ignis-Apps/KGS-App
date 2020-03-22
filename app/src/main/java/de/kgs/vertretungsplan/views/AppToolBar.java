@@ -1,136 +1,101 @@
 package de.kgs.vertretungsplan.views;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
-
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 
 import de.kgs.vertretungsplan.MainActivity;
 import de.kgs.vertretungsplan.R;
 import de.kgs.vertretungsplan.broadcaster.Broadcast;
 import de.kgs.vertretungsplan.broadcaster.BroadcastEvent;
 import de.kgs.vertretungsplan.coverPlan.CoverPlan;
-import de.kgs.vertretungsplan.singetones.DataStorage;
+import de.kgs.vertretungsplan.singetones.ApplicationData;
 
-public final class AppToolBar implements Broadcast.Observer {
+public final class AppToolBar implements Broadcast.Receiver {
+
     private Toolbar toolbar;
 
-    public AppToolBar(MainActivity activity, Toolbar toolbar2) {
-        this.toolbar = toolbar2;
+    public AppToolBar(@NonNull MainActivity activity) {
+        this.toolbar = activity.findViewById(R.id.toolbar);
         this.toolbar.setTitle(activity.getResources().getString(R.string.app_title));
-        activity.setSupportActionBar(toolbar2);
+        activity.setSupportActionBar(toolbar);
         setupObserver(activity.broadcast);
     }
 
-    public void setText(String title, String subtitle) {
-        setTitle(title);
-        setSubTitle(subtitle);
+
+    private void setOnlyTitle(Integer titleResourceId) {
+        toolbar.setTitle(titleResourceId);
+        toolbar.setSubtitle(null);
     }
 
-    public void setTitle(String title) {
-        this.toolbar.setTitle(title);
-    }
-
-    public void setSubTitle(String subTitle) {
-        this.toolbar.setSubtitle(subTitle);
-    }
-
-    private void setupObserver(Broadcast broadcast) {
+    private void setupObserver(@NonNull Broadcast broadcast) {
         broadcast.subscribe(this, BroadcastEvent.CURRENT_PAGE_CHANGED, BroadcastEvent.CURRENT_MENU_ITEM_CHANGED, BroadcastEvent.DATA_PROVIDED);
     }
 
     private void onSelectedMenuItemChanged() {
-        DataStorage dataStorage = DataStorage.getInstance();
-        switch (dataStorage.currentNavigationItem) {
-            case BLACK_BOARD:
-                setText("Schwarzes Brett", null);
-                return;
-            case COVER_PLAN_TODAY:
-                CoverPlan today = dataStorage.coverPlanToday;
-                setText(parseDayFromCoverPlan(today), parseLastUpdateFromCoverPlan(today));
-                return;
-            case COVER_PLAN_TOMORROW:
-                CoverPlan tomorrow = dataStorage.coverPlanTomorow;
-                setText(parseDayFromCoverPlan(tomorrow), parseLastUpdateFromCoverPlan(tomorrow));
-                return;
-            case NEWS:
-                setText("Nachrichten", null);
-                return;
-            case APPOINTMENTS:
-                setText("Termine", null);
-                return;
-            case PRESS:
-                setText("Presse", null);
-                return;
-            case CANTEEN_PLAN:
-            case WEBSITE:
-            case MOODLE:
-            case NEWSLETTER:
-                return;
-            default:
-                throw new AssertionError("AppToolBar | unknown case");
-        }
+
+        ApplicationData applicationData = ApplicationData.getInstance();
+
+        NavigationItem navigationItem = ApplicationData.getInstance().getCurrentNavigationItem();
+
+        if (navigationItem == NavigationItem.BLACK_BOARD)
+            setOnlyTitle(R.string.toolbar_black_board);
+
+        else if (navigationItem == NavigationItem.COVER_PLAN_TODAY)
+            setToolbarTextByCoverPlan(applicationData.getCoverPlanToday());
+
+        else if (navigationItem == NavigationItem.COVER_PLAN_TOMORROW)
+            setToolbarTextByCoverPlan(applicationData.getCoverPlanTomorrow());
+
+        else if (navigationItem == NavigationItem.NEWS)
+            setOnlyTitle(R.string.toolbar_news);
+
+        else if (navigationItem == NavigationItem.APPOINTMENTS)
+            setOnlyTitle(R.string.toolbar_events);
+
+        else if (navigationItem == NavigationItem.PRESS)
+            setOnlyTitle(R.string.toolbar_press);
+
     }
 
     private void onViewPageChanged() {
-        DataStorage dataStorage = DataStorage.getInstance();
-        int i = dataStorage.currentlySelectedViewPage;
+
+        ApplicationData applicationData = ApplicationData.getInstance();
+
+        int i = applicationData.getCurrentlySelectedViewPage();
         if (i == 0) {
-            setText("Schwarzes Brett", null);
+            setOnlyTitle(R.string.toolbar_black_board);
         } else if (i == 1) {
-            CoverPlan today = dataStorage.coverPlanToday;
-            setText(parseDayFromCoverPlan(today), parseLastUpdateFromCoverPlan(today));
+            setToolbarTextByCoverPlan(applicationData.getCoverPlanToday());
         } else if (i == 2) {
-            CoverPlan tomorrow = dataStorage.coverPlanTomorow;
-            setText(parseDayFromCoverPlan(tomorrow), parseLastUpdateFromCoverPlan(tomorrow));
+            setToolbarTextByCoverPlan(applicationData.getCoverPlanTomorrow());
         }
     }
 
     private void onDataReceived() {
-        NavigationItem item = DataStorage.getInstance().currentNavigationItem;
+        NavigationItem item = ApplicationData.getInstance().getCurrentNavigationItem();
         if (item == NavigationItem.COVER_PLAN_TODAY || item == NavigationItem.COVER_PLAN_TOMORROW) {
             onViewPageChanged();
         }
     }
 
-    private String parseDayFromCoverPlan(CoverPlan coverPlan) {
-        if (coverPlan == null || coverPlan.title == null) {
-            return "Fehler";
-        }
-        return coverPlan.title.split(" ")[1].replace(",", "");
-    }
-
-    private String parseLastUpdateFromCoverPlan(CoverPlan coverPlan) {
-        String str = "Fehler";
-        if (coverPlan == null || coverPlan.lastUpdate == null) {
-            return str;
-        }
-        DateFormat sourceFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.GERMANY);
-        DateFormat targetFormatToolbar = new SimpleDateFormat("'Stand:' d. MMMM | HH:mm", Locale.GERMANY);
-        try {
-            Date date = sourceFormat.parse(coverPlan.lastUpdate);
-            return targetFormatToolbar.format(date != null ? date : str);
-        } catch (ParseException e) {
-            return str;
+    private void setToolbarTextByCoverPlan(CoverPlan plan) {
+        if (plan != null) {
+            toolbar.setTitle(plan.getWeekDay());
+            toolbar.setSubtitle(plan.getLastUpdateText());
         }
     }
 
+    @Override
     public void onEventTriggered(BroadcastEvent event) {
 
-        switch (event) {
-            case CURRENT_MENU_ITEM_CHANGED:
-                onSelectedMenuItemChanged();
-                break;
-            case CURRENT_PAGE_CHANGED:
-                onViewPageChanged();
-                break;
-            case DATA_PROVIDED:
-                onDataReceived();
-                break;
-        }
+        if (event == BroadcastEvent.CURRENT_MENU_ITEM_CHANGED)
+            onSelectedMenuItemChanged();
+        else if (event == BroadcastEvent.CURRENT_PAGE_CHANGED)
+            onViewPageChanged();
+        else if (event == BroadcastEvent.DATA_PROVIDED)
+            onDataReceived();
+        else
+            throw new AssertionError("Unhandled broadcast event !");
 
     }
 }

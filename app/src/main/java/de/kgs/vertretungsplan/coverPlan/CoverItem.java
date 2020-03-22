@@ -13,6 +13,41 @@ public class CoverItem {
     private boolean mNewEntry;
     private boolean mCanceled;
 
+    private CoverItem() {
+    }
+
+    public String getTargetClass() {
+        return this.mClass;
+    }
+
+    public String getHour() {
+        return this.mHour;
+    }
+
+    public String getSubject() {
+        return this.mSubject;
+    }
+
+    public String getRoom() {
+        return this.mRoom;
+    }
+
+    public String getAnnotation() {
+        return this.mAnnotation;
+    }
+
+    public String getRelocated() {
+        return this.mRelocated;
+    }
+
+    public boolean isNewEntry() {
+        return this.mNewEntry;
+    }
+
+    public boolean isCanceled() {
+        return this.mRoom.equals("---");
+    }
+
     public static class Builder {
 
         private String mClass;
@@ -77,58 +112,5 @@ public class CoverItem {
             item.mCanceled = this.mCanceled;
             return item;
         }
-    }
-
-    private CoverItem() {
-    }
-
-    public String getTargetClass() {
-        return this.mClass;
-    }
-
-    public String getHour() {
-        return this.mHour;
-    }
-
-    public String getSubject() {
-        return this.mSubject;
-    }
-
-    public String getRoom() {
-        return this.mRoom;
-    }
-
-    public String getAnnotation() {
-        return this.mAnnotation;
-    }
-
-    public String getRelocated() {
-        return this.mRelocated;
-    }
-
-    public boolean isNewEntry() {
-        return this.mNewEntry;
-    }
-
-    public boolean isCanceled() {
-        return this.mRoom.equals("---");
-    }
-
-    public String toString() {
-        return "Klasse : " +
-                this.mClass +
-                "\nBetroffene Stunde : " +
-                this.mHour +
-                "\nBetroffenes Fach : " +
-                this.mSubject +
-                "\nRaum : " +
-                this.mRoom +
-                "\nVerlegt von : " +
-                this.mRelocated +
-                "\nIst ein neuer Eintrag : " +
-                this.mNewEntry +
-                "\nEntfällt : " +
-                this.mCanceled +
-                "\n";
     }
 }

@@ -1,4 +1,4 @@
-package de.kgs.vertretungsplan.slide;
+package de.kgs.vertretungsplan.views.adapters;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -17,20 +17,20 @@ import java.util.List;
 import de.kgs.vertretungsplan.R;
 import de.kgs.vertretungsplan.coverPlan.CoverItem;
 
-public class StableArrayAdapter extends ArrayAdapter<CoverItem> {
+public class CoverItemListAdapter extends ArrayAdapter<CoverItem> {
     private final Context context;
     private final List<CoverItem> values;
     private String dailyInfoHeader,dailyInfoMessage;
     private boolean hasDailyMessage;
     private String TAG = "ignislog arrayadapter";
 
-    StableArrayAdapter(Context context, List<CoverItem> values) {
+    public CoverItemListAdapter(Context context, List<CoverItem> values) {
         super(context, -1, values);
         this.context = context;
         this.values = values;
     }
 
-    void setDataSet(List<CoverItem> items){
+    public void setDataSet(List<CoverItem> items){
 
         Log.d(TAG, "Setting new dataset ");
         values.clear();
@@ -43,7 +43,7 @@ public class StableArrayAdapter extends ArrayAdapter<CoverItem> {
 
     }
 
-    void setDailyMessage(String title,String message){
+    public void setDailyMessage(String title, String message){
 
         dailyInfoHeader = title;
         dailyInfoMessage = message;

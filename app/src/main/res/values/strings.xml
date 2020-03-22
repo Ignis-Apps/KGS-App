@@ -6,5 +6,9 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
+    <string name="toolbar_black_board">Schwarzes Brett</string>
+    <string name="toolbar_news">Nachrichten</string>
+    <string name="toolbar_events">Termine</string>
+    <string name="toolbar_press">Presse</string>
 
 </resources>

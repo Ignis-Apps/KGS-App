@@ -4,8 +4,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
-import android.text.format.Time;
-import android.view.View.OnClickListener;
 import android.widget.RelativeLayout;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -19,41 +17,41 @@ import com.google.android.material.snackbar.Snackbar;
 
 import de.kgs.vertretungsplan.broadcaster.Broadcast;
 import de.kgs.vertretungsplan.broadcaster.BroadcastEvent;
-import de.kgs.vertretungsplan.coverPlan.CoverPlanLoader;
-import de.kgs.vertretungsplan.coverPlan.CoverPlanLoaderCallback;
+import de.kgs.vertretungsplan.loader.CoverPlanLoader;
+import de.kgs.vertretungsplan.loader.CoverPlanLoaderCallback;
 import de.kgs.vertretungsplan.coverPlan.DataInjector;
 import de.kgs.vertretungsplan.manager.FirebaseManager;
 import de.kgs.vertretungsplan.manager.ViewPagerManager;
-import de.kgs.vertretungsplan.singetones.DataStorage;
+import de.kgs.vertretungsplan.singetones.ApplicationData;
+import de.kgs.vertretungsplan.singetones.GlobalVariables;
 import de.kgs.vertretungsplan.storage.StorageKeys;
 import de.kgs.vertretungsplan.views.AppToolBar;
-import de.kgs.vertretungsplan.views.KgsWebView;
-import de.kgs.vertretungsplan.views.NavigationHandler;
-import de.kgs.vertretungsplan.views.NavigationItem;
-import de.kgs.vertretungsplan.views.SpinnerHandler;
+import de.kgs.vertretungsplan.views.handler.WebViewHandler;
+import de.kgs.vertretungsplan.views.handler.NavigationHandler;
+import de.kgs.vertretungsplan.views.handler.SpinnerHandler;
 import de.kgs.vertretungsplan.views.dialogs.DownloadError;
 import de.kgs.vertretungsplan.views.dialogs.LoginRequired;
 import de.kgs.vertretungsplan.views.dialogs.SwipeHintDialog;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
-public class MainActivity extends AppCompatActivity implements CoverPlanLoaderCallback, MainActivityInterface {
+public class MainActivity extends AppCompatActivity implements CoverPlanLoaderCallback {
     public static final int SIGN_UP_RC = 7234;
 
     public Broadcast broadcast;
     public RelativeLayout contentMain;
-    public int currentDay;
+
     public FirebaseManager firebaseManager;
-    public KgsWebView kgsWebView;
+    public WebViewHandler webViewHandler;
     public NavigationHandler navigationHandler;
     public CoverPlanLoader loader;
     public Editor sharedEditor;
     public SharedPreferences sharedPreferences;
     public SpinnerHandler spinnerHandler;
-    public AppToolBar toolbar2;
+    public AppToolBar toolBar;
     public ViewPagerManager viewPagerManager;
 
-    private DataStorage dateStorage;
+    private GlobalVariables dateStorage;
 
     @Override
     protected void onPause() {
@@ -66,6 +64,9 @@ public class MainActivity extends AppCompatActivity implements CoverPlanLoaderCa
         if (dateStorage.responseCode == CoverPlanLoader.RC_LATEST_DATASET) {
             dateStorage.timeMillsLastView = System.currentTimeMillis();
         }
+
+        ApplicationData.getInstance().saveData(this);
+
     }
 
     @Override
@@ -76,9 +77,10 @@ public class MainActivity extends AppCompatActivity implements CoverPlanLoaderCa
 
         loader = new CoverPlanLoader(this, this, false);
         loader.onlyLoadData = true;
-        dateStorage = DataStorage.getInstance();
+        dateStorage = GlobalVariables.getInstance();
 
         setupBrowser();
+
         CoverPlanLoader coverPlanLoader = this.loader;
         if (coverPlanLoader != null && coverPlanLoader.isRunning) {
             loader.onStart();
@@ -107,85 +109,53 @@ public class MainActivity extends AppCompatActivity implements CoverPlanLoaderCa
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        dateStorage = DataStorage.getInstance();
-        firebaseManager = new FirebaseManager(this, this.dateStorage);
+
+        ApplicationData.getInstance().loadData(this);
+
+        dateStorage = GlobalVariables.getInstance();
+        firebaseManager = new FirebaseManager(this);
         broadcast = new Broadcast();
         setupDataStorage();
         setupUI();
-        spinnerHandler = new SpinnerHandler(this, this.broadcast);
-        viewPagerManager = new ViewPagerManager(this, broadcast, firebaseManager);
+
     }
 
     private void setupDataStorage() {
 
         sharedPreferences = getSharedPreferences(StorageKeys.SHARED_PREF, 0);
-        sharedEditor = sharedPreferences.edit();
-        sharedEditor.apply();
-        DataStorage dataStorage = this.dateStorage;
-        SharedPreferences sharedPreferences2 = this.sharedPreferences;
-        String str = StorageKeys.CURRENT_GRADE_LEVEL;
-        dataStorage.currentGradeLevel = sharedPreferences2.getInt(str, 0);
-        if (this.dateStorage.currentGradeLevel > 8 || this.dateStorage.currentGradeLevel < 0) {
-            this.dateStorage.currentGradeLevel = 0;
-            this.sharedEditor.putInt(str, 0);
-            this.sharedEditor.apply();
-            Crashlytics.logException(new Exception("Magic is happening (currentGradeLevel)"));
-        }
-        FirebaseManager firebaseManager2 = this.firebaseManager;
-        StringBuilder sb = new StringBuilder();
-        sb.append(this.dateStorage.currentGradeLevel);
-        String str2 = "";
-        sb.append(str2);
-        firebaseManager2.setUserProperty("Stufe", sb.toString());
-        DataStorage dataStorage2 = this.dateStorage;
-        SharedPreferences sharedPreferences3 = this.sharedPreferences;
-        String str3 = StorageKeys.CURRENT_CLASS;
-        dataStorage2.currentClass = sharedPreferences3.getInt(str3, 0);
-        if (this.dateStorage.currentClass > 5 || this.dateStorage.currentClass < 0) {
-            this.dateStorage.currentClass = 0;
-            this.sharedEditor.putInt(str3, 0);
-            this.sharedEditor.commit();
-            Crashlytics.logException(new Exception("Magic is happening (currentClass)"));
-        }
-        FirebaseManager firebaseManager3 = this.firebaseManager;
-        StringBuilder sb2 = new StringBuilder();
-        sb2.append(this.dateStorage.currentClass);
-        sb2.append(str2);
-        firebaseManager3.setUserProperty("Klasse", sb2.toString());
-        this.dateStorage.password = this.sharedPreferences.getString(StorageKeys.PASSWORD, str2);
-        this.dateStorage.username = this.sharedPreferences.getString(StorageKeys.USERNAME, str2);
-        this.dateStorage.moodleCookie = this.sharedPreferences.getString(StorageKeys.LAST_VALID_MOODLE_COOKIE, str2);
-        this.dateStorage.moodleCookieLastUse = this.sharedPreferences.getLong(StorageKeys.MOODLE_COOKIE_LAST_USE, 0);
+
+        dateStorage.password = sharedPreferences.getString(StorageKeys.PASSWORD, "");
+        dateStorage.username = sharedPreferences.getString(StorageKeys.USERNAME, "");
+        dateStorage.moodleCookie = sharedPreferences.getString(StorageKeys.LAST_VALID_MOODLE_COOKIE, "");
+        dateStorage.moodleCookieLastUse = sharedPreferences.getLong(StorageKeys.MOODLE_COOKIE_LAST_USE, 0);
     }
 
     private void setupUI() {
 
-        setContentView((int) R.layout.activity_main);
+        setContentView(R.layout.activity_main);
+
         Toolbar toolbar = findViewById(R.id.toolbar);
-        this.toolbar2 = new AppToolBar(this, toolbar);
+        toolBar = new AppToolBar(this);
+
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        this.navigationHandler = new NavigationHandler(this, drawer);
+        navigationHandler = new NavigationHandler(this, drawer);
+
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-        this.contentMain = findViewById(R.id.contentMainRl);
-        Time today = new Time(Time.getCurrentTimezone());
-        today.setToNow();
-        if (today.hour <= 6 || today.hour >= 15 || today.weekDay == 6 || today.weekDay == 0) {
-            dateStorage.currentNavigationItem = NavigationItem.COVER_PLAN_TOMORROW;
-            this.currentDay = 1;
-        } else {
-            dateStorage.currentNavigationItem = NavigationItem.COVER_PLAN_TODAY;
-            this.currentDay = 0;
-        }
+
+        contentMain = findViewById(R.id.contentMainRl);
+
+        spinnerHandler = new SpinnerHandler(this, broadcast);
+        viewPagerManager = new ViewPagerManager(this, broadcast, firebaseManager);
+
     }
 
     private void setupBrowser() {
-        this.kgsWebView = new KgsWebView(this, this.broadcast);
-        this.contentMain.addView(this.kgsWebView);
+        webViewHandler = new WebViewHandler(this, this.broadcast);
+        contentMain.addView(this.webViewHandler);
     }
 
-    /* access modifiers changed from: protected */
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == 111) {
@@ -197,12 +167,19 @@ public class MainActivity extends AppCompatActivity implements CoverPlanLoaderCa
     }
 
     public void onBackPressed() {
+
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else if (!this.kgsWebView.consumesBackPress()) {
-            this.broadcast.send(BroadcastEvent.CURRENT_PAGE_CHANGED);
+            return;
         }
+
+        if (webViewHandler.consumesBackPress()) {
+            broadcast.send(BroadcastEvent.CURRENT_PAGE_CHANGED);
+            return;
+        }
+
+        super.onBackPressed();
     }
 
     public void showInfoDialog() {
@@ -249,8 +226,4 @@ public class MainActivity extends AppCompatActivity implements CoverPlanLoaderCa
         this.viewPagerManager.refreshPageViewer();
     }
 
-    public void onReloadRequested() {
-        this.loader = new CoverPlanLoader(this, this, false);
-        this.loader.execute();
-    }
 }

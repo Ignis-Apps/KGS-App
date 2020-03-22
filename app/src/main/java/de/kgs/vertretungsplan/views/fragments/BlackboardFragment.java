@@ -1,4 +1,4 @@
-package de.kgs.vertretungsplan.slide;
+package de.kgs.vertretungsplan.views.fragments;
 
 import android.content.Context;
 import android.content.Intent;
@@ -14,28 +14,24 @@ import androidx.fragment.app.Fragment;
 
 import de.kgs.vertretungsplan.MainActivity;
 import de.kgs.vertretungsplan.R;
-import de.kgs.vertretungsplan.singetones.DataStorage;
+import de.kgs.vertretungsplan.singetones.GlobalVariables;
 
 
 public class BlackboardFragment extends Fragment implements OnClickListener {
 
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.black_board_layout, container, false);
 
-        CardView newspaper = v.findViewById(R.id.card_newspaper);
-        CardView mensa = v.findViewById(R.id.card_mensa);
-        CardView contact = v.findViewById(R.id.card_contact);
+        View view = inflater.inflate(R.layout.black_board_layout, container, false);
 
-        newspaper.setOnClickListener(this);
-        mensa.setOnClickListener(this);
-        contact.setOnClickListener(this);
+        view.findViewById(R.id.card_newspaper).setOnClickListener(this);
+        view.findViewById(R.id.card_mensa).setOnClickListener(this);
+        view.findViewById(R.id.card_contact).setOnClickListener(this);
 
-        return v;
+        return view;
     }
 
-    public void setOnClickListener(OnClickListener onClickListener) {
-    }
-
+    @Override
     public void onClick(View view) {
 
         Context context = getContext();
@@ -45,20 +41,21 @@ public class BlackboardFragment extends Fragment implements OnClickListener {
         switch (view.getId()) {
 
             case R.id.card_mensa:
-                context.startActivity(new Intent("android.intent.action.VIEW", Uri.parse(DataStorage.getInstance().school_mensa_url)));
+                context.startActivity(new Intent("android.intent.action.VIEW", Uri.parse(GlobalVariables.getInstance().school_mensa_url)));
                 break;
 
-            case R.id.card_newspaper:
+            case R.id.card_contact:
                 Intent emailIntent = new Intent("android.intent.action.SENDTO", Uri.parse("mailto:ignis.apps@gmail.com"));
                 emailIntent.putExtra("android.intent.extra.SUBJECT", "Neuer Eintrag - Schwarzes Brett");
                 context.startActivity(Intent.createChooser(emailIntent, "Sende Email mit ..."));
                 break;
 
-            case R.id.card_contact:
+            case R.id.card_newspaper:
                 MainActivity m = (MainActivity) getContext();
                 if (m != null) {
-                    m.kgsWebView.loadWebPage(DataStorage.getInstance().student_newspaper, true);
-                    m.toolbar2.setTitle("freistunde.blog");
+                    m.webViewHandler.loadWebPage(GlobalVariables.getInstance().student_newspaper, true);
+                    // TODO
+                    // m.toolBar.setTitle("freistunde.blog");
                 }
                 break;
         }

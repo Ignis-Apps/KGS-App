@@ -1,4 +1,4 @@
-package de.kgs.vertretungsplan.slide;
+package de.kgs.vertretungsplan.views.fragments;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
@@ -24,20 +24,22 @@ import de.kgs.vertretungsplan.R;
 import de.kgs.vertretungsplan.broadcaster.Broadcast;
 import de.kgs.vertretungsplan.broadcaster.BroadcastEvent;
 import de.kgs.vertretungsplan.coverPlan.CoverItem;
+import de.kgs.vertretungsplan.coverPlan.CoverPlan;
+import de.kgs.vertretungsplan.views.adapters.CoverItemListAdapter;
 import de.kgs.vertretungsplan.views.dialogs.CoverItemInfo;
 
+public class CoverPlanFragment extends Fragment implements OnItemClickListener {
 
-public class ListViewFragment extends Fragment implements OnItemClickListener {
-    private StableArrayAdapter arrayAdapter;
+    private CoverItemListAdapter arrayAdapter;
     private Broadcast broadcast;
     private List<CoverItem> values = new ArrayList<>();
 
-    public ListViewFragment(Broadcast broadcast2) {
-        this.broadcast = broadcast2;
+    public CoverPlanFragment(Broadcast broadcast) {
+        this.broadcast = broadcast;
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        this.arrayAdapter = new StableArrayAdapter(getContext(), this.values);
+        this.arrayAdapter = new CoverItemListAdapter(getContext(), this.values);
         View fragmentView = inflater.inflate(R.layout.listview_fragment, container, false);
 
         ListView listView = fragmentView.findViewById(R.id.fragment_listview);
@@ -50,17 +52,12 @@ public class ListViewFragment extends Fragment implements OnItemClickListener {
         return fragmentView;
     }
 
-    public void setDataset(List<CoverItem> values) {
-        this.arrayAdapter.setDataSet(values);
+
+    public void setDataSet(CoverPlan coverPlan) {
+        arrayAdapter.setDataSet(coverPlan.getCoverItemsFiltered());
+        arrayAdapter.setDailyMessage(coverPlan.getDailyInfoHead(), coverPlan.getDailyInfoMessage());
     }
 
-    public void setDailyMessage(String title, String msg) {
-        this.arrayAdapter.setDailyMessage(title, msg);
-    }
-
-    public List<CoverItem> getDataset() {
-        return this.values;
-    }
 
     public boolean isCreated() {
         return this.arrayAdapter != null;
@@ -79,7 +76,7 @@ public class ListViewFragment extends Fragment implements OnItemClickListener {
             }
             return;
         }
-        CoverItemInfo.showDialog(getContext(), (CoverItem) this.values.get(position));
+        CoverItemInfo.showDialog(getContext(), this.values.get(position));
     }
 
     private static class RefreshHandler implements OnScrollListener, OnRefreshListener {
@@ -99,6 +96,7 @@ public class ListViewFragment extends Fragment implements OnItemClickListener {
 
         @Override
         public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleCount, int totalItemCount) {
+
             int topPosition = 0;
             boolean z = false;
             if (absListView != null && totalItemCount > 0) {
@@ -113,7 +111,7 @@ public class ListViewFragment extends Fragment implements OnItemClickListener {
 
         @Override
         public void onRefresh() {
-            this.broadcaster.send(BroadcastEvent.REQUEST_DATA_RELOAD);
+            broadcaster.send(BroadcastEvent.REQUEST_DATA_RELOAD);
             this.refreshLayout.setRefreshing(false);
         }
     }

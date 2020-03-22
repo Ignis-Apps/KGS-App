@@ -31,5 +31,11 @@ public enum BroadcastEvent {
     /**
      * This event should be called whenever the app requests new data from the loader
      */
-    REQUEST_DATA_RELOAD
+    REQUEST_DATA_RELOAD,
+
+    /**
+     * This event should be called when the internal browser view gets closed
+     */
+    // TODO implement it !
+    INTERNAL_BROWSER_CLOSED,
 }
