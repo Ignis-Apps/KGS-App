@@ -10,9 +10,10 @@ import android.widget.Spinner;
 import de.kgs.vertretungsplan.R;
 import de.kgs.vertretungsplan.broadcaster.Broadcast;
 import de.kgs.vertretungsplan.broadcaster.BroadcastEvent;
-import de.kgs.vertretungsplan.singetones.ApplicationData;
 import de.kgs.vertretungsplan.coverPlan.Grade;
 import de.kgs.vertretungsplan.coverPlan.GradeSubClass;
+import de.kgs.vertretungsplan.manager.firebase.Analytics;
+import de.kgs.vertretungsplan.singetones.ApplicationData;
 
 public class SpinnerHandler implements OnItemSelectedListener {
 
@@ -55,6 +56,7 @@ public class SpinnerHandler implements OnItemSelectedListener {
             spinnerClass.setVisibility(grade.hasSubClasses() ? View.VISIBLE : View.GONE);
             applicationData.setCurrentGrade(grade);
             broadcast.send(BroadcastEvent.CURRENT_GRADE_CHANGED);
+            Analytics.getInstance().setUserProperty("Stufe", grade.getGradeLevel() + "");
             return;
         }
 
@@ -62,6 +64,7 @@ public class SpinnerHandler implements OnItemSelectedListener {
             GradeSubClass subClass = GradeSubClass.getByClassName(spinnerClass.getSelectedItem().toString());
             applicationData.setCurrentGradeSubClass(subClass);
             broadcast.send(BroadcastEvent.CURRENT_CLASS_CHANGED);
+            Analytics.getInstance().setUserProperty("Klasse", subClass.getClassLevel() + "");
             return;
         }
 

@@ -22,7 +22,10 @@ public enum NavigationItem {
 
     MOODLE(R.id.nav_moodle, false),
 
-    NEWSLETTER(R.id.nav_school_newsletter, false);
+    NEWSLETTER(R.id.nav_school_newsletter, false),
+
+    // Dummy, not
+    STUDENT_NEWS_PAPER(-1, false);
 
     private final int resourceId;
     private final boolean onPageViewer;
@@ -44,6 +47,7 @@ public enum NavigationItem {
 
     /**
      * Returns whether the enum is an element of the viewpager or not
+     *
      * @return True if enum is element. False otherwise
      */
     public boolean isOnPageViewer() {

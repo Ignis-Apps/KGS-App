@@ -17,7 +17,7 @@ public class JsonConverter {
     private static final String key_class = "class";
     private static final String key_hour = "hour";
     private static final String key_dropped = "dropped";
-    private static final String key_fach = "fach";
+    private static final String key_subject = "fach";
     private static final String key_room = "room";
     private static final String key_annotation = "annotation";
     private static final String key_ver = "ver_from";
@@ -26,17 +26,17 @@ public class JsonConverter {
     private static final String key_title = "title";
     private static final String key_last_updated = "lastUpdated";
     private static final String key_item_amount = "amountOfItems";
-    private static final String key_coverplan_info = "coverPlanInfos";
-    private static final String key_coverplan_items = "coverPlanItems";
+    private static final String key_cover_plan_info = "coverPlanInfos";
+    private static final String key_cover_plan_items = "coverPlanItems";
 
-    private static final String key_dailymessage_header = "dailyMessageHeader";
-    private static final String key_dailymessage_item = "dailyMessageItem-";
-    private static final String key_dailymessage_items = "dailyMessageItems";
-    private static final String key_dailymessage_item_text = "dailyMessageItemText";
-    private static final String key_dailymessage_item_amount = "dailyMessageItemAmount";
+    private static final String key_daily_message_header = "dailyMessageHeader";
+    private static final String key_daily_message_item = "dailyMessageItem-";
+    private static final String key_daily_message_items = "dailyMessageItems";
+    private static final String key_daily_message_item_text = "dailyMessageItemText";
+    private static final String key_daily_message_item_amount = "dailyMessageItemAmount";
 
 
-    public static JSONObject getJSONFromCoverPlan(CoverPlan p) {
+    public static JSONObject getJSONFromCoverPlan(CoverPlan coverPlan) {
 
         JSONObject json = null;
 
@@ -45,46 +45,46 @@ public class JsonConverter {
             json = new JSONObject();
 
             JSONObject coverPlanInfos = new JSONObject();
-            coverPlanInfos.put(key_title, p.getTitle());
-            coverPlanInfos.put(key_last_updated, p.getLastUpdate());
-            coverPlanInfos.put(key_item_amount, p.getCoverItems().length);
-            coverPlanInfos.put(key_dailymessage_header, p.getDailyInfoHead());
-            coverPlanInfos.put(key_dailymessage_item_amount, p.getDailyInfoBody().size());
-            json.put(key_coverplan_info, coverPlanInfos);
+            coverPlanInfos.put(key_title, coverPlan.getTitle());
+            coverPlanInfos.put(key_last_updated, coverPlan.getLastUpdate());
+            coverPlanInfos.put(key_item_amount, coverPlan.getCoverItems().length);
+            coverPlanInfos.put(key_daily_message_header, coverPlan.getDailyInfoHead());
+            coverPlanInfos.put(key_daily_message_item_amount, coverPlan.getDailyInfoBody().size());
+            json.put(key_cover_plan_info, coverPlanInfos);
 
             JSONObject coverPlanItems = new JSONObject();
 
             int index = 0;
 
-            for (CoverItem ci : p.getCoverItems()) {
+            for (CoverItem coverItem : coverPlan.getCoverItems()) {
 
                 JSONObject item = new JSONObject();
-                item.put(key_class, ci.getTargetClass());
-                item.put(key_hour, ci.getHour());
-                item.put(key_fach, ci.getSubject());
-                item.put(key_room, ci.getRoom());
-                item.put(key_annotation, ci.getAnnotation());
-                item.put(key_ver, ci.getRelocated());
-                item.put(key_annotation_lesson, ci.isNewEntry());
+                item.put(key_class, coverItem.getTargetClass());
+                item.put(key_hour, coverItem.getHour());
+                item.put(key_subject, coverItem.getSubject());
+                item.put(key_room, coverItem.getRoom());
+                item.put(key_annotation, coverItem.getAnnotation());
+                item.put(key_ver, coverItem.getRelocated());
+                item.put(key_annotation_lesson, coverItem.isNewEntry());
                 coverPlanItems.put(key_item + index, item);
                 index++;
             }
 
-            json.put(key_coverplan_items, coverPlanItems);
+            json.put(key_cover_plan_items, coverPlanItems);
 
             JSONObject dailyMessageRows = new JSONObject();
 
             index = 0;
 
-            for (String s : p.getDailyInfoBody()) {
+            for (String s : coverPlan.getDailyInfoBody()) {
 
                 JSONObject item = new JSONObject();
-                item.put(key_dailymessage_item_text, s);
-                dailyMessageRows.put(key_dailymessage_item + index, item);
+                item.put(key_daily_message_item_text, s);
+                dailyMessageRows.put(key_daily_message_item + index, item);
                 index++;
             }
 
-            json.put(key_dailymessage_items, dailyMessageRows);
+            json.put(key_daily_message_items, dailyMessageRows);
 
 
         } catch (JSONException e) {
@@ -96,15 +96,15 @@ public class JsonConverter {
 
     }
 
-    public static CoverPlan getCoverPlanFromJSON(JSONObject o) throws Exception {
+    public static CoverPlan getCoverPlanFromJSON(JSONObject o) throws JSONException {
 
         CoverPlan.Builder p = new CoverPlan.Builder();
-        JSONObject coverPlanInfos = o.getJSONObject(key_coverplan_info);
-        JSONObject items = o.getJSONObject(key_coverplan_items);
+        JSONObject coverPlanInfos = o.getJSONObject(key_cover_plan_info);
+        JSONObject items = o.getJSONObject(key_cover_plan_items);
 
         p.setTitle(coverPlanInfos.getString(key_title));
         p.setLastUpdate(coverPlanInfos.getString(key_last_updated));
-        p.setDailyInfo(coverPlanInfos.optString(key_dailymessage_header));
+        p.setDailyInfo(coverPlanInfos.optString(key_daily_message_header));
 
         int itemAmount = coverPlanInfos.getInt(key_item_amount);
         int index = 0;
@@ -118,7 +118,7 @@ public class JsonConverter {
             CoverItem coverItem = new CoverItem.Builder()
                     .setClass(item.getString(key_class))
                     .setHour(item.getString(key_hour))
-                    .setSubject(item.getString(key_fach))
+                    .setSubject(item.getString(key_subject))
                     .setRoom(item.getString(key_room))
                     .setAnnotation(item.getString(key_annotation))
                     .setRelocated(item.getString(key_ver))
@@ -130,14 +130,14 @@ public class JsonConverter {
         }
         p.setCoverItems(coverItems);
 
-        items = o.optJSONObject(key_dailymessage_items);
-        itemAmount = coverPlanInfos.getInt(key_dailymessage_item_amount);
+        items = o.optJSONObject(key_daily_message_items);
+        itemAmount = coverPlanInfos.getInt(key_daily_message_item_amount);
         index = 0;
 
         List<String> dailyInfoRows = new LinkedList<>();
         while (index < itemAmount) {
-            JSONObject rowItem = items.optJSONObject(key_dailymessage_item + index);
-            dailyInfoRows.add(rowItem.getString(key_dailymessage_item_text));
+            JSONObject rowItem = items != null ? items.optJSONObject(key_daily_message_item + index) : null;
+            dailyInfoRows.add(rowItem != null ? rowItem.getString(key_daily_message_item_text) : null);
             index++;
         }
         p.setDailyInfoBody(dailyInfoRows);

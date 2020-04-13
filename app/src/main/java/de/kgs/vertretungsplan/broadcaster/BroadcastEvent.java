@@ -33,9 +33,4 @@ public enum BroadcastEvent {
      */
     REQUEST_DATA_RELOAD,
 
-    /**
-     * This event should be called when the internal browser view gets closed
-     */
-    // TODO implement it !
-    INTERNAL_BROWSER_CLOSED,
 }

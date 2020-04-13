@@ -1,5 +1,6 @@
 package de.kgs.vertretungsplan.views.handler;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.view.MenuItem;
@@ -15,6 +16,7 @@ import de.kgs.vertretungsplan.R;
 import de.kgs.vertretungsplan.broadcaster.Broadcast;
 import de.kgs.vertretungsplan.broadcaster.BroadcastEvent;
 import de.kgs.vertretungsplan.manager.FirebaseManager;
+import de.kgs.vertretungsplan.manager.firebase.Analytics;
 import de.kgs.vertretungsplan.singetones.ApplicationData;
 import de.kgs.vertretungsplan.singetones.GlobalVariables;
 import de.kgs.vertretungsplan.views.NavigationItem;
@@ -24,20 +26,20 @@ public final class NavigationHandler implements OnNavigationItemSelectedListener
     private Broadcast broadcast;
     private GlobalVariables globalVariables = GlobalVariables.getInstance();
     private DrawerLayout drawerLayout;
-    private MainActivity mainActivity;
+    private Context context;
     private NavigationView navigationView;
 
-    public NavigationHandler(MainActivity activity, DrawerLayout drawerLayout2) {
-        this.broadcast = activity.broadcast;
-        this.mainActivity = activity;
-        this.drawerLayout = drawerLayout2;
+    public NavigationHandler(MainActivity activity, DrawerLayout drawerLayout, Broadcast broadcast) {
+        this.broadcast = broadcast;
+        this.context = activity;
+        this.drawerLayout = drawerLayout;
         this.navigationView = activity.findViewById(R.id.nav_view);
         this.navigationView.setNavigationItemSelectedListener(this);
-        setupReceiver(activity.broadcast);
+        setupReceiver(broadcast);
     }
 
     public boolean onNavigationItemSelected(MenuItem menuItem) {
-        String str = "nachrichten";
+
         switch (menuItem.getItemId()) {
             case R.id.nav_black_board:
             case R.id.nav_today:
@@ -45,36 +47,34 @@ public final class NavigationHandler implements OnNavigationItemSelectedListener
                 break;
             case R.id.nav_moodle:
                 logEvent("moodle", false);
-                openInBrowser(globalVariables.school_moodle_url, false);
+                openInBrowser(globalVariables.school_moodle_url);
                 break;
             case R.id.nav_school_mensa:
                 logEvent("mensa", false);
-                openInBrowser(globalVariables.school_mensa_url, false);
+                openInBrowser(globalVariables.school_mensa_url);
                 break;
             case R.id.nav_school_newsletter:
                 logEvent("newsletter", false);
-                openInBrowser(globalVariables.school_newsletter_url, false);
+                openInBrowser(globalVariables.school_newsletter_url);
                 break;
             case R.id.nav_school_website:
                 logEvent("schulwebseite", false);
-                openInBrowser(globalVariables.school_webpage_url, false);
+                openInBrowser(globalVariables.school_web_page_url);
                 break;
             case R.id.nav_school_website_events:
                 logEvent("termine", true);
-                openInBrowser(globalVariables.school_events_url, true);
                 break;
             case R.id.nav_school_website_news:
-                logEvent(str, true);
-                openInBrowser(globalVariables.school_news_url, true);
+                logEvent("nachrichten", true);
                 break;
             case R.id.nav_school_website_press:
-                logEvent(str, true);
-                openInBrowser(globalVariables.school_press_url, true);
+                logEvent("presse", true);
                 break;
             default:
                 throw new AssertionError("NavigationHandler case not covered");
         }
 
+        System.out.println("Updating");
         ApplicationData.getInstance().setCurrentNavigationItem(NavigationItem.getNavigationItemById(menuItem.getItemId()));
         broadcast.send(BroadcastEvent.CURRENT_MENU_ITEM_CHANGED);
         drawerLayout.closeDrawer(GravityCompat.START);
@@ -87,8 +87,8 @@ public final class NavigationHandler implements OnNavigationItemSelectedListener
 
         broadcast.subscribe(event -> {
             ApplicationData data = ApplicationData.getInstance();
-            setTextOfMenuItem(data.getCoverPlanToday().getNavigationText(),1);
-            setTextOfMenuItem(data.getCoverPlanTomorrow().getNavigationText(),2);
+            setTextOfMenuItem(data.getCoverPlanToday().getNavigationText(), 1);
+            setTextOfMenuItem(data.getCoverPlanTomorrow().getNavigationText(), 2);
         }, BroadcastEvent.DATA_PROVIDED);
     }
 
@@ -105,19 +105,17 @@ public final class NavigationHandler implements OnNavigationItemSelectedListener
 
     private void logEvent(String event, boolean internal) {
 
-        FirebaseManager firebaseManager = this.mainActivity.firebaseManager;
+        Analytics analytics = Analytics.getInstance();
+
         if (internal) {
-            firebaseManager.logEventSelectContent(event, FirebaseManager.ANALYTICS_MENU_INTERNAL);
+            analytics.logContentSelectEvent(event, FirebaseManager.ANALYTICS_MENU_INTERNAL);
         } else {
-            firebaseManager.logEventSelectContent(event, FirebaseManager.ANALYTICS_MENU_EXTERNAL);
+            analytics.logContentSelectEvent(event, FirebaseManager.ANALYTICS_MENU_EXTERNAL);
         }
+
     }
 
-    private void openInBrowser(String url, boolean inApp) {
-        if (inApp) {
-            this.mainActivity.webViewHandler.loadWebPage(url, false);
-            return;
-        }
-        this.mainActivity.startActivity(new Intent("android.intent.action.VIEW", Uri.parse(url)));
+    private void openInBrowser(String url) {
+        this.context.startActivity(new Intent("android.intent.action.VIEW", Uri.parse(url)));
     }
 }

@@ -1,9 +1,7 @@
 package de.kgs.vertretungsplan;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -12,20 +10,15 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import de.kgs.vertretungsplan.loader.CoverPlanLoader;
 import de.kgs.vertretungsplan.loader.CoverPlanLoaderCallback;
+import de.kgs.vertretungsplan.loader.LoaderResponseCode;
+import de.kgs.vertretungsplan.singetones.Credentials;
 import de.kgs.vertretungsplan.singetones.GlobalVariables;
 
-import static de.kgs.vertretungsplan.storage.StorageKeys.PASSWORD;
-import static de.kgs.vertretungsplan.storage.StorageKeys.SHARED_PREF;
-import static de.kgs.vertretungsplan.storage.StorageKeys.USERNAME;
 
 public class LoginActivity extends AppCompatActivity implements CoverPlanLoaderCallback {
     public static final int SUCCESS_RC = 111;
     private static final String TAG = "LoginActivity";
-
-    private GlobalVariables ds = GlobalVariables.getInstance();
-    public SharedPreferences sharedPreferences;
-    public SharedPreferences.Editor sharedEditor;
-
+    private Credentials credentials = Credentials.getInstance();
     private Button loginButton;
     private EditText usernameText;
     private EditText passwordText;
@@ -35,17 +28,11 @@ public class LoginActivity extends AppCompatActivity implements CoverPlanLoaderC
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        loginButton =  findViewById(R.id.btn_login);
+        loginButton = findViewById(R.id.btn_login);
         usernameText = findViewById(R.id.input_username);
         passwordText = findViewById(R.id.input_password);
 
-        loginButton.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                login();
-            }
-        });
+        loginButton.setOnClickListener(v -> login());
     }
 
     @Override
@@ -62,10 +49,10 @@ public class LoginActivity extends AppCompatActivity implements CoverPlanLoaderC
 
         loginButton.setEnabled(false);
 
-        ds.username = usernameText.getText().toString().trim();
-        ds.password = passwordText.getText().toString().trim();
+        credentials.setUsername(usernameText.getText().toString().trim());
+        credentials.setPassword(passwordText.getText().toString().trim());
 
-        CoverPlanLoader loader = new CoverPlanLoader(this,this, true);
+        CoverPlanLoader loader = new CoverPlanLoader(this, this, true);
         loader.execute();
     }
 
@@ -93,24 +80,31 @@ public class LoginActivity extends AppCompatActivity implements CoverPlanLoaderC
     }
 
     @Override
-    public void loaderFinishedWithResponseCode(int ResponseCode) {
+    public void loaderFinishedWithResponseCode(LoaderResponseCode ResponseCode) {
         loginButton.setEnabled(true);
-        if(ResponseCode == CoverPlanLoader.RC_LATEST_DATASET){
-            sharedPreferences = this.getSharedPreferences(SHARED_PREF, 0);
-            sharedEditor = sharedPreferences.edit();
-            sharedEditor.commit();
-            sharedEditor.putString(PASSWORD, passwordText.getText().toString().trim());
-            sharedEditor.putString(USERNAME, usernameText.getText().toString().trim());
-            sharedEditor.commit();
-            ds.responseCode = ResponseCode;
+        if (ResponseCode == LoaderResponseCode.LATEST_DATA_SET) {
+
+            credentials.setUsername(passwordText.getText().toString().trim());
+            credentials.setPassword(usernameText.getText().toString().trim());
+            credentials.saveCredentials(this);
+
+            GlobalVariables.getInstance().responseCode = ResponseCode;
             setResult(SUCCESS_RC);
             finish();
-        } else if (ResponseCode == CoverPlanLoader.RC_NO_INTERNET_DATASET_EXIST || ResponseCode == CoverPlanLoader.RC_NO_INTERNET_NO_DATASET){
+        } else if (ResponseCode == LoaderResponseCode.NO_INTERNET_DATA_SET_EXISTS || ResponseCode == LoaderResponseCode.NO_INTERNET_NO_DATA_SET) {
             Toast.makeText(getBaseContext(), "Keine Internetverbindung!", Toast.LENGTH_LONG).show();
-        } else if(ResponseCode == CoverPlanLoader.RC_LOGIN_REQUIRED) {
+        } else if (ResponseCode == LoaderResponseCode.LOGIN_REQUIRED) {
             Toast.makeText(getBaseContext(), "Falscher Nutzername oder Passwort!", Toast.LENGTH_LONG).show();
-        } else if(ResponseCode == CoverPlanLoader.RC_ERROR) {
+        } else if (ResponseCode == LoaderResponseCode.ERROR) {
             Toast.makeText(getBaseContext(), "Ein Fehler ist aufgetreten! Versuche es später erneut.", Toast.LENGTH_LONG).show();
+        } else if (ResponseCode == LoaderResponseCode.COVER_PLAN_NOT_PROVIDED) {
+
+            Toast.makeText(getBaseContext(), "Der Vertretungsplan ist im Moment nicht verfügbar!", Toast.LENGTH_LONG).show();
+            credentials.setUsername(passwordText.getText().toString().trim());
+            credentials.setPassword(usernameText.getText().toString().trim());
+            credentials.saveCredentials(this);
+            setResult(SUCCESS_RC);
+            finish();
         }
     }
 }

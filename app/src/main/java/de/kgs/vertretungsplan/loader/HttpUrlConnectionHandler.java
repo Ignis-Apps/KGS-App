@@ -1,27 +1,40 @@
 package de.kgs.vertretungsplan.loader;
 
+import android.util.Log;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import javax.net.ssl.HttpsURLConnection;
 
+import de.kgs.vertretungsplan.loader.exceptions.CredentialException;
+import de.kgs.vertretungsplan.loader.exceptions.DownloadException;
+import de.kgs.vertretungsplan.singetones.Credentials;
 import de.kgs.vertretungsplan.singetones.GlobalVariables;
 
 class HttpUrlConnectionHandler {
 
+    private static final String TAG = "HttpConnectionHandler";
 
-    public static String getCoverplanData(String url, String moodleSession) throws Exception {
 
-        if(isCookieExpired()){
-            System.out.println("Cookie is too old !");
+    private static String getCoverplanData(String url, String moodleSession, boolean hasFreshCookie) throws IOException, DownloadException, CredentialException {
+
+        System.out.println("COOKIIIIIIIIII" + moodleSession);
+
+        if (isCookieExpired()) {
             performLogin();
         }
 
-
+        Log.d(TAG, "getCoverplanData: start download data");
         URL obj = new URL(url);
         HttpsURLConnection connection = (HttpsURLConnection) obj.openConnection();
         connection.setRequestMethod("GET");
@@ -31,17 +44,22 @@ class HttpUrlConnectionHandler {
 
         int responseCode = connection.getResponseCode();
         System.out.println(responseCode);
+
         // MoodleSession expired / invalid
-        if( responseCode == 303 ){
+        if (responseCode == 303) {
+
+            if (hasFreshCookie)
+                throw new DownloadException();
+
             performLogin();
-            return getCoverplanData(url, GlobalVariables.getInstance().moodleCookie);
+            return getCoverplanData(url, Credentials.getInstance().getMoodleCookie(), true);
         }
 
-        if( responseCode != 200){
-            throw new Exception("Error while loading page");
+        if (responseCode != 200) {
+            throw new DownloadException("Error while loading page");
         }
 
-        GlobalVariables.getInstance().moodleCookieLastUse = System.nanoTime();
+        Credentials.getInstance().setMoodleCookieLastUse(System.nanoTime());
 
         BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         String inputLine;
@@ -56,10 +74,9 @@ class HttpUrlConnectionHandler {
 
     }
 
-    public static void performLogin() throws Exception{
+    private static void performLogin() throws IOException, DownloadException, CredentialException {
 
-        System.out.println("Performing Login");
-        String parameterString = "username=" + GlobalVariables.getInstance().username + "&password=" + GlobalVariables.getInstance().password +"&ajax=true";
+        String parameterString = "username=" + Credentials.getInstance().getUsername() + "&password=" + Credentials.getInstance().getPassword() + "&ajax=true";
 
         URL obj = new URL(GlobalVariables.getInstance().login_page_url);
         HttpsURLConnection conn = (HttpsURLConnection) obj.openConnection();
@@ -79,40 +96,46 @@ class HttpUrlConnectionHandler {
 
         int responseCode = conn.getResponseCode();
 
-        if(responseCode!=200){
-            throw new Exception("Fehler");
+        if (responseCode != 200) {
+            throw new DownloadException("Fehler");
         }
 
         List<String> cookies = conn.getHeaderFields().get("Set-Cookie");
         StringBuilder cookieConcad = new StringBuilder();
 
-        if(cookies == null){
-            throw new Exception("Fehler");
+        if (cookies == null) {
+            throw new DownloadException("Fehler");
         }
 
-        for (String s: cookies ){
+        for (String s : cookies) {
             cookieConcad.append(s);
         }
 
+        System.out.println(cookieConcad);
+        if (!cookieConcad.toString().contains("MOODLEID1_=deleted")) {
+            throw new CredentialException(null);
+        }
 
-        if(!cookieConcad.toString().contains("MOODLEID1_=deleted"))
-            throw new Exception("Login needed");
+        Pattern pattern = Pattern.compile("(MoodleSession=.*?);");
+        Matcher matcher = pattern.matcher(cookieConcad);
+        if (matcher.find()) {
+            Credentials.getInstance().setMoodleCookie(matcher.group(1));
+        } else {
+            throw new CredentialException();
+        }
 
-
-        String moodleCoockie = cookieConcad.substring(cookieConcad.indexOf("MoodleSession"));
-        GlobalVariables.getInstance().moodleCookie = moodleCoockie.substring(0,40);
-
-    }
-
-
-    private static boolean isCookieExpired(){
-
-        long elapsedTime = ( System.nanoTime() - GlobalVariables.getInstance().moodleCookieLastUse ) / 1000000000;
-        return elapsedTime > GlobalVariables.getInstance().moodleCookieMaxAgeSecounds;
 
     }
 
-    Document getParsedDocument(String url)throws Exception{
-        return Jsoup.parse(getCoverplanData(url, GlobalVariables.getInstance().moodleCookie));
+
+    private static boolean isCookieExpired() {
+
+        long elapsedTime = (System.nanoTime() - Credentials.getInstance().getMoodleCookieLastUse()) / 1000000000;
+        return elapsedTime > GlobalVariables.getInstance().moodleCookieMaxAgeSeconds;
+
+    }
+
+    Document getParsedDocument(String url) throws CredentialException, IOException, DownloadException {
+        return Jsoup.parse(getCoverplanData(url, Credentials.getInstance().getMoodleCookie(), false));
     }
 }

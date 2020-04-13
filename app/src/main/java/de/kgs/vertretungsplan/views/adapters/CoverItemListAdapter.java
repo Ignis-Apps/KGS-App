@@ -2,7 +2,6 @@ package de.kgs.vertretungsplan.views.adapters;
 
 import android.content.Context;
 import android.graphics.Color;
-import androidx.annotation.NonNull;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +11,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 import java.util.List;
 
 import de.kgs.vertretungsplan.R;
@@ -20,7 +21,7 @@ import de.kgs.vertretungsplan.coverPlan.CoverItem;
 public class CoverItemListAdapter extends ArrayAdapter<CoverItem> {
     private final Context context;
     private final List<CoverItem> values;
-    private String dailyInfoHeader,dailyInfoMessage;
+    private String dailyInfoHeader, dailyInfoMessage;
     private boolean hasDailyMessage;
     private String TAG = "ignislog arrayadapter";
 
@@ -30,7 +31,7 @@ public class CoverItemListAdapter extends ArrayAdapter<CoverItem> {
         this.values = values;
     }
 
-    public void setDataSet(List<CoverItem> items){
+    public void setDataSet(List<CoverItem> items) {
 
         Log.d(TAG, "Setting new dataset ");
         values.clear();
@@ -43,13 +44,13 @@ public class CoverItemListAdapter extends ArrayAdapter<CoverItem> {
 
     }
 
-    public void setDailyMessage(String title, String message){
+    public void setDailyMessage(String title, String message) {
 
         dailyInfoHeader = title;
         dailyInfoMessage = message;
 
         // Überprüft ob die Tages Nachricht angezeigt werden soll
-        hasDailyMessage = !title.isEmpty()&&!message.isEmpty();
+        hasDailyMessage = !title.isEmpty() && !message.isEmpty();
 
         // Falls es eine Tagesnachricht gibt wird ein Platzhalter in die Daten eingebaut
         if (hasDailyMessage) {
@@ -66,27 +67,27 @@ public class CoverItemListAdapter extends ArrayAdapter<CoverItem> {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         // Falls wir keinen Inflater haben geben wir einen leeren View zurück
-        if(inflater==null)
+        if (inflater == null)
             return new View(context);
 
         // Tagesnachricht
-        if(position==0&&hasDailyMessage)
-            return getDailyMessageView(inflater,parent);
+        if (position == 0 && hasDailyMessage)
+            return getDailyMessageView(inflater, parent);
 
         // Die letzte Position ist für den Bewertungs View
-        if(position==values.size()-1)
-            return getShareView(inflater,parent);
+        if (position == values.size() - 1)
+            return getShareView(inflater, parent);
 
         View listItemView = convertView;
 
 
         // Falls es keinen ViewHolder gibt erstelle einen neuen und schreib ihn in den Tag
-        if(convertView==null){
-            listItemView = inflater.inflate(R.layout.listview_item_standard,parent,false);
+        if (convertView == null) {
+            listItemView = inflater.inflate(R.layout.listview_item_standard, parent, false);
             listItemView.setTag(getViewHolder(listItemView));
-        }else {
-            if(convertView.getTag()==null){
-                listItemView = inflater.inflate(R.layout.listview_item_standard,parent,false);
+        } else {
+            if (convertView.getTag() == null) {
+                listItemView = inflater.inflate(R.layout.listview_item_standard, parent, false);
                 listItemView.setTag(getViewHolder(listItemView));
             }
         }
@@ -95,21 +96,21 @@ public class CoverItemListAdapter extends ArrayAdapter<CoverItem> {
         ViewHolder viewHolder = getViewHolder(listItemView);
         CoverItem ci = values.get(position);
 
-        insertDataIntoItem(viewHolder,ci);
+        insertDataIntoItem(viewHolder, ci);
 
         return listItemView;
 
     }
 
-    private void insertDataIntoItem(ViewHolder holder, CoverItem data){
+    private void insertDataIntoItem(ViewHolder holder, CoverItem data) {
 
-        if(data.getAnnotation().concat(data.getRelocated()).equals(""))
+        if (data.getAnnotation().concat(data.getRelocated()).equals(""))
             holder.imageInfo.setVisibility(View.INVISIBLE);
         else {
             holder.imageInfo.setVisibility(View.VISIBLE);
         }
 
-        adjustColors(holder,data.isCanceled());
+        adjustColors(holder, data.isCanceled());
 
         holder.textKlasse.setText(data.getTargetClass());
         holder.textStunde.setText(data.getHour());
@@ -118,13 +119,13 @@ public class CoverItemListAdapter extends ArrayAdapter<CoverItem> {
 
     }
 
-    private void adjustColors(ViewHolder holder, boolean dropped){
+    private void adjustColors(ViewHolder holder, boolean dropped) {
 
-        if(holder.dropped != null)
-            if(dropped == holder.dropped)
+        if (holder.dropped != null)
+            if (dropped == holder.dropped)
                 return;
 
-        if(dropped){
+        if (dropped) {
 
             int red = context.getResources().getColor(R.color.colorAccent);
             int white = Color.parseColor("#ffffff");
@@ -137,7 +138,7 @@ public class CoverItemListAdapter extends ArrayAdapter<CoverItem> {
 
             holder.imageInfo.setImageResource(R.drawable.ic_action_info_light);
 
-        }else {
+        } else {
 
             int black = Color.parseColor("#000000");
 
@@ -153,35 +154,35 @@ public class CoverItemListAdapter extends ArrayAdapter<CoverItem> {
 
     }
 
-    private ViewHolder getViewHolder(View listItemView){
+    private ViewHolder getViewHolder(View listItemView) {
 
         ViewHolder v = (ViewHolder) listItemView.getTag();
 
-        if (v!=null)
+        if (v != null)
             return v;
 
         ViewHolder holder = new ViewHolder();
 
-        holder.textKlasse  = listItemView.findViewById(R.id.textViewKlasse);
-        holder.textStunde  = listItemView.findViewById(R.id.textViewStunde);
-        holder.textFach    = listItemView.findViewById(R.id.textViewFach);
-        holder.textRaum    = listItemView.findViewById(R.id.textViewRaum);
-        holder.imageInfo   = listItemView.findViewById(R.id.imageViewInfo);
-        holder.background  = listItemView.findViewById(R.id.listViewLn);
+        holder.textKlasse = listItemView.findViewById(R.id.textViewKlasse);
+        holder.textStunde = listItemView.findViewById(R.id.textViewStunde);
+        holder.textFach = listItemView.findViewById(R.id.textViewFach);
+        holder.textRaum = listItemView.findViewById(R.id.textViewRaum);
+        holder.imageInfo = listItemView.findViewById(R.id.imageViewInfo);
+        holder.background = listItemView.findViewById(R.id.listViewLn);
 
         return holder;
     }
 
-    private View getDailyMessageView(LayoutInflater inflater, ViewGroup parent){
+    private View getDailyMessageView(LayoutInflater inflater, ViewGroup parent) {
 
         View listItemView = inflater.inflate(R.layout.listview_item_daily_info, parent, false);
         TextView dailyMessageTitle = listItemView.findViewById(R.id.dailyViewTitle);
         TextView dailyMessageText = listItemView.findViewById(R.id.dailyViewMessage);
 
-        if(!dailyInfoHeader.trim().isEmpty()&&!dailyInfoMessage.trim().isEmpty()) {
+        if (!dailyInfoHeader.trim().isEmpty() && !dailyInfoMessage.trim().isEmpty()) {
             dailyMessageTitle.setText(dailyInfoHeader.trim());
             dailyMessageText.setText(dailyInfoMessage.trim());
-        }else{
+        } else {
             return new View(context);
         }
 
@@ -189,7 +190,7 @@ public class CoverItemListAdapter extends ArrayAdapter<CoverItem> {
 
     }
 
-    private View getShareView(LayoutInflater inflater,ViewGroup parent){
+    private View getShareView(LayoutInflater inflater, ViewGroup parent) {
         return inflater.inflate(R.layout.listview_item_share, parent, false);
     }
 
@@ -197,7 +198,7 @@ public class CoverItemListAdapter extends ArrayAdapter<CoverItem> {
         return hasDailyMessage;
     }
 
-    static class ViewHolder{
+    static class ViewHolder {
 
         TextView textKlasse;
         TextView textStunde;

@@ -16,15 +16,15 @@ public enum Grade {
     private final int gradeLevel;
     private final String gradeName;
 
-    Grade(String gradeName2, String gradeInitials2, int gradeLevel2) {
-        this.gradeLevel = gradeLevel2;
-        this.gradeName = gradeName2;
-        this.gradeInitials = gradeInitials2;
+    Grade(String gradeName, String gradeInitials, int gradeLevel) {
+        this.gradeLevel = gradeLevel;
+        this.gradeName = gradeName;
+        this.gradeInitials = gradeInitials;
     }
 
-    public static Grade getGradeByName(String gradeName2) {
+    public static Grade getGradeByName(String gradeName) {
         for (Grade grade : values()) {
-            if (grade.getGradeName().equals(gradeName2)) {
+            if (grade.getGradeName().equals(gradeName)) {
                 return grade;
             }
         }

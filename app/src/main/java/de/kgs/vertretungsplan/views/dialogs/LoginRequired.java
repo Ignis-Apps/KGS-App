@@ -1,8 +1,6 @@
 package de.kgs.vertretungsplan.views.dialogs;
 
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 
 import androidx.appcompat.app.AlertDialog.Builder;
@@ -23,18 +21,8 @@ public final class LoginRequired {
         alertBuilder.setTitle(title);
         alertBuilder.setMessage(description);
         alertBuilder.setIcon(R.drawable.ic_alert_error);
-        alertBuilder.setPositiveButton(login, new OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                ((MainActivity) context).startActivityForResult(new Intent(context, LoginActivity.class), MainActivity.SIGN_UP_RC);
-            }
-        });
-        alertBuilder.setNegativeButton(exit, new OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                System.exit(0);
-            }
-        });
+        alertBuilder.setPositiveButton(login, (dialogInterface, i) -> ((MainActivity) context).startActivityForResult(new Intent(context, LoginActivity.class), MainActivity.SIGN_UP_RC));
+        alertBuilder.setNegativeButton(exit, (dialogInterface, i) -> System.exit(0));
         alertBuilder.create().show();
     }
 }

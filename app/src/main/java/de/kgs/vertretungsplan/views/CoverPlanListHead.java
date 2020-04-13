@@ -36,7 +36,7 @@ public class CoverPlanListHead implements ViewTreeObserver.OnGlobalLayoutListene
         scaleIn = new ScaleAnimation(1.0f, 1.0f, 0.0f, 1.0f);
         scaleOut = new ScaleAnimation(1.0f, 1.0f, 1.0f, 0.0f);
 
-        if(ApplicationData.getInstance().getCurrentlySelectedViewPage() == 0){
+        if (ApplicationData.getInstance().getCurrentlySelectedViewPage() == 0) {
             animationState = AnimationState.HIDDEN;
             headContainer.setVisibility(View.GONE);
         }
@@ -62,7 +62,7 @@ public class CoverPlanListHead implements ViewTreeObserver.OnGlobalLayoutListene
             if (animationState == AnimationState.HIDDEN)
                 return;
             headContainer.setVisibility(View.GONE);
-            if (translateOut == null){
+            if (translateOut == null) {
                 animationState = AnimationState.HIDDEN;
                 return;
             }
@@ -72,7 +72,7 @@ public class CoverPlanListHead implements ViewTreeObserver.OnGlobalLayoutListene
             if (animationState == AnimationState.SHOWN)
                 return;
             headContainer.setVisibility(View.VISIBLE);
-            if (translateIn == null){
+            if (translateIn == null) {
                 animationState = AnimationState.SHOWN;
                 return;
             }

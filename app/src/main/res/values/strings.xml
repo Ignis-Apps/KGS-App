@@ -10,5 +10,6 @@
     <string name="toolbar_news">Nachrichten</string>
     <string name="toolbar_events">Termine</string>
     <string name="toolbar_press">Presse</string>
+    <string name="toolbar_student_newspaper">freistunde.blog</string>
 
 </resources>

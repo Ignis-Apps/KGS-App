@@ -13,8 +13,8 @@ public class Broadcast {
     private final Map<Receiver, List<BroadcastEvent>> observers = new HashMap<>();
 
     /**
-     * Subscribes the given observer to the given broadcast events.
-     * The observer will receive events until the subscription is canceled.
+     * Subscribes the given receiver to the given broadcast events.
+     * The receiver will receive events until the subscription is canceled.
      *
      * @param receiver the observer that should subscribe
      * @param event    the event/s to which the observer will subscribe
@@ -33,7 +33,7 @@ public class Broadcast {
     }
 
     /**
-     * Sends the given command to all subscribed observers
+     * Sends the given command to all subscribed receivers
      *
      * @param events the events that should be send
      */
@@ -57,7 +57,7 @@ public class Broadcast {
 
     }
 
-    // Not yet implemented. Beware of Concurrent Modification !.
+    // Not yet implemented. Beware of concurrent modification !.
     public void unsubscribe(Receiver receiver) {
         //observers.remove(observer);
     }

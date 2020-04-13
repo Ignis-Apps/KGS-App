@@ -9,15 +9,25 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 
-import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
-import de.kgs.vertretungsplan.MainActivity;
 import de.kgs.vertretungsplan.R;
+import de.kgs.vertretungsplan.broadcaster.Broadcast;
+import de.kgs.vertretungsplan.broadcaster.BroadcastEvent;
+import de.kgs.vertretungsplan.manager.FirebaseManager;
+import de.kgs.vertretungsplan.manager.firebase.Analytics;
+import de.kgs.vertretungsplan.singetones.ApplicationData;
 import de.kgs.vertretungsplan.singetones.GlobalVariables;
+import de.kgs.vertretungsplan.views.NavigationItem;
 
 
 public class BlackboardFragment extends Fragment implements OnClickListener {
+
+    private Broadcast broadcast;
+
+    public BlackboardFragment(Broadcast broadcast) {
+        this.broadcast = broadcast;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -41,22 +51,21 @@ public class BlackboardFragment extends Fragment implements OnClickListener {
         switch (view.getId()) {
 
             case R.id.card_mensa:
+                Analytics.getInstance().logContentSelectEvent("mensa", FirebaseManager.ANALYTICS_BLACK_BOARD);
                 context.startActivity(new Intent("android.intent.action.VIEW", Uri.parse(GlobalVariables.getInstance().school_mensa_url)));
                 break;
 
             case R.id.card_contact:
+                Analytics.getInstance().logContentSelectEvent("contact", FirebaseManager.ANALYTICS_BLACK_BOARD);
                 Intent emailIntent = new Intent("android.intent.action.SENDTO", Uri.parse("mailto:ignis.apps@gmail.com"));
                 emailIntent.putExtra("android.intent.extra.SUBJECT", "Neuer Eintrag - Schwarzes Brett");
                 context.startActivity(Intent.createChooser(emailIntent, "Sende Email mit ..."));
                 break;
 
             case R.id.card_newspaper:
-                MainActivity m = (MainActivity) getContext();
-                if (m != null) {
-                    m.webViewHandler.loadWebPage(GlobalVariables.getInstance().student_newspaper, true);
-                    // TODO
-                    // m.toolBar.setTitle("freistunde.blog");
-                }
+                Analytics.getInstance().logContentSelectEvent("newspaper", FirebaseManager.ANALYTICS_BLACK_BOARD);
+                ApplicationData.getInstance().setCurrentNavigationItem(NavigationItem.STUDENT_NEWS_PAPER);
+                broadcast.send(BroadcastEvent.CURRENT_MENU_ITEM_CHANGED);
                 break;
         }
     }

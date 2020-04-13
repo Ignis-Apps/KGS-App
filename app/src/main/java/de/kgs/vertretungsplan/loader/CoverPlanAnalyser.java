@@ -15,7 +15,7 @@ class CoverPlanAnalyser {
 
     private static final String[] correctHeaders = new String[]{"Klasse(n)", "Stunde", "Fach", "Raum", "Anmerkung", "Vertr. von", "Neu", "Entfall"};
 
-    static CoverPlan getCoverPlan(Document document) throws Exception {
+    static CoverPlan getCoverPlan(Document document) {
 
         CoverPlan.Builder coverPlan = new CoverPlan.Builder();
 
@@ -93,9 +93,10 @@ class CoverPlanAnalyser {
         Elements tableHeaderElements = elements.select("tbody tr th");
 
         // TODO but currently there is no data
-        for (int i = 0; i < tableHeaderElements.size(); i++) {
-            return tableHeaderElements.get(i).text();
+        if (tableHeaderElements.size() > 0) {
+            return tableHeaderElements.get(0).text();
         }
+
         return null;
 
     }
@@ -121,7 +122,6 @@ class CoverPlanAnalyser {
     }
 
     private static void processDailyInfo(Elements tElements, CoverPlan cp) {
-
 
     }
 

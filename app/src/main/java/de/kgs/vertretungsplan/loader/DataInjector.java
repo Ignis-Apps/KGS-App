@@ -1,4 +1,4 @@
-package de.kgs.vertretungsplan.coverPlan;
+package de.kgs.vertretungsplan.loader;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -32,10 +32,8 @@ public class DataInjector {
                 writer.flush();
                 writer.close();
                 PrintStream printStream = System.out;
-                StringBuilder sb = new StringBuilder();
-                sb.append("JSON successfully written to : ");
-                sb.append(f.getAbsolutePath());
-                printStream.println(sb.toString());
+                String sb = "JSON successfully written to : " + f.getAbsolutePath();
+                printStream.println(sb);
             } catch (IOException e) {
                 Crashlytics.logException(e);
                 e.printStackTrace();
@@ -49,6 +47,7 @@ public class DataInjector {
         try {
             rawResource.close();
         } catch (IOException e) {
+            e.printStackTrace();
         }
         return content;
     }
@@ -59,15 +58,14 @@ public class DataInjector {
         while (true) {
             try {
                 String readLine = r.readLine();
-                String l = readLine;
+
                 if (readLine == null) {
                     break;
                 }
-                StringBuilder sb = new StringBuilder();
-                sb.append(l);
-                sb.append("\n");
-                s.append(sb.toString());
+                String sb = readLine + "\n";
+                s.append(sb);
             } catch (IOException e) {
+                e.printStackTrace();
             }
         }
         return s.toString();

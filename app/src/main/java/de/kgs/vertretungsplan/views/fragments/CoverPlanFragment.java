@@ -25,19 +25,30 @@ import de.kgs.vertretungsplan.broadcaster.Broadcast;
 import de.kgs.vertretungsplan.broadcaster.BroadcastEvent;
 import de.kgs.vertretungsplan.coverPlan.CoverItem;
 import de.kgs.vertretungsplan.coverPlan.CoverPlan;
+import de.kgs.vertretungsplan.manager.firebase.Analytics;
+import de.kgs.vertretungsplan.singetones.ApplicationData;
 import de.kgs.vertretungsplan.views.adapters.CoverItemListAdapter;
 import de.kgs.vertretungsplan.views.dialogs.CoverItemInfo;
 
 public class CoverPlanFragment extends Fragment implements OnItemClickListener {
 
-    private CoverItemListAdapter arrayAdapter;
-    private Broadcast broadcast;
-    private List<CoverItem> values = new ArrayList<>();
-
-    public CoverPlanFragment(Broadcast broadcast) {
-        this.broadcast = broadcast;
+    public enum PresentedDataSet {
+        TODAY,
+        TOMORROW
     }
 
+    private CoverItemListAdapter arrayAdapter;
+    private Broadcast broadcast;
+    private PresentedDataSet presentedDataSet;
+    private List<CoverItem> values = new ArrayList<>();
+    private RefreshHandler refreshHandler;
+
+    public CoverPlanFragment(Broadcast broadcast, PresentedDataSet presentedDataSet) {
+        this.broadcast = broadcast;
+        this.presentedDataSet = presentedDataSet;
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         this.arrayAdapter = new CoverItemListAdapter(getContext(), this.values);
         View fragmentView = inflater.inflate(R.layout.listview_fragment, container, false);
@@ -47,36 +58,56 @@ public class CoverPlanFragment extends Fragment implements OnItemClickListener {
 
         listView.setOnItemClickListener(this);
         listView.setAdapter(this.arrayAdapter);
-        listView.setOnScrollListener(new RefreshHandler(refreshLayout, this.broadcast));
+        refreshHandler = new RefreshHandler(refreshLayout, this.broadcast);
+        listView.setOnScrollListener(refreshHandler);
+
+        refreshDataSet();
+
+        broadcast.subscribe(broadcastEvent -> refreshDataSet(),
+                BroadcastEvent.DATA_PROVIDED,
+                BroadcastEvent.CURRENT_GRADE_CHANGED,
+                BroadcastEvent.CURRENT_CLASS_CHANGED);
 
         return fragmentView;
     }
 
+    private void refreshDataSet() {
 
-    public void setDataSet(CoverPlan coverPlan) {
+        CoverPlan coverPlan = null;
+        if (presentedDataSet == PresentedDataSet.TODAY)
+            coverPlan = ApplicationData.getInstance().getCoverPlanToday();
+        else if (presentedDataSet == PresentedDataSet.TOMORROW)
+            coverPlan = ApplicationData.getInstance().getCoverPlanTomorrow();
+
+        if (coverPlan == null)
+            return;
+
         arrayAdapter.setDataSet(coverPlan.getCoverItemsFiltered());
         arrayAdapter.setDailyMessage(coverPlan.getDailyInfoHead(), coverPlan.getDailyInfoMessage());
     }
 
-
-    public boolean isCreated() {
-        return this.arrayAdapter != null;
-    }
-
+    @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-        String str = "android.intent.action.VIEW";
+
         if (position == 0 && this.arrayAdapter.hasDailyMessage()) {
             return;
         }
         if (position == this.values.size() - 1) {
+            Analytics.getInstance().logEvent("rate_app");
             try {
-                startActivity(new Intent(str, Uri.parse("market://details?id=de.kgs.vertretungsplan")));
+                startActivity(new Intent("android.intent.action.VIEW", Uri.parse("market://details?id=de.kgs.vertretungsplan")));
             } catch (ActivityNotFoundException e) {
-                startActivity(new Intent(str, Uri.parse("https://play.google.com/store/apps/details?id=de.kgs.vertretungsplan")));
+                startActivity(new Intent("android.intent.action.VIEW", Uri.parse("https://play.google.com/store/apps/details?id=de.kgs.vertretungsplan")));
             }
             return;
         }
         CoverItemInfo.showDialog(getContext(), this.values.get(position));
+    }
+
+    public void refreshLayoutSetEnabled(boolean enabled) {
+        if (refreshHandler == null)
+            return;
+        refreshHandler.refreshLayout.setEnabled(enabled);
     }
 
     private static class RefreshHandler implements OnScrollListener, OnRefreshListener {
@@ -102,11 +133,15 @@ public class CoverPlanFragment extends Fragment implements OnItemClickListener {
             if (absListView != null && totalItemCount > 0) {
                 topPosition = absListView.getChildAt(0).getTop();
             }
-            SwipeRefreshLayout swipeRefreshLayout = this.refreshLayout;
+
             if (topPosition >= 0) {
                 z = true;
             }
-            swipeRefreshLayout.setEnabled(z);
+
+            if (z)
+                System.out.println("ENABLING");
+
+            refreshLayout.setEnabled(z);
         }
 
         @Override

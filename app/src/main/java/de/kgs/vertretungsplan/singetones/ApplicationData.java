@@ -56,52 +56,52 @@ public class ApplicationData {
 
     }
 
+    public CoverPlan getCoverPlanToday() {
+        return coverPlanToday;
+    }
 
     public void setCoverPlanToday(CoverPlan coverPlanToday) {
         this.coverPlanToday = coverPlanToday;
-    }
-
-    public void setCoverPlanTomorrow(CoverPlan coverPlanTomorrow) {
-        this.coverPlanTomorrow = coverPlanTomorrow;
-    }
-
-    public void setCurrentGrade(Grade currentGrade) {
-        this.currentGrade = currentGrade;
-    }
-
-    public void setCurrentGradeSubClass(GradeSubClass currentGradeSubClass) {
-        this.currentGradeSubClass = currentGradeSubClass;
-    }
-
-    public void setCurrentNavigationItem(NavigationItem currentNavigationItem) {
-        this.currentNavigationItem = currentNavigationItem;
-    }
-
-    public void setCurrentlySelectedViewPage(int currentlySelectedViewPage) {
-        this.currentlySelectedViewPage = currentlySelectedViewPage;
-    }
-
-    public CoverPlan getCoverPlanToday() {
-        return coverPlanToday;
     }
 
     public CoverPlan getCoverPlanTomorrow() {
         return coverPlanTomorrow;
     }
 
+    public void setCoverPlanTomorrow(CoverPlan coverPlanTomorrow) {
+        this.coverPlanTomorrow = coverPlanTomorrow;
+    }
+
     public Grade getCurrentGrade() {
         return currentGrade;
+    }
+
+    public void setCurrentGrade(Grade currentGrade) {
+        this.currentGrade = currentGrade;
     }
 
     public GradeSubClass getCurrentGradeSubClass() {
         return currentGradeSubClass;
     }
 
+    public void setCurrentGradeSubClass(GradeSubClass currentGradeSubClass) {
+        this.currentGradeSubClass = currentGradeSubClass;
+    }
+
     public NavigationItem getCurrentNavigationItem() {
         return currentNavigationItem;
+    }
+
+    public void setCurrentNavigationItem(NavigationItem currentNavigationItem) {
+        this.currentNavigationItem = currentNavigationItem;
     }
 
     public int getCurrentlySelectedViewPage() {
         return currentlySelectedViewPage;
     }
+
+    public void setCurrentlySelectedViewPage(int currentlySelectedViewPage) {
+        this.currentlySelectedViewPage = currentlySelectedViewPage;
+    }
+
 }

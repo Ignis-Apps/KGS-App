@@ -12,13 +12,13 @@ import de.kgs.vertretungsplan.singetones.ApplicationData;
 
 public final class AppToolBar implements Broadcast.Receiver {
 
-    private Toolbar toolbar;
+    private final Toolbar toolbar;
 
-    public AppToolBar(@NonNull MainActivity activity) {
+    public AppToolBar(@NonNull MainActivity activity, Broadcast broadcast) {
         this.toolbar = activity.findViewById(R.id.toolbar);
         this.toolbar.setTitle(activity.getResources().getString(R.string.app_title));
         activity.setSupportActionBar(toolbar);
-        setupObserver(activity.broadcast);
+        setupObserver(broadcast);
     }
 
 
@@ -54,6 +54,9 @@ public final class AppToolBar implements Broadcast.Receiver {
 
         else if (navigationItem == NavigationItem.PRESS)
             setOnlyTitle(R.string.toolbar_press);
+
+        else if (navigationItem == NavigationItem.STUDENT_NEWS_PAPER)
+            setOnlyTitle(R.string.toolbar_student_newspaper);
 
     }
 

@@ -1,9 +1,8 @@
 package de.kgs.vertretungsplan;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.RelativeLayout;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -13,56 +12,54 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.crashlytics.android.Crashlytics;
+import com.crashlytics.android.core.CrashlyticsCore;
 import com.google.android.material.snackbar.Snackbar;
 
 import de.kgs.vertretungsplan.broadcaster.Broadcast;
 import de.kgs.vertretungsplan.broadcaster.BroadcastEvent;
 import de.kgs.vertretungsplan.loader.CoverPlanLoader;
 import de.kgs.vertretungsplan.loader.CoverPlanLoaderCallback;
-import de.kgs.vertretungsplan.coverPlan.DataInjector;
+import de.kgs.vertretungsplan.loader.DataInjector;
+import de.kgs.vertretungsplan.loader.LoaderResponseCode;
 import de.kgs.vertretungsplan.manager.FirebaseManager;
 import de.kgs.vertretungsplan.manager.ViewPagerManager;
 import de.kgs.vertretungsplan.singetones.ApplicationData;
+import de.kgs.vertretungsplan.singetones.Credentials;
 import de.kgs.vertretungsplan.singetones.GlobalVariables;
-import de.kgs.vertretungsplan.storage.StorageKeys;
 import de.kgs.vertretungsplan.views.AppToolBar;
-import de.kgs.vertretungsplan.views.handler.WebViewHandler;
-import de.kgs.vertretungsplan.views.handler.NavigationHandler;
-import de.kgs.vertretungsplan.views.handler.SpinnerHandler;
 import de.kgs.vertretungsplan.views.dialogs.DownloadError;
 import de.kgs.vertretungsplan.views.dialogs.LoginRequired;
 import de.kgs.vertretungsplan.views.dialogs.SwipeHintDialog;
+import de.kgs.vertretungsplan.views.handler.NavigationHandler;
+import de.kgs.vertretungsplan.views.handler.SpinnerHandler;
+import de.kgs.vertretungsplan.views.handler.WebViewHandler;
+import io.fabric.sdk.android.Fabric;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
 public class MainActivity extends AppCompatActivity implements CoverPlanLoaderCallback {
+
     public static final int SIGN_UP_RC = 7234;
+    public final String TAG = "MainActivity";
 
-    public Broadcast broadcast;
-    public RelativeLayout contentMain;
-
-    public FirebaseManager firebaseManager;
-    public WebViewHandler webViewHandler;
-    public NavigationHandler navigationHandler;
-    public CoverPlanLoader loader;
-    public Editor sharedEditor;
-    public SharedPreferences sharedPreferences;
-    public SpinnerHandler spinnerHandler;
-    public AppToolBar toolBar;
-    public ViewPagerManager viewPagerManager;
+    private Broadcast broadcast;
+    private RelativeLayout contentMain;
+    private FirebaseManager firebaseManager;
+    private WebViewHandler webViewHandler;
+    private CoverPlanLoader loader;
 
     private GlobalVariables dateStorage;
 
     @Override
     protected void onPause() {
-
+        Log.d(TAG, "onPause: ");
         super.onPause();
         CoverPlanLoader coverPlanLoader = this.loader;
         if (coverPlanLoader != null) {
             coverPlanLoader.onPause();
         }
-        if (dateStorage.responseCode == CoverPlanLoader.RC_LATEST_DATASET) {
-            dateStorage.timeMillsLastView = System.currentTimeMillis();
+        if (dateStorage.responseCode == LoaderResponseCode.LATEST_DATA_SET) {
+            dateStorage.lastRefreshTime = System.currentTimeMillis();
         }
 
         ApplicationData.getInstance().saveData(this);
@@ -72,29 +69,26 @@ public class MainActivity extends AppCompatActivity implements CoverPlanLoaderCa
     @Override
     protected void onStart() {
         super.onStart();
-
-        DataInjector.inject(this);
-
-        loader = new CoverPlanLoader(this, this, false);
-        loader.onlyLoadData = true;
-        dateStorage = GlobalVariables.getInstance();
-
-        setupBrowser();
-
+        Log.d(TAG, "onStart: ");
+        
+        /*
         CoverPlanLoader coverPlanLoader = this.loader;
         if (coverPlanLoader != null && coverPlanLoader.isRunning) {
             loader.onStart();
         }
-        if (System.currentTimeMillis() - this.dateStorage.timeMillsLastView > 600000) {
+        if (System.currentTimeMillis() - this.dateStorage.lastRefreshTime > 600000) {
             loader = new CoverPlanLoader(this, this, false);
             loader.execute();
         }
+         */
+
     }
 
     @Override
     protected void onDestroy() {
+        Log.d(TAG, "onDestroy: ");
         super.onDestroy();
-        this.dateStorage.timeMillsLastView = 0;
+        this.dateStorage.lastRefreshTime = 0;
     }
 
 
@@ -108,26 +102,36 @@ public class MainActivity extends AppCompatActivity implements CoverPlanLoaderCa
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "onCreate: ");
         super.onCreate(savedInstanceState);
 
+        CrashlyticsCore crashlyticsCore = new CrashlyticsCore.Builder()
+                .disabled(BuildConfig.DEBUG)
+                .build();
+        Fabric.with(this, new Crashlytics.Builder().core(crashlyticsCore).build());
+
+
+        Credentials.getInstance().load(this);
         ApplicationData.getInstance().loadData(this);
 
         dateStorage = GlobalVariables.getInstance();
         firebaseManager = new FirebaseManager(this);
         broadcast = new Broadcast();
-        setupDataStorage();
         setupUI();
 
-    }
+        DataInjector.inject(this);
 
-    private void setupDataStorage() {
+        loader = new CoverPlanLoader(this, this, false);
+        loader.onlyLoadOfflineData = true;
+        loader.execute();
 
-        sharedPreferences = getSharedPreferences(StorageKeys.SHARED_PREF, 0);
+        dateStorage = GlobalVariables.getInstance();
 
-        dateStorage.password = sharedPreferences.getString(StorageKeys.PASSWORD, "");
-        dateStorage.username = sharedPreferences.getString(StorageKeys.USERNAME, "");
-        dateStorage.moodleCookie = sharedPreferences.getString(StorageKeys.LAST_VALID_MOODLE_COOKIE, "");
-        dateStorage.moodleCookieLastUse = sharedPreferences.getLong(StorageKeys.MOODLE_COOKIE_LAST_USE, 0);
+        setupBrowser();
+
+        CoverPlanLoader loader = new CoverPlanLoader(this, this, false);
+        loader.onlyLoadOfflineData = true;
+
     }
 
     private void setupUI() {
@@ -135,10 +139,8 @@ public class MainActivity extends AppCompatActivity implements CoverPlanLoaderCa
         setContentView(R.layout.activity_main);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolBar = new AppToolBar(this);
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        navigationHandler = new NavigationHandler(this, drawer);
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
@@ -146,8 +148,10 @@ public class MainActivity extends AppCompatActivity implements CoverPlanLoaderCa
 
         contentMain = findViewById(R.id.contentMainRl);
 
-        spinnerHandler = new SpinnerHandler(this, broadcast);
-        viewPagerManager = new ViewPagerManager(this, broadcast, firebaseManager);
+        new AppToolBar(this, broadcast);
+        new NavigationHandler(this, drawer, broadcast);
+        new SpinnerHandler(this, broadcast);
+        new ViewPagerManager(this, broadcast);
 
     }
 
@@ -156,6 +160,7 @@ public class MainActivity extends AppCompatActivity implements CoverPlanLoaderCa
         contentMain.addView(this.webViewHandler);
     }
 
+    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == 111) {
@@ -166,6 +171,7 @@ public class MainActivity extends AppCompatActivity implements CoverPlanLoaderCa
         finish();
     }
 
+    @Override
     public void onBackPressed() {
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -174,56 +180,52 @@ public class MainActivity extends AppCompatActivity implements CoverPlanLoaderCa
             return;
         }
 
-        if (webViewHandler.consumesBackPress()) {
-            broadcast.send(BroadcastEvent.CURRENT_PAGE_CHANGED);
+        if (webViewHandler.consumesBackPress())
             return;
-        }
 
         super.onBackPressed();
     }
 
-    public void showInfoDialog() {
-        SharedPreferences sharedPreferences2 = this.sharedPreferences;
-        String str = StorageKeys.SHOW_SWIPE_INFO;
-        if (sharedPreferences2.getBoolean(str, true)) {
-            SwipeHintDialog.show(this);
-            this.sharedEditor.putBoolean(str, false);
-            this.sharedEditor.commit();
-        }
-    }
 
-    public void loaderFinishedWithResponseCode(int ResponseCode) {
-        this.dateStorage.responseCode = ResponseCode;
-        switch (ResponseCode) {
-            case CoverPlanLoader.RC_LOGIN_REQUIRED:
+    @Override
+    public void loaderFinishedWithResponseCode(LoaderResponseCode responseCode) {
+        dateStorage.responseCode = responseCode;
+        System.out.println("RESPONSE CODE " + responseCode);
+        switch (responseCode) {
+            case LOGIN_REQUIRED:
                 LoginRequired.show(this);
                 return;
-            case CoverPlanLoader.RC_ERROR:
+            case ERROR:
                 DownloadError.show(this);
                 return;
-            case CoverPlanLoader.RC_NO_INTERNET_NO_DATASET:
+            case NO_INTERNET_NO_DATA_SET:
                 Snackbar.make(this.contentMain, "Keine Internetverbindung! Bitte aktiviere WLAN oder mobile Daten.", Snackbar.LENGTH_LONG).show();
                 return;
-            case CoverPlanLoader.RC_LATEST_DATASET:
+            case LATEST_DATA_SET:
                 refreshCoverPlan();
-                sharedPreferences = getSharedPreferences(StorageKeys.SHARED_PREF, 0);
-                sharedEditor = this.sharedPreferences.edit();
-                sharedEditor.putString(StorageKeys.LAST_VALID_MOODLE_COOKIE, this.dateStorage.moodleCookie);
-                sharedEditor.putLong(StorageKeys.MOODLE_COOKIE_LAST_USE, this.dateStorage.moodleCookieLastUse);
-                sharedEditor.apply();
+                Credentials.getInstance().saveCookie(this);
                 return;
-            case CoverPlanLoader.RC_NO_INTERNET_DATASET_EXIST:
+            case NO_INTERNET_DATA_SET_EXISTS:
                 refreshCoverPlan();
                 Snackbar.make(this.contentMain, "Keine Internetverbindung! Der Vertretungsplan ist möglicherweise veraltet.", Snackbar.LENGTH_LONG).show();
                 return;
+            case COVER_PLAN_NOT_PROVIDED:
+                loader.onlyLoadOfflineData = true;
+                //loader.execute();
+                break;
             default:
         }
     }
 
     public void refreshCoverPlan() {
+
+        if (ApplicationData.getInstance().getCoverPlanToday() == null)
+            return;
+
+        System.out.println("Refreshing coverplan");
         this.broadcast.send(BroadcastEvent.DATA_PROVIDED);
-        showInfoDialog();
-        this.viewPagerManager.refreshPageViewer();
+        SwipeHintDialog.showOnce(this);
+        //this.viewPagerManager.refreshPageViewer();
     }
 
 }

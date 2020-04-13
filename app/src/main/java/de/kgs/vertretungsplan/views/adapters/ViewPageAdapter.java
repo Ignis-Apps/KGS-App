@@ -1,36 +1,43 @@
 package de.kgs.vertretungsplan.views.adapters;
 
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
-import java.util.ArrayList;
-import java.util.List;
+import de.kgs.vertretungsplan.broadcaster.Broadcast;
+import de.kgs.vertretungsplan.views.fragments.BlackboardFragment;
+import de.kgs.vertretungsplan.views.fragments.CoverPlanFragment;
 
 public class ViewPageAdapter extends FragmentStateAdapter {
 
-    private List<Fragment> fragments = new ArrayList<>();
+    private Broadcast broadcast;
 
-    public ViewPageAdapter(@NonNull FragmentActivity fragmentActivity) {
+    public ViewPageAdapter(@NonNull FragmentActivity fragmentActivity, Broadcast broadcast) {
         super(fragmentActivity);
-    }
-
-    public void addFragment(Fragment fragment) {
-        fragments.add(fragment);
+        this.broadcast = broadcast;
     }
 
     @NonNull
     @Override
     public Fragment createFragment(int position) {
-        if (position < fragments.size()) {
-            return fragments.get(position);
+
+        switch (position) {
+            case 0:
+                return new BlackboardFragment(broadcast);
+            case 1:
+                return new CoverPlanFragment(broadcast, CoverPlanFragment.PresentedDataSet.TODAY);
+            case 2:
+                return new CoverPlanFragment(broadcast, CoverPlanFragment.PresentedDataSet.TOMORROW);
+            default:
+                throw new AssertionError("Fragment not provided");
+
         }
-        return null;
     }
 
     @Override
     public int getItemCount() {
-        return fragments.size();
+        return 3; // blackboard, today, tomorrow
     }
 }
