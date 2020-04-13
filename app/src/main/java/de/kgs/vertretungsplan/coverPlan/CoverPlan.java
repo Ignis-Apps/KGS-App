@@ -28,9 +28,7 @@ public class CoverPlan {
 
 
     private CoverPlan() {
-
     }
-
 
     public String getTitle() {
         return title;

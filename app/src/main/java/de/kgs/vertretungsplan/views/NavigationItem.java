@@ -24,7 +24,6 @@ public enum NavigationItem {
 
     NEWSLETTER(R.id.nav_school_newsletter, false),
 
-    // Dummy, not
     STUDENT_NEWS_PAPER(-1, false);
 
     private final int resourceId;

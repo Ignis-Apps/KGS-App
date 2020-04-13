@@ -100,8 +100,6 @@ public class CoverPlanListHead implements ViewTreeObserver.OnGlobalLayoutListene
 
         float headContainerHeight = headContainer.getHeight();
 
-        System.out.println("Head container height == " + headContainerHeight);
-
         translateIn = new TranslateAnimation(0.0f, 0.0f, -headContainerHeight, 0);
         translateOut = new TranslateAnimation(0.0f, 0.0f, headContainerHeight, 0);
 

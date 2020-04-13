@@ -16,8 +16,6 @@ import org.json.JSONObject;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.Date;
 
 import de.kgs.vertretungsplan.coverPlan.CoverPlan;
 import de.kgs.vertretungsplan.loader.exceptions.CredentialException;
@@ -34,7 +32,9 @@ public class CoverPlanLoader extends AsyncTask<String, Void, LoaderResponseCode>
     private static final String COVERPLAN_TOMORROW_FILE = "coverPlanTomorrow.json";
 
     public boolean onlyLoadOfflineData = false;
+
     private boolean isRunning = false;
+
     @SuppressLint("StaticFieldLeak")
     private Context context;
     private boolean login;
@@ -44,21 +44,15 @@ public class CoverPlanLoader extends AsyncTask<String, Void, LoaderResponseCode>
     private GlobalVariables global = GlobalVariables.getInstance();
     private ApplicationData applicationData = ApplicationData.getInstance();
 
-    public CoverPlanLoader(Context context, CoverPlanLoaderCallback cpli, boolean login) {
+    public CoverPlanLoader(Context context, CoverPlanLoaderCallback callback, boolean login) {
         this.context = context;
-        this.callback = cpli;
+        this.callback = callback;
         this.login = login;
 
         loadDataTrace = FirebasePerformance.getInstance().newTrace("load_data");
     }
 
-    public void loadOfflineData() {
-        this.onlyLoadOfflineData = true;
-        super.execute();
-    }
 
-
-    // Runs on UI Thread
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
@@ -74,32 +68,11 @@ public class CoverPlanLoader extends AsyncTask<String, Void, LoaderResponseCode>
 
     }
 
-    // Runs on UI Thread
-    @Override
-    protected void onPostExecute(LoaderResponseCode i) {
-        super.onPostExecute(i);
-
-        isRunning = false;
-
-        loadDataTrace.stop();
-
-        callback.loaderFinishedWithResponseCode(i);
-        if (dialog != null) {
-            if (dialog.getWindow() != null) {
-                dialog.dismiss();
-            }
-        }
-    }
-
     @Override
     protected LoaderResponseCode doInBackground(String... parameters) {
 
-        Long startTime = System.currentTimeMillis();
-        Date currentTime = Calendar.getInstance().getTime();
-
         if (isNetworkAvailable(context) && !onlyLoadOfflineData) {
             try {
-                System.out.println("Returning");
                 return downloadData();
             } catch (IOException e) {
                 Crashlytics.logException(e);
@@ -109,6 +82,21 @@ public class CoverPlanLoader extends AsyncTask<String, Void, LoaderResponseCode>
 
         return loadOffline();
 
+    }
+
+    @Override
+    protected void onPostExecute(LoaderResponseCode i) {
+        super.onPostExecute(i);
+
+        isRunning = false;
+        loadDataTrace.stop();
+
+        callback.loaderFinishedWithResponseCode(i);
+        if (dialog != null) {
+            if (dialog.getWindow() != null) {
+                dialog.dismiss();
+            }
+        }
     }
 
     private LoaderResponseCode downloadData() throws IOException {
@@ -134,11 +122,8 @@ public class CoverPlanLoader extends AsyncTask<String, Void, LoaderResponseCode>
             return LoaderResponseCode.COVER_PLAN_NOT_PROVIDED;
         }
 
-        CoverPlan coverPlanToday;
-        CoverPlan coverPlanTomorrow;
-
-        coverPlanToday = CoverPlanAnalyser.getCoverPlan(documentToday);
-        coverPlanTomorrow = CoverPlanAnalyser.getCoverPlan(documentTomorrow);
+        CoverPlan coverPlanToday = CoverPlanAnalyser.getCoverPlan(documentToday);
+        CoverPlan coverPlanTomorrow = CoverPlanAnalyser.getCoverPlan(documentTomorrow);
 
         global.lastRefreshTime = System.currentTimeMillis();
         applicationData.setCoverPlanToday(coverPlanToday);
@@ -188,7 +173,18 @@ public class CoverPlanLoader extends AsyncTask<String, Void, LoaderResponseCode>
     }
 
     public void onStart() {
+        if (dialog == null || dialog.isShowing())
+            return;
         dialog = ProgressDialog.show(context, "", "Lade Vertretungsplan...", true);
+    }
+
+    public void loadOfflineData() {
+        this.onlyLoadOfflineData = true;
+        super.execute();
+    }
+
+    public boolean isRunning() {
+        return isRunning;
     }
 
     private boolean isNetworkAvailable(Context context) {

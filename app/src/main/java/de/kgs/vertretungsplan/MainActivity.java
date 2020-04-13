@@ -2,7 +2,6 @@ package de.kgs.vertretungsplan;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.RelativeLayout;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -12,7 +11,6 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.crashlytics.android.Crashlytics;
-import com.crashlytics.android.core.CrashlyticsCore;
 import com.google.android.material.snackbar.Snackbar;
 
 import de.kgs.vertretungsplan.broadcaster.Broadcast;
@@ -33,34 +31,27 @@ import de.kgs.vertretungsplan.views.dialogs.SwipeHintDialog;
 import de.kgs.vertretungsplan.views.handler.NavigationHandler;
 import de.kgs.vertretungsplan.views.handler.SpinnerHandler;
 import de.kgs.vertretungsplan.views.handler.WebViewHandler;
-import io.fabric.sdk.android.Fabric;
-
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
 public class MainActivity extends AppCompatActivity implements CoverPlanLoaderCallback {
 
     public static final int SIGN_UP_RC = 7234;
-    public final String TAG = "MainActivity";
 
-    private Broadcast broadcast;
+    private Broadcast broadcast = new Broadcast();
     private RelativeLayout contentMain;
-    private FirebaseManager firebaseManager;
     private WebViewHandler webViewHandler;
     private CoverPlanLoader loader;
 
-    private GlobalVariables dateStorage;
+    private boolean DEBUG_FLAG_REMOVE_BEFORE_RELEASE = true;
 
     @Override
     protected void onPause() {
-        Log.d(TAG, "onPause: ");
         super.onPause();
-        CoverPlanLoader coverPlanLoader = this.loader;
-        if (coverPlanLoader != null) {
-            coverPlanLoader.onPause();
-        }
-        if (dateStorage.responseCode == LoaderResponseCode.LATEST_DATA_SET) {
-            dateStorage.lastRefreshTime = System.currentTimeMillis();
-        }
+
+        if (loader != null)
+            loader.onPause();
+
+        if (GlobalVariables.getInstance().responseCode == LoaderResponseCode.LATEST_DATA_SET)
+            GlobalVariables.getInstance().lastRefreshTime = System.currentTimeMillis();
 
         ApplicationData.getInstance().saveData(this);
 
@@ -69,95 +60,68 @@ public class MainActivity extends AppCompatActivity implements CoverPlanLoaderCa
     @Override
     protected void onStart() {
         super.onStart();
-        Log.d(TAG, "onStart: ");
-        
-        /*
-        CoverPlanLoader coverPlanLoader = this.loader;
-        if (coverPlanLoader != null && coverPlanLoader.isRunning) {
+
+        if (DEBUG_FLAG_REMOVE_BEFORE_RELEASE)
+            return;
+
+        // Prevents the execution of multiple load tasks
+        if (loader != null && loader.isRunning()) {
             loader.onStart();
+            return;
         }
-        if (System.currentTimeMillis() - this.dateStorage.lastRefreshTime > 600000) {
+
+        // Reload data if app has slept for more than 10 minutes
+        if (System.currentTimeMillis() - GlobalVariables.getInstance().lastRefreshTime > 600000) {
             loader = new CoverPlanLoader(this, this, false);
             loader.execute();
         }
-         */
 
     }
 
     @Override
     protected void onDestroy() {
-        Log.d(TAG, "onDestroy: ");
         super.onDestroy();
-        this.dateStorage.lastRefreshTime = 0;
-    }
-
-
-    public void restart() {
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-        finish();
-        Runtime.getRuntime().exit(0);
+        GlobalVariables.getInstance().lastRefreshTime = 0;
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d(TAG, "onCreate: ");
+
         super.onCreate(savedInstanceState);
 
-        CrashlyticsCore crashlyticsCore = new CrashlyticsCore.Builder()
-                .disabled(BuildConfig.DEBUG)
-                .build();
-        Fabric.with(this, new Crashlytics.Builder().core(crashlyticsCore).build());
-
-
+        // Load data from shared preferences
         Credentials.getInstance().load(this);
         ApplicationData.getInstance().loadData(this);
 
-        dateStorage = GlobalVariables.getInstance();
-        firebaseManager = new FirebaseManager(this);
-        broadcast = new Broadcast();
-        setupUI();
+        // Prepare/Load everything from firebase
+        new FirebaseManager(this);
 
-        DataInjector.inject(this);
-
-        loader = new CoverPlanLoader(this, this, false);
-        loader.onlyLoadOfflineData = true;
-        loader.execute();
-
-        dateStorage = GlobalVariables.getInstance();
-
-        setupBrowser();
-
-        CoverPlanLoader loader = new CoverPlanLoader(this, this, false);
-        loader.onlyLoadOfflineData = true;
-
-    }
-
-    private void setupUI() {
-
+        // Init UI Components
         setContentView(R.layout.activity_main);
-
-        Toolbar toolbar = findViewById(R.id.toolbar);
-
+        contentMain = findViewById(R.id.contentMainRl);
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
-
+        Toolbar toolbar = findViewById(R.id.toolbar);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-
-        contentMain = findViewById(R.id.contentMainRl);
-
         new AppToolBar(this, broadcast);
         new NavigationHandler(this, drawer, broadcast);
         new SpinnerHandler(this, broadcast);
         new ViewPagerManager(this, broadcast);
 
-    }
+        // Inject data ( for testing uses only )
+        if (DEBUG_FLAG_REMOVE_BEFORE_RELEASE)
+            DataInjector.inject(this);
 
-    private void setupBrowser() {
-        webViewHandler = new WebViewHandler(this, this.broadcast);
-        contentMain.addView(this.webViewHandler);
+        // Start loader
+        loader = new CoverPlanLoader(this, this, false);
+        loader.onlyLoadOfflineData = true;
+        loader.execute();
+
+        // Prepare web view
+        webViewHandler = new WebViewHandler(this, broadcast);
+        contentMain.addView(webViewHandler);
+
     }
 
     @Override
@@ -189,8 +153,9 @@ public class MainActivity extends AppCompatActivity implements CoverPlanLoaderCa
 
     @Override
     public void loaderFinishedWithResponseCode(LoaderResponseCode responseCode) {
-        dateStorage.responseCode = responseCode;
-        System.out.println("RESPONSE CODE " + responseCode);
+
+        GlobalVariables.getInstance().responseCode = responseCode;
+
         switch (responseCode) {
             case LOGIN_REQUIRED:
                 LoginRequired.show(this);
@@ -199,7 +164,7 @@ public class MainActivity extends AppCompatActivity implements CoverPlanLoaderCa
                 DownloadError.show(this);
                 return;
             case NO_INTERNET_NO_DATA_SET:
-                Snackbar.make(this.contentMain, "Keine Internetverbindung! Bitte aktiviere WLAN oder mobile Daten.", Snackbar.LENGTH_LONG).show();
+                Snackbar.make(contentMain, "Keine Internetverbindung! Bitte aktiviere WLAN oder mobile Daten.", Snackbar.LENGTH_LONG).show();
                 return;
             case LATEST_DATA_SET:
                 refreshCoverPlan();
@@ -207,25 +172,18 @@ public class MainActivity extends AppCompatActivity implements CoverPlanLoaderCa
                 return;
             case NO_INTERNET_DATA_SET_EXISTS:
                 refreshCoverPlan();
-                Snackbar.make(this.contentMain, "Keine Internetverbindung! Der Vertretungsplan ist möglicherweise veraltet.", Snackbar.LENGTH_LONG).show();
+                Snackbar.make(contentMain, "Keine Internetverbindung! Der Vertretungsplan ist möglicherweise veraltet.", Snackbar.LENGTH_LONG).show();
                 return;
             case COVER_PLAN_NOT_PROVIDED:
-                loader.onlyLoadOfflineData = true;
-                //loader.execute();
+                // TODO
                 break;
             default:
         }
     }
 
-    public void refreshCoverPlan() {
-
-        if (ApplicationData.getInstance().getCoverPlanToday() == null)
-            return;
-
-        System.out.println("Refreshing coverplan");
-        this.broadcast.send(BroadcastEvent.DATA_PROVIDED);
+    private void refreshCoverPlan() {
+        broadcast.send(BroadcastEvent.DATA_PROVIDED);
         SwipeHintDialog.showOnce(this);
-        //this.viewPagerManager.refreshPageViewer();
     }
 
 }
