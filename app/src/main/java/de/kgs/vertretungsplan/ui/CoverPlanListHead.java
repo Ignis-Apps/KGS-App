@@ -10,7 +10,7 @@ import android.view.animation.TranslateAnimation;
 import de.kgs.vertretungsplan.R;
 import de.kgs.vertretungsplan.broadcaster.Broadcast;
 import de.kgs.vertretungsplan.broadcaster.BroadcastEvent;
-import de.kgs.vertretungsplan.singetones.ApplicationData;
+import de.kgs.vertretungsplan.storage.ApplicationData;
 
 public class CoverPlanListHead implements ViewTreeObserver.OnGlobalLayoutListener, Animation.AnimationListener {
 

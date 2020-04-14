@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog.Builder;
 
 import de.kgs.vertretungsplan.R;
-import de.kgs.vertretungsplan.coverPlan.CoverItem;
+import de.kgs.vertretungsplan.coverplan.CoverItem;
 
 public final class CoverItemInfo {
 

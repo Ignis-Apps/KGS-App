@@ -17,13 +17,13 @@ import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 
-import de.kgs.vertretungsplan.coverPlan.CoverPlan;
+import de.kgs.vertretungsplan.coverplan.CoverPlan;
 import de.kgs.vertretungsplan.loader.exceptions.CredentialException;
 import de.kgs.vertretungsplan.loader.exceptions.DownloadException;
-import de.kgs.vertretungsplan.singetones.ApplicationData;
-import de.kgs.vertretungsplan.singetones.GlobalVariables;
-import de.kgs.vertretungsplan.storage.JsonConverter;
-import de.kgs.vertretungsplan.storage.JsonDataStorage;
+import de.kgs.vertretungsplan.storage.ApplicationData;
+import de.kgs.vertretungsplan.storage.GlobalVariables;
+import de.kgs.vertretungsplan.storage.json.JsonConverter;
+import de.kgs.vertretungsplan.storage.json.JsonDataStorage;
 
 
 public class CoverPlanLoader extends AsyncTask<String, Void, LoaderResponseCode> {
@@ -31,7 +31,7 @@ public class CoverPlanLoader extends AsyncTask<String, Void, LoaderResponseCode>
     private static final String COVERPLAN_TODAY_FILE = "coverPlanToday.json";
     private static final String COVERPLAN_TOMORROW_FILE = "coverPlanTomorrow.json";
 
-    public boolean onlyLoadOfflineData = false;
+    boolean onlyLoadOfflineData = false;
 
     private boolean isRunning = false;
 
@@ -167,12 +167,12 @@ public class CoverPlanLoader extends AsyncTask<String, Void, LoaderResponseCode>
 
     }
 
-    public void onPause() {
+    void onPause() {
         if (dialog != null)
             dialog.dismiss();
     }
 
-    public void onStart() {
+    void onStart() {
         if (dialog == null || dialog.isShowing())
             return;
         dialog = ProgressDialog.show(context, "", "Lade Vertretungsplan...", true);
@@ -183,7 +183,7 @@ public class CoverPlanLoader extends AsyncTask<String, Void, LoaderResponseCode>
         super.execute();
     }
 
-    public boolean isRunning() {
+    boolean isRunning() {
         return isRunning;
     }
 

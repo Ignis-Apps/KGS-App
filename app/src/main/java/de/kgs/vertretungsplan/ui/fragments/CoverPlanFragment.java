@@ -14,7 +14,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import de.kgs.vertretungsplan.R;
 import de.kgs.vertretungsplan.broadcaster.Broadcast;
 import de.kgs.vertretungsplan.broadcaster.BroadcastEvent;
-import de.kgs.vertretungsplan.singetones.ApplicationData;
+import de.kgs.vertretungsplan.storage.ApplicationData;
 import de.kgs.vertretungsplan.ui.adapters.CoverListAdapter;
 
 public class CoverPlanFragment extends Fragment {
@@ -33,7 +33,7 @@ public class CoverPlanFragment extends Fragment {
 
         View fragmentView = inflater.inflate(R.layout.listview_fragment, container, false);
 
-        RecyclerView recyclerView = fragmentView.findViewById(R.id.item_recycler_view);
+        RecyclerView recyclerView = fragmentView.findViewById(R.id.recycler_view);
 
         // Prepare layout and setup list divider
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
@@ -46,7 +46,7 @@ public class CoverPlanFragment extends Fragment {
         recyclerView.setAdapter(adapter);
 
         // Configure swipe to refresh
-        SwipeRefreshLayout refreshLayout = fragmentView.findViewById(R.id.fragment_listview_refresh);
+        SwipeRefreshLayout refreshLayout = fragmentView.findViewById(R.id.recycler_view_refresh_layout);
         refreshLayout.setOnRefreshListener(() -> {
             broadcast.send(BroadcastEvent.REQUEST_DATA_RELOAD);
             refreshLayout.setRefreshing(false);

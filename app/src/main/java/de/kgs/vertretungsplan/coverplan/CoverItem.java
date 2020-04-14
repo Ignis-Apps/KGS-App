@@ -1,4 +1,4 @@
-package de.kgs.vertretungsplan.coverPlan;
+package de.kgs.vertretungsplan.coverplan;
 
 public class CoverItem {
 

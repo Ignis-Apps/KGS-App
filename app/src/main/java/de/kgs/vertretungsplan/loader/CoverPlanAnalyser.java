@@ -7,8 +7,8 @@ import org.jsoup.select.Elements;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.kgs.vertretungsplan.coverPlan.CoverItem;
-import de.kgs.vertretungsplan.coverPlan.CoverPlan;
+import de.kgs.vertretungsplan.coverplan.CoverItem;
+import de.kgs.vertretungsplan.coverplan.CoverPlan;
 
 class CoverPlanAnalyser {
 

@@ -18,8 +18,8 @@ import javax.net.ssl.HttpsURLConnection;
 
 import de.kgs.vertretungsplan.loader.exceptions.CredentialException;
 import de.kgs.vertretungsplan.loader.exceptions.DownloadException;
-import de.kgs.vertretungsplan.singetones.Credentials;
-import de.kgs.vertretungsplan.singetones.GlobalVariables;
+import de.kgs.vertretungsplan.storage.Credentials;
+import de.kgs.vertretungsplan.storage.GlobalVariables;
 
 class HttpUrlConnectionHandler {
 

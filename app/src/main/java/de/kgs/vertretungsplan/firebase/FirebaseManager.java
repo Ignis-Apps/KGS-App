@@ -1,4 +1,4 @@
-package de.kgs.vertretungsplan.manager.firebase;
+package de.kgs.vertretungsplan.firebase;
 
 import android.content.Context;
 

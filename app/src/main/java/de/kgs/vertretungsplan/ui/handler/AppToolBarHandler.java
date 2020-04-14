@@ -1,24 +1,34 @@
-package de.kgs.vertretungsplan.ui;
+package de.kgs.vertretungsplan.ui.handler;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import de.kgs.vertretungsplan.MainActivity;
 import de.kgs.vertretungsplan.R;
 import de.kgs.vertretungsplan.broadcaster.Broadcast;
 import de.kgs.vertretungsplan.broadcaster.BroadcastEvent;
-import de.kgs.vertretungsplan.coverPlan.CoverPlan;
-import de.kgs.vertretungsplan.singetones.ApplicationData;
+import de.kgs.vertretungsplan.coverplan.CoverPlan;
+import de.kgs.vertretungsplan.storage.ApplicationData;
+import de.kgs.vertretungsplan.ui.NavigationItem;
 
-public final class AppToolBar implements Broadcast.Receiver {
+public final class AppToolBarHandler implements Broadcast.Receiver {
 
     private final Toolbar toolbar;
 
-    public AppToolBar(@NonNull MainActivity activity, Broadcast broadcast) {
+    public AppToolBarHandler(@NonNull MainActivity activity, Broadcast broadcast) {
         this.toolbar = activity.findViewById(R.id.toolbar);
         this.toolbar.setTitle(activity.getResources().getString(R.string.app_title));
         activity.setSupportActionBar(toolbar);
         setupObserver(broadcast);
+
+        // Sync toolbar with drawer
+        DrawerLayout drawer = activity.findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(activity, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
     }
 
 

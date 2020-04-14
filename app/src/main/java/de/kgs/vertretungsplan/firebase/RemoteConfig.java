@@ -1,14 +1,14 @@
-package de.kgs.vertretungsplan.manager.firebase;
+package de.kgs.vertretungsplan.firebase;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 
 import de.kgs.vertretungsplan.R;
-import de.kgs.vertretungsplan.singetones.GlobalVariables;
+import de.kgs.vertretungsplan.storage.GlobalVariables;
 
-public class RemoteConfig {
+class RemoteConfig {
 
-    public static void load() {
+    static void load() {
 
         FirebaseRemoteConfig config = FirebaseRemoteConfig.getInstance();
         config.setDefaultsAsync(R.xml.remote_config_defaults);

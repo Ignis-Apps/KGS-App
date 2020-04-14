@@ -1,4 +1,4 @@
-package de.kgs.vertretungsplan.manager;
+package de.kgs.vertretungsplan.ui.handler;
 
 import android.text.format.Time;
 
@@ -11,16 +11,16 @@ import de.kgs.vertretungsplan.MainActivity;
 import de.kgs.vertretungsplan.R;
 import de.kgs.vertretungsplan.broadcaster.Broadcast;
 import de.kgs.vertretungsplan.broadcaster.BroadcastEvent;
-import de.kgs.vertretungsplan.singetones.ApplicationData;
+import de.kgs.vertretungsplan.storage.ApplicationData;
 import de.kgs.vertretungsplan.ui.CoverPlanListHead;
 import de.kgs.vertretungsplan.ui.NavigationItem;
 import de.kgs.vertretungsplan.ui.adapters.ViewPageAdapter;
 
-public class ViewPagerManager implements Broadcast.Receiver {
+public class ViewPagerHandler implements Broadcast.Receiver {
 
     private ViewPager2 viewPager;
 
-    public ViewPagerManager(MainActivity activity, final Broadcast broadcast) {
+    public ViewPagerHandler(MainActivity activity, final Broadcast broadcast) {
 
         broadcast.subscribe(this, BroadcastEvent.CURRENT_MENU_ITEM_CHANGED);
 

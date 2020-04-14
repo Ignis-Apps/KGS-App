@@ -1,4 +1,4 @@
-package de.kgs.vertretungsplan.storage;
+package de.kgs.vertretungsplan.storage.json;
 
 import com.crashlytics.android.Crashlytics;
 
@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import de.kgs.vertretungsplan.coverPlan.CoverItem;
-import de.kgs.vertretungsplan.coverPlan.CoverPlan;
+import de.kgs.vertretungsplan.coverplan.CoverItem;
+import de.kgs.vertretungsplan.coverplan.CoverPlan;
 
 public class JsonConverter {
 

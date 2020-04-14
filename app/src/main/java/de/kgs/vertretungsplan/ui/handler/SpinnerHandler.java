@@ -10,10 +10,10 @@ import android.widget.Spinner;
 import de.kgs.vertretungsplan.R;
 import de.kgs.vertretungsplan.broadcaster.Broadcast;
 import de.kgs.vertretungsplan.broadcaster.BroadcastEvent;
-import de.kgs.vertretungsplan.coverPlan.Grade;
-import de.kgs.vertretungsplan.coverPlan.GradeSubClass;
-import de.kgs.vertretungsplan.manager.firebase.Analytics;
-import de.kgs.vertretungsplan.singetones.ApplicationData;
+import de.kgs.vertretungsplan.coverplan.Grade;
+import de.kgs.vertretungsplan.coverplan.GradeSubClass;
+import de.kgs.vertretungsplan.firebase.Analytics;
+import de.kgs.vertretungsplan.storage.ApplicationData;
 
 public class SpinnerHandler implements OnItemSelectedListener {
 

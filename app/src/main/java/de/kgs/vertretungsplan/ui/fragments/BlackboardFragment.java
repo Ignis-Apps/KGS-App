@@ -14,10 +14,10 @@ import androidx.fragment.app.Fragment;
 import de.kgs.vertretungsplan.R;
 import de.kgs.vertretungsplan.broadcaster.Broadcast;
 import de.kgs.vertretungsplan.broadcaster.BroadcastEvent;
-import de.kgs.vertretungsplan.manager.firebase.Analytics;
-import de.kgs.vertretungsplan.manager.firebase.FirebaseManager;
-import de.kgs.vertretungsplan.singetones.ApplicationData;
-import de.kgs.vertretungsplan.singetones.GlobalVariables;
+import de.kgs.vertretungsplan.firebase.Analytics;
+import de.kgs.vertretungsplan.firebase.FirebaseManager;
+import de.kgs.vertretungsplan.storage.ApplicationData;
+import de.kgs.vertretungsplan.storage.GlobalVariables;
 import de.kgs.vertretungsplan.ui.NavigationItem;
 
 

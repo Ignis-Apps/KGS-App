@@ -6,7 +6,7 @@ import androidx.appcompat.app.AlertDialog.Builder;
 
 import de.kgs.vertretungsplan.MainActivity;
 import de.kgs.vertretungsplan.R;
-import de.kgs.vertretungsplan.loader.CoverPlanLoader;
+import de.kgs.vertretungsplan.broadcaster.BroadcastEvent;
 
 public final class DownloadError {
 
@@ -21,7 +21,7 @@ public final class DownloadError {
         alertBuilder.setTitle(title);
         alertBuilder.setMessage(description);
         alertBuilder.setIcon(R.drawable.ic_alert_error);
-        alertBuilder.setPositiveButton(retry, (dialogInterface, i) -> new CoverPlanLoader(context, (MainActivity) context, false).execute());
+        alertBuilder.setPositiveButton(retry, (dialogInterface, i) -> ((MainActivity) context).broadcast.send(BroadcastEvent.REQUEST_DATA_RELOAD));
         alertBuilder.setNegativeButton(exit, (dialogInterface, i) -> System.exit(0));
         alertBuilder.create().show();
     }

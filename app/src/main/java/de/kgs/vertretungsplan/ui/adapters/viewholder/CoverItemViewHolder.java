@@ -10,7 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import de.kgs.vertretungsplan.R;
-import de.kgs.vertretungsplan.coverPlan.CoverItem;
+import de.kgs.vertretungsplan.coverplan.CoverItem;
 import de.kgs.vertretungsplan.ui.interfaces.OnCoverListItemClicked;
 
 public class CoverItemViewHolder extends RecyclerView.ViewHolder {

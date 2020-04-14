@@ -15,9 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.kgs.vertretungsplan.R;
-import de.kgs.vertretungsplan.coverPlan.CoverItem;
-import de.kgs.vertretungsplan.coverPlan.CoverPlan;
-import de.kgs.vertretungsplan.manager.firebase.Analytics;
+import de.kgs.vertretungsplan.coverplan.CoverItem;
+import de.kgs.vertretungsplan.coverplan.CoverPlan;
+import de.kgs.vertretungsplan.firebase.Analytics;
 import de.kgs.vertretungsplan.ui.adapters.viewholder.CoverItemViewHolder;
 import de.kgs.vertretungsplan.ui.adapters.viewholder.DailyMessageViewHolder;
 import de.kgs.vertretungsplan.ui.adapters.viewholder.RateViewHolder;

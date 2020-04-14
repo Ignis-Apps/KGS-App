@@ -1,11 +1,11 @@
-package de.kgs.vertretungsplan.singetones;
+package de.kgs.vertretungsplan.storage;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import de.kgs.vertretungsplan.coverPlan.CoverPlan;
-import de.kgs.vertretungsplan.coverPlan.Grade;
-import de.kgs.vertretungsplan.coverPlan.GradeSubClass;
+import de.kgs.vertretungsplan.coverplan.CoverPlan;
+import de.kgs.vertretungsplan.coverplan.Grade;
+import de.kgs.vertretungsplan.coverplan.GradeSubClass;
 import de.kgs.vertretungsplan.ui.NavigationItem;
 
 /**

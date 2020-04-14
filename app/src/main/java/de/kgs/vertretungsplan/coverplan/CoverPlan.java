@@ -1,4 +1,4 @@
-package de.kgs.vertretungsplan.coverPlan;
+package de.kgs.vertretungsplan.coverplan;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -9,7 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
-import de.kgs.vertretungsplan.singetones.ApplicationData;
+import de.kgs.vertretungsplan.storage.ApplicationData;
 
 public class CoverPlan {
 

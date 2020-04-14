@@ -11,8 +11,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import de.kgs.vertretungsplan.loader.CoverPlanLoader;
 import de.kgs.vertretungsplan.loader.CoverPlanLoaderCallback;
 import de.kgs.vertretungsplan.loader.LoaderResponseCode;
-import de.kgs.vertretungsplan.singetones.Credentials;
-import de.kgs.vertretungsplan.singetones.GlobalVariables;
+import de.kgs.vertretungsplan.storage.Credentials;
+import de.kgs.vertretungsplan.storage.GlobalVariables;
 
 
 public class LoginActivity extends AppCompatActivity implements CoverPlanLoaderCallback {

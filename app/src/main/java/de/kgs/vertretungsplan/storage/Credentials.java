@@ -1,4 +1,4 @@
-package de.kgs.vertretungsplan.singetones;
+package de.kgs.vertretungsplan.storage;
 
 import android.content.Context;
 import android.content.SharedPreferences;

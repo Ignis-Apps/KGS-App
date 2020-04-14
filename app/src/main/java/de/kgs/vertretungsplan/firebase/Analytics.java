@@ -1,4 +1,4 @@
-package de.kgs.vertretungsplan.manager.firebase;
+package de.kgs.vertretungsplan.firebase;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -14,14 +14,17 @@ public class Analytics {
     private Analytics() {
     }
 
-    public void init(Context context) {
+    public static Analytics getInstance() {
+        return instance;
+    }
+
+    void init(Context context) {
         firebaseAnalytics = FirebaseAnalytics.getInstance(context);
     }
 
     public void logContentSelectEvent(String id, String content) {
 
-        if (firebaseAnalytics == null)
-            return;
+        if (firebaseAnalytics == null) return;
 
         Bundle bundle = new Bundle();
         bundle.putString(FirebaseAnalytics.Param.ITEM_ID, id);
@@ -30,15 +33,13 @@ public class Analytics {
     }
 
     public void setUserProperty(String key, String content) {
+        if (firebaseAnalytics == null) return;
         firebaseAnalytics.setUserProperty(key, content);
     }
 
     public void logEvent(String event) {
+        if (firebaseAnalytics == null) return;
         firebaseAnalytics.logEvent(event, new Bundle());
-    }
-
-    public static Analytics getInstance() {
-        return instance;
     }
 
 }

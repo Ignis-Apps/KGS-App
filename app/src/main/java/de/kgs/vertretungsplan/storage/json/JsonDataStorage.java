@@ -1,4 +1,4 @@
-package de.kgs.vertretungsplan.storage;
+package de.kgs.vertretungsplan.storage.json;
 
 import android.content.Context;
 

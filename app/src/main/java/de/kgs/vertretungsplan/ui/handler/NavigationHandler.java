@@ -15,10 +15,10 @@ import de.kgs.vertretungsplan.MainActivity;
 import de.kgs.vertretungsplan.R;
 import de.kgs.vertretungsplan.broadcaster.Broadcast;
 import de.kgs.vertretungsplan.broadcaster.BroadcastEvent;
-import de.kgs.vertretungsplan.manager.firebase.Analytics;
-import de.kgs.vertretungsplan.manager.firebase.FirebaseManager;
-import de.kgs.vertretungsplan.singetones.ApplicationData;
-import de.kgs.vertretungsplan.singetones.GlobalVariables;
+import de.kgs.vertretungsplan.firebase.Analytics;
+import de.kgs.vertretungsplan.firebase.FirebaseManager;
+import de.kgs.vertretungsplan.storage.ApplicationData;
+import de.kgs.vertretungsplan.storage.GlobalVariables;
 import de.kgs.vertretungsplan.ui.NavigationItem;
 
 public final class NavigationHandler implements OnNavigationItemSelectedListener {
@@ -29,10 +29,10 @@ public final class NavigationHandler implements OnNavigationItemSelectedListener
     private Context context;
     private NavigationView navigationView;
 
-    public NavigationHandler(MainActivity activity, DrawerLayout drawerLayout, Broadcast broadcast) {
+    public NavigationHandler(MainActivity activity, Broadcast broadcast) {
         this.broadcast = broadcast;
         this.context = activity;
-        this.drawerLayout = drawerLayout;
+        this.drawerLayout = activity.findViewById(R.id.drawer_layout);
         this.navigationView = activity.findViewById(R.id.nav_view);
         this.navigationView.setNavigationItemSelectedListener(this);
         setupReceiver(broadcast);
