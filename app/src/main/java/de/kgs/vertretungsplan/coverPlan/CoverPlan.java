@@ -70,7 +70,7 @@ public class CoverPlan {
         return affectedWeekday + ", " + title.split(" ")[0];
     }
 
-    public List<CoverItem> getCoverItems(Grade grade, GradeSubClass gradeSubClass) {
+    private List<CoverItem> getCoverItems(Grade grade, GradeSubClass gradeSubClass) {
         List<CoverItem> items = new LinkedList<>();
         for (CoverItem cItem : this.coverItems) {
 

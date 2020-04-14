@@ -19,18 +19,18 @@ import de.kgs.vertretungsplan.loader.CoverPlanLoader;
 import de.kgs.vertretungsplan.loader.CoverPlanLoaderCallback;
 import de.kgs.vertretungsplan.loader.DataInjector;
 import de.kgs.vertretungsplan.loader.LoaderResponseCode;
-import de.kgs.vertretungsplan.manager.FirebaseManager;
 import de.kgs.vertretungsplan.manager.ViewPagerManager;
+import de.kgs.vertretungsplan.manager.firebase.FirebaseManager;
 import de.kgs.vertretungsplan.singetones.ApplicationData;
 import de.kgs.vertretungsplan.singetones.Credentials;
 import de.kgs.vertretungsplan.singetones.GlobalVariables;
-import de.kgs.vertretungsplan.views.AppToolBar;
-import de.kgs.vertretungsplan.views.dialogs.DownloadError;
-import de.kgs.vertretungsplan.views.dialogs.LoginRequired;
-import de.kgs.vertretungsplan.views.dialogs.SwipeHintDialog;
-import de.kgs.vertretungsplan.views.handler.NavigationHandler;
-import de.kgs.vertretungsplan.views.handler.SpinnerHandler;
-import de.kgs.vertretungsplan.views.handler.WebViewHandler;
+import de.kgs.vertretungsplan.ui.AppToolBar;
+import de.kgs.vertretungsplan.ui.dialogs.DownloadError;
+import de.kgs.vertretungsplan.ui.dialogs.LoginRequired;
+import de.kgs.vertretungsplan.ui.dialogs.SwipeHintDialog;
+import de.kgs.vertretungsplan.ui.handler.NavigationHandler;
+import de.kgs.vertretungsplan.ui.handler.SpinnerHandler;
+import de.kgs.vertretungsplan.ui.handler.WebViewHandler;
 
 public class MainActivity extends AppCompatActivity implements CoverPlanLoaderCallback {
 

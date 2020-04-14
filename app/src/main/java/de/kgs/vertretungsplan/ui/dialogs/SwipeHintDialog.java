@@ -1,4 +1,4 @@
-package de.kgs.vertretungsplan.views.dialogs;
+package de.kgs.vertretungsplan.ui.dialogs;
 
 import android.content.Context;
 import android.content.SharedPreferences;

@@ -1,4 +1,4 @@
-package de.kgs.vertretungsplan.views;
+package de.kgs.vertretungsplan.ui;
 
 import de.kgs.vertretungsplan.R;
 

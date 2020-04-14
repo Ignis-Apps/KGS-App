@@ -1,4 +1,4 @@
-package de.kgs.vertretungsplan.views.adapters;
+package de.kgs.vertretungsplan.ui.adapters;
 
 
 import androidx.annotation.NonNull;
@@ -7,8 +7,8 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import de.kgs.vertretungsplan.broadcaster.Broadcast;
-import de.kgs.vertretungsplan.views.fragments.BlackboardFragment;
-import de.kgs.vertretungsplan.views.fragments.CoverPlanFragment;
+import de.kgs.vertretungsplan.ui.fragments.BlackboardFragment;
+import de.kgs.vertretungsplan.ui.fragments.CoverPlanFragment;
 
 public class ViewPageAdapter extends FragmentStateAdapter {
 

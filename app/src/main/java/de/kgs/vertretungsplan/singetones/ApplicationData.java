@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 import de.kgs.vertretungsplan.coverPlan.CoverPlan;
 import de.kgs.vertretungsplan.coverPlan.Grade;
 import de.kgs.vertretungsplan.coverPlan.GradeSubClass;
-import de.kgs.vertretungsplan.views.NavigationItem;
+import de.kgs.vertretungsplan.ui.NavigationItem;
 
 /**
  * This singleton contains values that are frequently changed.

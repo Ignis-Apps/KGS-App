@@ -12,9 +12,9 @@ import de.kgs.vertretungsplan.R;
 import de.kgs.vertretungsplan.broadcaster.Broadcast;
 import de.kgs.vertretungsplan.broadcaster.BroadcastEvent;
 import de.kgs.vertretungsplan.singetones.ApplicationData;
-import de.kgs.vertretungsplan.views.CoverPlanListHead;
-import de.kgs.vertretungsplan.views.NavigationItem;
-import de.kgs.vertretungsplan.views.adapters.ViewPageAdapter;
+import de.kgs.vertretungsplan.ui.CoverPlanListHead;
+import de.kgs.vertretungsplan.ui.NavigationItem;
+import de.kgs.vertretungsplan.ui.adapters.ViewPageAdapter;
 
 public class ViewPagerManager implements Broadcast.Receiver {
 
@@ -36,18 +36,10 @@ public class ViewPagerManager implements Broadcast.Receiver {
         viewPager.setOffscreenPageLimit(2);
         viewPager.setAdapter(adapter);
         viewPager.setDrawingCacheEnabled(true);
+
         setPageBasedOnTime(broadcast);
 
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-                super.onPageScrollStateChanged(state);
-                // TODO: Viewpager / Refresh layout input conflict
-                // boolean enabled = (state != ViewPager2.SCROLL_STATE_DRAGGING);
-                // today.refreshLayoutSetEnabled(enabled);
-                // tomorrow.refreshLayoutSetEnabled(enabled);
-            }
 
             @Override
             public void onPageSelected(int position) {

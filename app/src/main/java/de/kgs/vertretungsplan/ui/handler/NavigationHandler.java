@@ -1,4 +1,4 @@
-package de.kgs.vertretungsplan.views.handler;
+package de.kgs.vertretungsplan.ui.handler;
 
 import android.content.Context;
 import android.content.Intent;
@@ -15,11 +15,11 @@ import de.kgs.vertretungsplan.MainActivity;
 import de.kgs.vertretungsplan.R;
 import de.kgs.vertretungsplan.broadcaster.Broadcast;
 import de.kgs.vertretungsplan.broadcaster.BroadcastEvent;
-import de.kgs.vertretungsplan.manager.FirebaseManager;
 import de.kgs.vertretungsplan.manager.firebase.Analytics;
+import de.kgs.vertretungsplan.manager.firebase.FirebaseManager;
 import de.kgs.vertretungsplan.singetones.ApplicationData;
 import de.kgs.vertretungsplan.singetones.GlobalVariables;
-import de.kgs.vertretungsplan.views.NavigationItem;
+import de.kgs.vertretungsplan.ui.NavigationItem;
 
 public final class NavigationHandler implements OnNavigationItemSelectedListener {
 

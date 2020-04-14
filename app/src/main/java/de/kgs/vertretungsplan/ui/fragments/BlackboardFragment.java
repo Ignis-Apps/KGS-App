@@ -1,4 +1,4 @@
-package de.kgs.vertretungsplan.views.fragments;
+package de.kgs.vertretungsplan.ui.fragments;
 
 import android.content.Context;
 import android.content.Intent;
@@ -14,11 +14,11 @@ import androidx.fragment.app.Fragment;
 import de.kgs.vertretungsplan.R;
 import de.kgs.vertretungsplan.broadcaster.Broadcast;
 import de.kgs.vertretungsplan.broadcaster.BroadcastEvent;
-import de.kgs.vertretungsplan.manager.FirebaseManager;
 import de.kgs.vertretungsplan.manager.firebase.Analytics;
+import de.kgs.vertretungsplan.manager.firebase.FirebaseManager;
 import de.kgs.vertretungsplan.singetones.ApplicationData;
 import de.kgs.vertretungsplan.singetones.GlobalVariables;
-import de.kgs.vertretungsplan.views.NavigationItem;
+import de.kgs.vertretungsplan.ui.NavigationItem;
 
 
 public class BlackboardFragment extends Fragment implements OnClickListener {

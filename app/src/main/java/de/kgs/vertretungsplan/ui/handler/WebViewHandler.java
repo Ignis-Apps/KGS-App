@@ -1,4 +1,4 @@
-package de.kgs.vertretungsplan.views.handler;
+package de.kgs.vertretungsplan.ui.handler;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -14,7 +14,7 @@ import de.kgs.vertretungsplan.broadcaster.Broadcast;
 import de.kgs.vertretungsplan.broadcaster.BroadcastEvent;
 import de.kgs.vertretungsplan.singetones.ApplicationData;
 import de.kgs.vertretungsplan.singetones.GlobalVariables;
-import de.kgs.vertretungsplan.views.NavigationItem;
+import de.kgs.vertretungsplan.ui.NavigationItem;
 
 public class WebViewHandler extends WebView implements Broadcast.Receiver {
 

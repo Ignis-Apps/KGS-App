@@ -1,8 +1,6 @@
-package de.kgs.vertretungsplan.views.dialogs;
+package de.kgs.vertretungsplan.ui.dialogs;
 
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 
 import androidx.appcompat.app.AlertDialog.Builder;
 
@@ -23,18 +21,8 @@ public final class DownloadError {
         alertBuilder.setTitle(title);
         alertBuilder.setMessage(description);
         alertBuilder.setIcon(R.drawable.ic_alert_error);
-        alertBuilder.setPositiveButton(retry, new OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                new CoverPlanLoader(context, (MainActivity) context, false).execute();
-            }
-        });
-        alertBuilder.setNegativeButton(exit, new OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                System.exit(0);
-            }
-        });
+        alertBuilder.setPositiveButton(retry, (dialogInterface, i) -> new CoverPlanLoader(context, (MainActivity) context, false).execute());
+        alertBuilder.setNegativeButton(exit, (dialogInterface, i) -> System.exit(0));
         alertBuilder.create().show();
     }
 }

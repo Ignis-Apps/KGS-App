@@ -1,4 +1,4 @@
-package de.kgs.vertretungsplan.views;
+package de.kgs.vertretungsplan.ui;
 
 import android.app.Activity;
 import android.view.View;
