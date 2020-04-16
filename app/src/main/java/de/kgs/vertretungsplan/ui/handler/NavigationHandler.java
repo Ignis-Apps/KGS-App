@@ -23,11 +23,11 @@ import de.kgs.vertretungsplan.ui.NavigationItem;
 
 public final class NavigationHandler implements OnNavigationItemSelectedListener {
 
-    private Broadcast broadcast;
-    private GlobalVariables globalVariables = GlobalVariables.getInstance();
-    private DrawerLayout drawerLayout;
-    private Context context;
-    private NavigationView navigationView;
+    private final Broadcast broadcast;
+    private final GlobalVariables globalVariables = GlobalVariables.getInstance();
+    private final DrawerLayout drawerLayout;
+    private final Context context;
+    private final NavigationView navigationView;
 
     public NavigationHandler(MainActivity activity, Broadcast broadcast) {
         this.broadcast = broadcast;

@@ -15,20 +15,21 @@ import de.kgs.vertretungsplan.ui.dialogs.DownloadError;
 import de.kgs.vertretungsplan.ui.dialogs.LoginRequired;
 import de.kgs.vertretungsplan.ui.dialogs.SwipeHintDialog;
 
-public class LoadManager implements CoverPlanLoaderCallback {
+public class LoadManager implements CoverPlanLoaderCallback, Broadcast.Receiver {
 
     private final Context context;
     private final View contentMain;
     private final Broadcast broadcast;
 
     private CoverPlanLoader loader;
-    private boolean DEBUG_FLAG_REMOVE_BEFORE_RELEASE = true;
+    private final boolean DEBUG_FLAG_REMOVE_BEFORE_RELEASE = true;
 
     public LoadManager(Context c, Broadcast broadcast) {
         this.context = c;
         this.broadcast = broadcast;
         contentMain = ((Activity) c).findViewById(R.id.contentMainRl);
         loader = new CoverPlanLoader(context, this, false);
+        broadcast.subscribe(this, BroadcastEvent.REQUEST_DATA_RELOAD);
     }
 
     public void loadData() {
@@ -37,6 +38,11 @@ public class LoadManager implements CoverPlanLoaderCallback {
     }
 
     public void loadOfflineData() {
+
+        if (loader.isRunning())
+            return;
+
+        loader = new CoverPlanLoader(context, this, false);
         loader.onlyLoadOfflineData = true;
         loader.execute();
     }
@@ -102,4 +108,9 @@ public class LoadManager implements CoverPlanLoaderCallback {
         }
     }
 
+    @Override
+    public void onEventTriggered(BroadcastEvent broadcastEvent) {
+        if (broadcastEvent == BroadcastEvent.REQUEST_DATA_RELOAD)
+            loadOfflineData();
+    }
 }

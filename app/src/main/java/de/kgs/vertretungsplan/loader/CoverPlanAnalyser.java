@@ -121,8 +121,5 @@ class CoverPlanAnalyser {
 
     }
 
-    private static void processDailyInfo(Elements tElements, CoverPlan cp) {
-
-    }
 
 }

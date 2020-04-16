@@ -18,7 +18,7 @@ import de.kgs.vertretungsplan.ui.adapters.ViewPageAdapter;
 
 public class ViewPagerHandler implements Broadcast.Receiver {
 
-    private ViewPager2 viewPager;
+    private final ViewPager2 viewPager;
 
     public ViewPagerHandler(MainActivity activity, final Broadcast broadcast) {
 
@@ -35,7 +35,6 @@ public class ViewPagerHandler implements Broadcast.Receiver {
 
         viewPager.setOffscreenPageLimit(2);
         viewPager.setAdapter(adapter);
-        viewPager.setDrawingCacheEnabled(true);
 
         setPageBasedOnTime(broadcast);
 

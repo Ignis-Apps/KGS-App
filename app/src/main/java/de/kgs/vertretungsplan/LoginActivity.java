@@ -18,7 +18,7 @@ import de.kgs.vertretungsplan.storage.GlobalVariables;
 public class LoginActivity extends AppCompatActivity implements CoverPlanLoaderCallback {
     public static final int SUCCESS_RC = 111;
     private static final String TAG = "LoginActivity";
-    private Credentials credentials = Credentials.getInstance();
+    private final Credentials credentials = Credentials.getInstance();
     private Button loginButton;
     private EditText usernameText;
     private EditText passwordText;

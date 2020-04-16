@@ -30,19 +30,16 @@ public class CoverPlanLoader extends AsyncTask<String, Void, LoaderResponseCode>
 
     private static final String COVERPLAN_TODAY_FILE = "coverPlanToday.json";
     private static final String COVERPLAN_TOMORROW_FILE = "coverPlanTomorrow.json";
-
-    boolean onlyLoadOfflineData = false;
-
-    private boolean isRunning = false;
-
     @SuppressLint("StaticFieldLeak")
-    private Context context;
-    private boolean login;
-    private CoverPlanLoaderCallback callback;
+    private final Context context;
+    private final boolean login;
+    private final CoverPlanLoaderCallback callback;
+    private final Trace loadDataTrace;
+    private final GlobalVariables global = GlobalVariables.getInstance();
+    private final ApplicationData applicationData = ApplicationData.getInstance();
+    boolean onlyLoadOfflineData = false;
+    private boolean isRunning = false;
     private ProgressDialog dialog;
-    private Trace loadDataTrace;
-    private GlobalVariables global = GlobalVariables.getInstance();
-    private ApplicationData applicationData = ApplicationData.getInstance();
 
     public CoverPlanLoader(Context context, CoverPlanLoaderCallback callback, boolean login) {
         this.context = context;

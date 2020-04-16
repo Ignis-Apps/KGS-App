@@ -10,35 +10,40 @@ import android.widget.RelativeLayout;
 import com.google.firebase.perf.FirebasePerformance;
 import com.google.firebase.perf.metrics.Trace;
 
+import de.kgs.vertretungsplan.MainActivity;
+import de.kgs.vertretungsplan.R;
 import de.kgs.vertretungsplan.broadcaster.Broadcast;
 import de.kgs.vertretungsplan.broadcaster.BroadcastEvent;
 import de.kgs.vertretungsplan.storage.ApplicationData;
 import de.kgs.vertretungsplan.storage.GlobalVariables;
 import de.kgs.vertretungsplan.ui.NavigationItem;
 
-public class WebViewHandler extends WebView implements Broadcast.Receiver {
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+
+public class WebViewHandler implements Broadcast.Receiver {
 
     private static final String LOADING_MSG = "Lädt ...";
+    private final Broadcast broadcast;
+    private final Trace webPageLoadingTrace = FirebasePerformance.getInstance().newTrace("load_webpage");
+    private final Context context;
 
     private boolean clearHistoryWhenLoaded;
-    private Broadcast broadcast;
     private ProgressDialog progressDialog;
-    private Trace webPageLoadingTrace = FirebasePerformance.getInstance().newTrace("load_webpage");
-
-    public WebViewHandler(Context context) {
-        super(context);
-        initView();
-    }
+    private WebView webView;
 
     public WebViewHandler(Context context, Broadcast broadcast) {
-        super(context);
+        this.context = context;
         this.broadcast = broadcast;
-        initView();
+        broadcast.subscribe(this, BroadcastEvent.CURRENT_MENU_ITEM_CHANGED);
     }
 
     private void initView() {
-        setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
-        setWebViewClient(new WebViewClient() {
+        RelativeLayout contentMain = ((MainActivity) context).findViewById(R.id.contentMainRl);
+
+        webView = new WebView(context);
+        webView.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
+        webView.setWebViewClient(new WebViewClient() {
 
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
@@ -49,40 +54,50 @@ public class WebViewHandler extends WebView implements Broadcast.Receiver {
             @Override
             public void onPageFinished(WebView view, String url) {
                 if (clearHistoryWhenLoaded) {
-                    clearHistory();
+                    webView.clearHistory();
                     clearHistoryWhenLoaded = false;
                 }
                 webPageLoadingTrace.stop();
                 dismissLoadingDialog();
-                setVisibility(VISIBLE);
+                webView.setVisibility(VISIBLE);
             }
         });
-        setVisibility(GONE);
-        broadcast.subscribe(this, BroadcastEvent.CURRENT_MENU_ITEM_CHANGED);
+        webView.setVisibility(GONE);
+        contentMain.addView(webView);
+
 
     }
 
     public void loadWebPage(String url, boolean allowJs) {
-        progressDialog = ProgressDialog.show(getContext(), null, LOADING_MSG, true);
+
+        progressDialog = ProgressDialog.show(context, null, LOADING_MSG, true);
+
+        if (webView == null)
+            initView();
+
         clearHistoryWhenLoaded = true;
-        getSettings().setJavaScriptEnabled(allowJs);
-        loadUrl(url);
+        webView.getSettings().setJavaScriptEnabled(allowJs);
+        webView.loadUrl(url);
     }
 
     public void close() {
+
+        if (webView == null)
+            return;
+
         dismissLoadingDialog();
-        getSettings().setJavaScriptEnabled(false);
-        setVisibility(GONE);
-        clearHistory();
+        webView.getSettings().setJavaScriptEnabled(false);
+        webView.setVisibility(GONE);
+        webView.clearHistory();
     }
 
     public boolean consumesBackPress() {
 
-        if (getVisibility() == GONE)
+        if (webView == null || webView.getVisibility() == GONE)
             return false;
 
-        if (canGoBack()) {
-            goBack();
+        if (webView.canGoBack()) {
+            webView.goBack();
         } else {
             close();
         }

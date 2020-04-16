@@ -35,7 +35,7 @@ public class CoverListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private String dailyMessageBody = "";
     private boolean hasDailyMessage;
 
-    private Context context;
+    private final Context context;
 
     public CoverListAdapter(Context context) {
         this.context = context;

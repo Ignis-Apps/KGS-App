@@ -10,8 +10,8 @@ import de.kgs.vertretungsplan.R;
 
 public class DailyMessageViewHolder extends RecyclerView.ViewHolder {
 
-    private TextView title;
-    private TextView body;
+    private final TextView title;
+    private final TextView body;
 
     public DailyMessageViewHolder(@NonNull View root) {
         super(root);

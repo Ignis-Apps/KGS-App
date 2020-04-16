@@ -23,7 +23,7 @@ import de.kgs.vertretungsplan.ui.NavigationItem;
 
 public class BlackboardFragment extends Fragment implements OnClickListener {
 
-    private Broadcast broadcast;
+    private final Broadcast broadcast;
 
     public BlackboardFragment(Broadcast broadcast) {
         this.broadcast = broadcast;
@@ -32,10 +32,10 @@ public class BlackboardFragment extends Fragment implements OnClickListener {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.black_board_layout, container, false);
+        View view = inflater.inflate(R.layout.fragment_black_board, container, false);
 
         view.findViewById(R.id.card_newspaper).setOnClickListener(this);
-        view.findViewById(R.id.card_mensa).setOnClickListener(this);
+        view.findViewById(R.id.card_canteen).setOnClickListener(this);
         view.findViewById(R.id.card_contact).setOnClickListener(this);
 
         return view;
@@ -50,7 +50,7 @@ public class BlackboardFragment extends Fragment implements OnClickListener {
 
         switch (view.getId()) {
 
-            case R.id.card_mensa:
+            case R.id.card_canteen:
                 Analytics.getInstance().logContentSelectEvent("mensa", FirebaseManager.ANALYTICS_BLACK_BOARD);
                 context.startActivity(new Intent("android.intent.action.VIEW", Uri.parse(GlobalVariables.getInstance().school_mensa_url)));
                 break;

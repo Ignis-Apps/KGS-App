@@ -20,8 +20,8 @@ import de.kgs.vertretungsplan.ui.adapters.CoverListAdapter;
 public class CoverPlanFragment extends Fragment {
 
     private CoverListAdapter adapter;
-    private Broadcast broadcast;
-    private PresentedDataSet presentedDataSet;
+    private final Broadcast broadcast;
+    private final PresentedDataSet presentedDataSet;
 
     public CoverPlanFragment(Broadcast broadcast, PresentedDataSet presentedDataSet) {
         this.broadcast = broadcast;
@@ -31,7 +31,7 @@ public class CoverPlanFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        View fragmentView = inflater.inflate(R.layout.listview_fragment, container, false);
+        View fragmentView = inflater.inflate(R.layout.fragment_cover_item_list, container, false);
 
         RecyclerView recyclerView = fragmentView.findViewById(R.id.recycler_view);
 
@@ -44,6 +44,7 @@ public class CoverPlanFragment extends Fragment {
         adapter = new CoverListAdapter(getContext());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
+        recyclerView.setHasFixedSize(true);
 
         // Configure swipe to refresh
         SwipeRefreshLayout refreshLayout = fragmentView.findViewById(R.id.recycler_view_refresh_layout);

@@ -12,7 +12,7 @@ import de.kgs.vertretungsplan.ui.fragments.CoverPlanFragment;
 
 public class ViewPageAdapter extends FragmentStateAdapter {
 
-    private Broadcast broadcast;
+    private final Broadcast broadcast;
 
     public ViewPageAdapter(@NonNull FragmentActivity fragmentActivity, Broadcast broadcast) {
         super(fragmentActivity);

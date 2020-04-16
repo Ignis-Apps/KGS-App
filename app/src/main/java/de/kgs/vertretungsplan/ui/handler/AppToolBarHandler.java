@@ -51,10 +51,10 @@ public final class AppToolBarHandler implements Broadcast.Receiver {
             setOnlyTitle(R.string.toolbar_black_board);
 
         else if (navigationItem == NavigationItem.COVER_PLAN_TODAY)
-            setToolbarTextByCoverPlan(applicationData.getCoverPlanToday());
+            setToolbarTextByCoverPlan(applicationData.getCoverPlanToday(), "Heute");
 
         else if (navigationItem == NavigationItem.COVER_PLAN_TOMORROW)
-            setToolbarTextByCoverPlan(applicationData.getCoverPlanTomorrow());
+            setToolbarTextByCoverPlan(applicationData.getCoverPlanTomorrow(), "Morgen");
 
         else if (navigationItem == NavigationItem.NEWS)
             setOnlyTitle(R.string.toolbar_news);
@@ -78,9 +78,9 @@ public final class AppToolBarHandler implements Broadcast.Receiver {
         if (i == 0) {
             setOnlyTitle(R.string.toolbar_black_board);
         } else if (i == 1) {
-            setToolbarTextByCoverPlan(applicationData.getCoverPlanToday());
+            setToolbarTextByCoverPlan(applicationData.getCoverPlanToday(), "Heute");
         } else if (i == 2) {
-            setToolbarTextByCoverPlan(applicationData.getCoverPlanTomorrow());
+            setToolbarTextByCoverPlan(applicationData.getCoverPlanTomorrow(), "Morgen");
         }
     }
 
@@ -91,10 +91,13 @@ public final class AppToolBarHandler implements Broadcast.Receiver {
         }
     }
 
-    private void setToolbarTextByCoverPlan(CoverPlan plan) {
+    private void setToolbarTextByCoverPlan(CoverPlan plan, String alternative) {
         if (plan != null) {
             toolbar.setTitle(plan.getWeekDay());
             toolbar.setSubtitle(plan.getLastUpdateText());
+        } else {
+            toolbar.setTitle(alternative);
+            toolbar.setSubtitle(null);
         }
     }
 

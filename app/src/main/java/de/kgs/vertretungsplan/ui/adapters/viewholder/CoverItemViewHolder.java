@@ -15,12 +15,12 @@ import de.kgs.vertretungsplan.ui.interfaces.OnCoverListItemClicked;
 
 public class CoverItemViewHolder extends RecyclerView.ViewHolder {
 
-    private TextView tvClass;
-    private TextView tvHour;
-    private TextView tvSubject;
-    private TextView tvRoom;
-    private ImageView imageInfo;
-    private LinearLayout background;
+    private final TextView tvClass;
+    private final TextView tvHour;
+    private final TextView tvSubject;
+    private final TextView tvRoom;
+    private final ImageView imageInfo;
+    private final LinearLayout background;
 
     private CoverItem representedData;
 

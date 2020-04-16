@@ -2,7 +2,7 @@ package de.kgs.vertretungsplan;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static final int SIGN_UP_RC = 7234;
 
-    public Broadcast broadcast = new Broadcast();
+    public final Broadcast broadcast = new Broadcast();
     private WebViewHandler webViewHandler;
     private LoadManager loadManager;
 
@@ -37,6 +37,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+
+        long starttime = System.nanoTime();
+        setContentView(R.layout.activity_main);
+        long ilTime = ((System.nanoTime() - starttime) / 1000000);
 
         // Load data from shared preferences
         Credentials.getInstance().load(this);
@@ -46,9 +50,6 @@ public class MainActivity extends AppCompatActivity {
         new FirebaseManager(this);
 
         // Init UI Components
-        setContentView(R.layout.activity_main);
-        RelativeLayout contentMain = findViewById(R.id.contentMainRl);
-
         new NavigationHandler(this, broadcast);
         new SpinnerHandler(this, broadcast);
         new ViewPagerHandler(this, broadcast);
@@ -59,13 +60,13 @@ public class MainActivity extends AppCompatActivity {
         // Inject data ( for testing uses only ) // FIXME
         DataInjector.inject(this);
 
-        // Start loader
+        // Prepare loader
         loadManager = new LoadManager(this, broadcast);
-        loadManager.loadOfflineData(); // FIXME
 
         // Prepare web view
         webViewHandler = new WebViewHandler(this, broadcast);
-        contentMain.addView(webViewHandler);
+
+        Toast.makeText(this, ("App startup time " + (System.nanoTime() - starttime) / 1000000 + " ms ( " + ilTime + " layout) "), Toast.LENGTH_LONG).show();
 
     }
 
@@ -73,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         loadManager.onStart();
+        loadManager.loadOfflineData();
     }
 
     @Override

@@ -33,22 +33,22 @@ public final class CoverItemInfo {
 
         LayoutInflater inflater = LayoutInflater.from(context);
         LinearLayout linearLayout = new LinearLayout(context);
-        View root = inflater.inflate(R.layout.alertdialog_item_info, linearLayout, false);
+        View root = inflater.inflate(R.layout.dialog_item_view, linearLayout, false);
 
         // Class
-        applyText(root, R.id.llClass, R.id.klasseTv, coverItem.getTargetClass());
+        applyText(root, R.id.tv_class_title, R.id.tv_class_content, coverItem.getTargetClass());
         // Hour
-        applyText(root, R.id.llHour, R.id.stundeTv, coverItem.isCanceled() ? coverItem.getHour() + " (Entfall)" : "");
+        applyText(root, R.id.tv_hour_title, R.id.tv_hour_content, coverItem.isCanceled() ? coverItem.getHour() + " (Entfall)" : "");
         // Subject
-        applyText(root, R.id.llFach, R.id.fachTv, coverItem.getSubject());
+        applyText(root, R.id.tv_subject_title, R.id.tv_subject_content, coverItem.getSubject());
         // Room
-        applyText(root, R.id.llRoom, R.id.raumTv, coverItem.getRoom());
+        applyText(root, R.id.tv_room_title, R.id.tv_room_content, coverItem.getRoom());
         // Annotation
-        applyText(root, R.id.llAnnotation, R.id.annotationTv, coverItem.getAnnotation());
+        applyText(root, R.id.tv_annotation_title, R.id.tv_annotation_content, coverItem.getAnnotation());
         // Relocated
-        applyText(root, R.id.llVerFrom, R.id.ver_fromTv, coverItem.getRelocated());
+        applyText(root, R.id.tv_relocated_title, R.id.tv_relocated_content, coverItem.getRelocated());
         // Fresh
-        applyText(root, R.id.llAnnotationLesson, R.id.annotation_lessonTv, coverItem.isNewEntry() ? "X" : "");
+        applyText(root, R.id.tv_new_entry_title, R.id.tv_new_entry_content, coverItem.isNewEntry() ? "X" : "");
 
         return root;
     }
@@ -60,6 +60,7 @@ public final class CoverItemInfo {
 
         if (text.isEmpty()) {
             container.setVisibility(View.GONE);
+            textView.setVisibility(View.GONE);
         } else {
             textView.setText(text);
         }

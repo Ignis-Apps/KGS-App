@@ -17,11 +17,11 @@ public class CoverPlanListHead implements ViewTreeObserver.OnGlobalLayoutListene
     private static final int duration = 400; // 400
     private static final int delay = 100;
 
-    private View headContainer;
-    private View bodyContainer;
+    private final View headContainer;
+    private final View bodyContainer;
 
-    private ScaleAnimation scaleIn;
-    private ScaleAnimation scaleOut;
+    private final ScaleAnimation scaleIn;
+    private final ScaleAnimation scaleOut;
 
     private TranslateAnimation translateIn;
     private TranslateAnimation translateOut;

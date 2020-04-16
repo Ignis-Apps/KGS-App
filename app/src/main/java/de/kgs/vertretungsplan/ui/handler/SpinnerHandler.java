@@ -17,8 +17,8 @@ import de.kgs.vertretungsplan.storage.ApplicationData;
 
 public class SpinnerHandler implements OnItemSelectedListener {
 
-    private ApplicationData applicationData = ApplicationData.getInstance();
-    private Broadcast broadcast;
+    private final ApplicationData applicationData = ApplicationData.getInstance();
+    private final Broadcast broadcast;
 
     private Spinner spinnerGrade;
     private Spinner spinnerClass;
