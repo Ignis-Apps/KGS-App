@@ -2,13 +2,13 @@ package de.kgs.vertretungsplan.coverplan;
 
 public class CoverItem {
 
-    private String mClass;
-    private String mHour;
-    private String mSubject;
-    private String mRoom;
+    private String mClass = "";
+    private String mHour = "";
+    private String mSubject = "";
+    private String mRoom = "";
 
-    private String mAnnotation;
-    private String mRelocated;
+    private String mAnnotation = "";
+    private String mRelocated = "";
 
     private boolean mNewEntry;
     private boolean mCanceled;
@@ -46,6 +46,30 @@ public class CoverItem {
 
     public boolean isCanceled() {
         return this.mRoom.equals("---");
+    }
+
+    public boolean equals(CoverItem other) {
+
+        return this.mClass.equals(other.mClass) &&
+                this.mHour.equals(other.mHour) &&
+                this.mSubject.equals(other.mSubject) &&
+                this.mRoom.equals(other.mRoom) &&
+                this.mAnnotation.equals(other.mAnnotation) &&
+                this.mRelocated.equals(other.mRelocated) &&
+                this.mNewEntry == other.mNewEntry;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = mClass != null ? mClass.hashCode() : 0;
+        result = 31 * result + (mHour != null ? mHour.hashCode() : 0);
+        result = 31 * result + (mSubject != null ? mSubject.hashCode() : 0);
+        result = 31 * result + (mRoom != null ? mRoom.hashCode() : 0);
+        result = 31 * result + (mAnnotation != null ? mAnnotation.hashCode() : 0);
+        result = 31 * result + (mRelocated != null ? mRelocated.hashCode() : 0);
+        result = 31 * result + (mNewEntry ? 1 : 0);
+        result = 31 * result + (mCanceled ? 1 : 0);
+        return result;
     }
 
     public static class Builder {
@@ -102,12 +126,12 @@ public class CoverItem {
 
         public CoverItem build() {
             CoverItem item = new CoverItem();
-            item.mClass = this.mClass;
-            item.mHour = this.mHour;
-            item.mSubject = this.mSubject;
-            item.mRoom = this.mRoom;
-            item.mAnnotation = this.mAnnotation;
-            item.mRelocated = this.mRelocated;
+            item.mClass += this.mClass;
+            item.mHour += this.mHour;
+            item.mSubject += this.mSubject;
+            item.mRoom += this.mRoom;
+            item.mAnnotation += this.mAnnotation;
+            item.mRelocated += this.mRelocated;
             item.mNewEntry = this.mNewEntry;
             item.mCanceled = this.mCanceled;
             return item;

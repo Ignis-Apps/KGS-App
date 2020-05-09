@@ -9,9 +9,10 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import de.kgs.vertretungsplan.R;
@@ -24,20 +25,30 @@ import de.kgs.vertretungsplan.ui.adapters.viewholder.RateViewHolder;
 import de.kgs.vertretungsplan.ui.dialogs.CoverItemInfo;
 import de.kgs.vertretungsplan.ui.interfaces.OnCoverListItemClicked;
 
-public class CoverListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements OnCoverListItemClicked {
+public class CoverListAdapter extends ListAdapter<CoverItem, RecyclerView.ViewHolder> implements OnCoverListItemClicked {
 
     private static final int TYPE_COVER_ITEM = 1;
     private static final int TYPE_DAILY_MESSAGE = 2;
     private static final int TYPE_RATE_APP = 3;
 
-    private List<CoverItem> dataSet = new ArrayList<>();
+    private static final DiffUtil.ItemCallback<CoverItem> DIFF_CALLBACK = new DiffUtil.ItemCallback<CoverItem>() {
+        @Override
+        public boolean areItemsTheSame(@NonNull CoverItem oldItem, @NonNull CoverItem newItem) {
+            return oldItem.hashCode() == newItem.hashCode();
+        }
+
+        @Override
+        public boolean areContentsTheSame(@NonNull CoverItem oldItem, @NonNull CoverItem newItem) {
+            return oldItem.equals(newItem);
+        }
+    };
+    private final Context context;
     private String dailyMessageHead = "";
     private String dailyMessageBody = "";
     private boolean hasDailyMessage;
 
-    private final Context context;
-
     public CoverListAdapter(Context context) {
+        super(DIFF_CALLBACK);
         this.context = context;
     }
 
@@ -68,7 +79,7 @@ public class CoverListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 return;
             case TYPE_COVER_ITEM:
                 CoverItemViewHolder itemViewHolder = (CoverItemViewHolder) holder;
-                itemViewHolder.setData(dataSet.get((hasDailyMessage) ? position - 1 : position));
+                itemViewHolder.setData(getItem(position));
                 return;
             case TYPE_RATE_APP:
                 return;
@@ -85,28 +96,28 @@ public class CoverListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         if (position < getItemCount() - 1)
             return TYPE_COVER_ITEM;
         return TYPE_RATE_APP;
-    }
 
-    @Override
-    public int getItemCount() {
-        int itemAmount = 0;
-        if (hasDailyMessage)
-            itemAmount += 1;
-        if (dataSet != null)
-            itemAmount += dataSet.size();
-        itemAmount += 1;
-        return itemAmount;
     }
 
     public void setDataSet(@Nullable CoverPlan coverPlan) {
 
         if (coverPlan == null)
             return;
-        dataSet = coverPlan.getCoverItemsFiltered();
+
         dailyMessageHead = "" + coverPlan.getDailyInfoHead().trim();
         dailyMessageBody = "" + coverPlan.getDailyInfoMessage().trim();
         hasDailyMessage = !(dailyMessageBody + dailyMessageHead).isEmpty();
-        notifyDataSetChanged();
+
+        List<CoverItem> items = coverPlan.getCoverItemsFiltered();
+
+        CoverItem dummyItem = new CoverItem.Builder().build();
+
+        if (hasDailyMessage)
+            items.add(0, dummyItem);
+
+        items.add(dummyItem);
+
+        submitList(items);
     }
 
     @Override
