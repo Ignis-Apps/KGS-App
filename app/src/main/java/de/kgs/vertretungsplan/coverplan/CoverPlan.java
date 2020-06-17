@@ -105,9 +105,9 @@ public class CoverPlan {
 
         private String title;
         private String lastUpdate;
-        private String dailyInfo;
-        private List<CoverItem> items;
-        private List<String> dailyInfoBody;
+        private String dailyInfo = "";
+        private List<CoverItem> items = new LinkedList<>();
+        private List<String> dailyInfoBody = new LinkedList<>();
 
         private static String getWeekDay(String title) {
             return title.split(" ")[1].replace(",", "");
@@ -160,6 +160,7 @@ public class CoverPlan {
 
             coverPlan.affectedWeekday = getWeekDay(title);
             coverPlan.lastUpdateText = getLastUpdateText(lastUpdate);
+
             return coverPlan;
         }
 

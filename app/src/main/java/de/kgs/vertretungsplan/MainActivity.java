@@ -13,7 +13,6 @@ import com.crashlytics.android.Crashlytics;
 import de.kgs.vertretungsplan.broadcaster.Broadcast;
 import de.kgs.vertretungsplan.broadcaster.BroadcastEvent;
 import de.kgs.vertretungsplan.firebase.FirebaseManager;
-import de.kgs.vertretungsplan.loader.DataInjector;
 import de.kgs.vertretungsplan.loader.LoadManager;
 import de.kgs.vertretungsplan.storage.ApplicationData;
 import de.kgs.vertretungsplan.storage.Credentials;
@@ -58,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         new AppToolBarHandler(this, broadcast);
 
         // Inject data ( for testing uses only ) // FIXME
-        DataInjector.inject(this);
+        // DataInjector.inject(this);
 
         // Prepare loader
         loadManager = new LoadManager(this, broadcast);
@@ -74,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         loadManager.onStart();
-        loadManager.loadOfflineData();
+//        loadManager.loadData();
     }
 
     @Override

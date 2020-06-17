@@ -1,6 +1,5 @@
 package de.kgs.vertretungsplan.loader;
 
-import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -30,8 +29,8 @@ public class CoverPlanLoader extends AsyncTask<String, Void, LoaderResponseCode>
 
     private static final String COVERPLAN_TODAY_FILE = "coverPlanToday.json";
     private static final String COVERPLAN_TOMORROW_FILE = "coverPlanTomorrow.json";
-    @SuppressLint("StaticFieldLeak")
-    private final Context context;
+
+    private Context context;
     private final boolean login;
     private final CoverPlanLoaderCallback callback;
     private final Trace loadDataTrace;
@@ -103,10 +102,6 @@ public class CoverPlanLoader extends AsyncTask<String, Void, LoaderResponseCode>
 
         try {
             HttpUrlConnectionHandler httpHandler = new HttpUrlConnectionHandler();
-            //final String url = "https://moodle-s.kgs.hd.bw.schule.de/moodle/mod/page/view.php?id=537";
-            //documentToday = httpHandler.getParsedDocument(url);
-            //documentTomorrow = httpHandler.getParsedDocument(url);
-
             documentToday = httpHandler.getParsedDocument(GlobalVariables.getInstance().cover_plan_today_url);
             documentTomorrow = httpHandler.getParsedDocument(GlobalVariables.getInstance().cover_plan_tomorrow_url);
 

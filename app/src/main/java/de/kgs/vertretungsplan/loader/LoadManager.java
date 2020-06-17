@@ -22,7 +22,6 @@ public class LoadManager implements CoverPlanLoaderCallback, Broadcast.Receiver 
     private final Broadcast broadcast;
 
     private CoverPlanLoader loader;
-    private final boolean DEBUG_FLAG_REMOVE_BEFORE_RELEASE = true;
 
     public LoadManager(Context c, Broadcast broadcast) {
         this.context = c;
@@ -57,8 +56,6 @@ public class LoadManager implements CoverPlanLoaderCallback, Broadcast.Receiver 
     }
 
     public void onStart() {
-        if (DEBUG_FLAG_REMOVE_BEFORE_RELEASE)
-            return;
 
         // Prevents the execution of multiple load tasks
         if (loader != null && loader.isRunning()) {
