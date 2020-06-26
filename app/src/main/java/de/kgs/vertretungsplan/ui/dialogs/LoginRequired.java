@@ -10,19 +10,17 @@ import de.kgs.vertretungsplan.MainActivity;
 import de.kgs.vertretungsplan.R;
 
 public final class LoginRequired {
-    private static final String description = "\"Um auf den Vertretungsplan zugreifen zu können, müssen Sie sich aus Datenschutzgründen mit ihrem Moodle-Account oder dem offiziellen Zugang anmelden. Um den offiziellen Zugang zu erhalten wenden Sie sich bitte an die Schulleitung. Der Nutzername und das Passwort für diesen Zugang werden aus Sicherheitsgründen in regelmäßigen Abständen geändert.\"";
-    private static final String exit = "App beenden";
-    private static final String login = "Anmelden";
-    private static final String title = "Anmeldung erforderlich";
 
     public static void show(final Context context) {
+
         Builder alertBuilder = new Builder(context);
         alertBuilder.setCancelable(false);
-        alertBuilder.setTitle(title);
-        alertBuilder.setMessage(description);
+        alertBuilder.setTitle(R.string.dialog_login_required_title);
+        alertBuilder.setMessage(R.string.dialog_login_required_message);
         alertBuilder.setIcon(R.drawable.ic_alert_error);
-        alertBuilder.setPositiveButton(login, (dialogInterface, i) -> ((MainActivity) context).startActivityForResult(new Intent(context, LoginActivity.class), MainActivity.SIGN_UP_RC));
-        alertBuilder.setNegativeButton(exit, (dialogInterface, i) -> System.exit(0));
+        alertBuilder.setPositiveButton(R.string.dialog_login_required_positive, (dialogInterface, i) -> ((MainActivity) context).startActivityForResult(new Intent(context, LoginActivity.class), MainActivity.SIGN_UP_RC));
+        alertBuilder.setNegativeButton(R.string.dialog_login_required_negative, (dialogInterface, i) -> System.exit(0));
         alertBuilder.create().show();
+
     }
 }

@@ -10,19 +10,16 @@ import de.kgs.vertretungsplan.broadcaster.BroadcastEvent;
 
 public final class DownloadError {
 
-    private static final String description = "Beim Herrunterladen der Daten ist ein Fehler aufgetreten. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.";
-    private static final String title = "Netzwerkfehler";
-    private static final String retry = "Wiederholen";
-    private static final String exit = "App beenden";
-
     public static void show(final Context context) {
+
         Builder alertBuilder = new Builder(context);
         alertBuilder.setCancelable(false);
-        alertBuilder.setTitle(title);
-        alertBuilder.setMessage(description);
+        alertBuilder.setTitle(R.string.dialog_download_error_title);
+        alertBuilder.setMessage(R.string.dialog_download_error_message);
         alertBuilder.setIcon(R.drawable.ic_alert_error);
-        alertBuilder.setPositiveButton(retry, (dialogInterface, i) -> ((MainActivity) context).broadcast.send(BroadcastEvent.REQUEST_DATA_RELOAD));
-        alertBuilder.setNegativeButton(exit, (dialogInterface, i) -> System.exit(0));
+        alertBuilder.setPositiveButton(R.string.dialog_download_error_positive, (dialogInterface, i) -> ((MainActivity) context).broadcast.send(BroadcastEvent.REQUEST_DATA_RELOAD));
+        alertBuilder.setNegativeButton(R.string.dialog_download_error_negative, (dialogInterface, i) -> System.exit(0));
         alertBuilder.create().show();
+
     }
 }

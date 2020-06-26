@@ -32,6 +32,11 @@ public class LoadManager implements CoverPlanLoaderCallback, Broadcast.Receiver 
     }
 
     public void loadData() {
+
+        if (loader.isRunning())
+            return;
+
+        loader = new CoverPlanLoader(context, this, false);
         loader.onlyLoadOfflineData = false;
         loader.execute();
     }
@@ -108,6 +113,6 @@ public class LoadManager implements CoverPlanLoaderCallback, Broadcast.Receiver 
     @Override
     public void onEventTriggered(BroadcastEvent broadcastEvent) {
         if (broadcastEvent == BroadcastEvent.REQUEST_DATA_RELOAD)
-            loadOfflineData();
+            loadData();
     }
 }

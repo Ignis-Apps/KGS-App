@@ -1,6 +1,7 @@
 package de.kgs.vertretungsplan.ui.handler;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -91,7 +92,7 @@ public final class AppToolBarHandler implements Broadcast.Receiver {
         }
     }
 
-    private void setToolbarTextByCoverPlan(CoverPlan plan, String alternative) {
+    private void setToolbarTextByCoverPlan(@Nullable CoverPlan plan, String alternative) {
         if (plan != null) {
             toolbar.setTitle(plan.getWeekDay());
             toolbar.setSubtitle(plan.getLastUpdateText());

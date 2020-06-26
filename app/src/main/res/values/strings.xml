@@ -12,7 +12,16 @@
     <string name="toolbar_press">Presse</string>
     <string name="toolbar_student_newspaper">freistunde.blog</string>
 
+    <string name="black_board_newspaper_title">freistunde.blog</string>
+    <string name="black_board_newspaper_description">Lies jetzt die neusten Artikel auf freistunde.blog</string>
+    <string name="black_board_mensa_title">Mensa Speiseplan</string>
+    <string name="black_board_mensa_description">Schau dir jetzt den (hoffentlich) aktuellen Speiseplan für die Mensa an :D</string>
+    <string name="black_board_pdf_description">Solltest du ein älteres Gerät verwenden musst du eventuell einen PDF-Viewer installieren.</string>
+    <string name="black_board_contact_description">Es fehlt etwas wichtiges auf dem digitalen schwarzen Brett? Kontaktiere uns!</string>
 
+    -- Dialog (Cover-Item)
+    <string name="dialog_cover_item_title">Informationen</string>
+    <string name="dialog_cover_item_positive">OK</string>
     <string name="dialog_cover_item_class">Klasse :</string>
     <string name="dialog_cover_item_hour">Stunde :</string>
     <string name="dialog_cover_item_subject">Fach :</string>
@@ -22,12 +31,22 @@
     <string name="dialog_cover_item_new_entry">Neu :</string>
     <string name="dialog_cover_item_no_data">Keine Daten</string>
 
-    <string name="black_board_newspaper_title">freistunde.blog</string>
-    <string name="black_board_newspaper_description">Lies jetzt die neusten Artikel auf freistunde.blog</string>
-    <string name="black_board_mensa_title">Mensa Speiseplan</string>
-    <string name="black_board_mensa_description">Schau dir jetzt den (hoffentlich) aktuellen Speiseplan für die Mensa an :D</string>
-    <string name="black_board_pdf_description">Solltest du ein älteres Gerät verwenden musst du eventuell einen PDF-Viewer installieren.</string>
-    <string name="black_board_contact_description">Es fehlt etwas wichtiges auf dem digitalen schwarzen Brett? Kontaktiere uns!</string>
+    -- Dialog (Login-Required)
+    <string name="dialog_login_required_title">Anmeldung erforderlich</string>
+    <string name="dialog_login_required_message">"Um auf den Vertretungsplan zugreifen zu können, müssen Sie sich aus Datenschutzgründen mit ihrem Moodle-Account oder dem offiziellen Zugang anmelden. Um den offiziellen Zugang zu erhalten wenden Sie sich bitte an die Schulleitung. Der Nutzername und das Passwort für diesen Zugang werden aus Sicherheitsgründen in regelmäßigen Abständen geändert."</string>
+    <string name="dialog_login_required_positive">Anmelden</string>
+    <string name="dialog_login_required_negative">App beenden</string>
+
+    -- Dialog (Download-Error)
+    <string name="dialog_download_error_title">Netzwerkfehler</string>
+    <string name="dialog_download_error_message">Beim Herrunterladen der Daten ist ein Fehler aufgetreten. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.</string>
+    <string name="dialog_download_error_positive">Wiederholen</string>
+    <string name="dialog_download_error_negative">App beenden</string>
+
+    -- Dialog (Swipe-Hint)
+    <string name="dialog_swipe_hint_title">Info</string>
+    <string name="dialog_swipe_hint_message">Wische nach links bzw. nach rechts, um zwischen den Tagen oder dem Schwarzen Brett zu wechseln.</string>
+    <string name="dialog_swipe_hint_positive">OK</string>
 
     -- Accessibility
     <string name="accessibility_news_paper_icon">Symbol einer Zeitung</string>

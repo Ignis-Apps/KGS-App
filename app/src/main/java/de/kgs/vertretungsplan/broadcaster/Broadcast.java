@@ -46,7 +46,7 @@ public class Broadcast {
             for (Receiver receiver : observers.keySet()) {
                 List<BroadcastEvent> subscribedEvents = observers.get(receiver);
                 if (subscribedEvents == null) {
-                    throw new AssertionError("Bug");
+                    throw new AssertionError("Bug, this should not happen");
                 }
                 if (subscribedEvents.contains(event)) {
                     receiver.onEventTriggered(event);

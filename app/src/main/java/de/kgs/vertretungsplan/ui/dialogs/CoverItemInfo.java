@@ -15,15 +15,12 @@ import de.kgs.vertretungsplan.coverplan.CoverItem;
 
 public final class CoverItemInfo {
 
-    private static final String OK = "OK";
-    private static final String TITLE = "Informationen";
-
     public static void showDialog(Context context, CoverItem coverItem) {
 
         Builder alertBuilder = new Builder(context);
-        alertBuilder.setTitle(TITLE);
+        alertBuilder.setTitle(R.string.dialog_cover_item_title);
         alertBuilder.setIcon((R.drawable.ic_action_info));
-        alertBuilder.setPositiveButton(OK, (dialogInterface, i) -> dialogInterface.cancel());
+        alertBuilder.setPositiveButton(R.string.dialog_cover_item_positive, (dialogInterface, i) -> dialogInterface.cancel());
         alertBuilder.setView(getDialogView(context, coverItem));
         alertBuilder.create();
         alertBuilder.show();

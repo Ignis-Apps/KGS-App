@@ -78,6 +78,9 @@ class HttpUrlConnectionHandler {
 
         String parameterString = "username=" + Credentials.getInstance().getUsername() + "&password=" + Credentials.getInstance().getPassword() + "&ajax=true";
 
+        System.out.println("Performing Login with " + Credentials.getInstance().getUsername() + " and " + Credentials.getInstance().getPassword());
+
+
         URL obj = new URL(GlobalVariables.getInstance().login_page_url);
         HttpsURLConnection conn = (HttpsURLConnection) obj.openConnection();
 
@@ -112,8 +115,9 @@ class HttpUrlConnectionHandler {
         }
 
         System.out.println(cookieConcad);
+
         if (!cookieConcad.toString().contains("MOODLEID1_=deleted")) {
-            throw new CredentialException(null);
+            //    throw new CredentialException(null);
         }
 
         Pattern pattern = Pattern.compile("(MoodleSession=.*?);");

@@ -2,7 +2,6 @@ package de.kgs.vertretungsplan;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
@@ -37,9 +36,9 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
 
-        long starttime = System.nanoTime();
+        // long starttime = System.nanoTime();
         setContentView(R.layout.activity_main);
-        long ilTime = ((System.nanoTime() - starttime) / 1000000);
+        // long ilTime = ((System.nanoTime() - starttime) / 1000000);
 
         // Load data from shared preferences
         Credentials.getInstance().load(this);
@@ -56,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         // AppToolBar must be initialised after NavigationHandler
         new AppToolBarHandler(this, broadcast);
 
-        // Inject data ( for testing uses only ) // FIXME
+        // Inject data ( for testing uses only )
         // DataInjector.inject(this);
 
         // Prepare loader
@@ -65,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
         // Prepare web view
         webViewHandler = new WebViewHandler(this, broadcast);
 
-        Toast.makeText(this, ("App startup time " + (System.nanoTime() - starttime) / 1000000 + " ms ( " + ilTime + " layout) "), Toast.LENGTH_LONG).show();
+        // Toast.makeText(this, ("App startup time " + (System.nanoTime() - starttime) / 1000000 + " ms ( " + ilTime + " layout) "), Toast.LENGTH_LONG).show();
 
     }
 
@@ -73,7 +72,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         loadManager.onStart();
-//        loadManager.loadData();
     }
 
     @Override
@@ -93,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == 111) {
+        if (resultCode == LoginActivity.SUCCESS_RC) {
             broadcast.send(BroadcastEvent.DATA_PROVIDED);
             SwipeHintDialog.showOnce(this);
             return;
