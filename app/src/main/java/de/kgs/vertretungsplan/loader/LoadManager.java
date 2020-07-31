@@ -9,6 +9,7 @@ import com.google.android.material.snackbar.Snackbar;
 import de.kgs.vertretungsplan.R;
 import de.kgs.vertretungsplan.broadcaster.Broadcast;
 import de.kgs.vertretungsplan.broadcaster.BroadcastEvent;
+import de.kgs.vertretungsplan.loader.network.MoodleBridge;
 import de.kgs.vertretungsplan.storage.Credentials;
 import de.kgs.vertretungsplan.storage.GlobalVariables;
 import de.kgs.vertretungsplan.ui.dialogs.DownloadError;
@@ -20,6 +21,7 @@ public class LoadManager implements CoverPlanLoaderCallback, Broadcast.Receiver 
     private final Context context;
     private final View contentMain;
     private final Broadcast broadcast;
+    private final MoodleBridge moodleBridge;
 
     private CoverPlanLoader loader;
 
@@ -27,7 +29,8 @@ public class LoadManager implements CoverPlanLoaderCallback, Broadcast.Receiver 
         this.context = c;
         this.broadcast = broadcast;
         contentMain = ((Activity) c).findViewById(R.id.contentMainRl);
-        loader = new CoverPlanLoader(context, this, false);
+        moodleBridge = new MoodleBridge();
+        loader = new CoverPlanLoader(context, this, moodleBridge, false);
         broadcast.subscribe(this, BroadcastEvent.REQUEST_DATA_RELOAD);
     }
 
@@ -36,7 +39,7 @@ public class LoadManager implements CoverPlanLoaderCallback, Broadcast.Receiver 
         if (loader.isRunning())
             return;
 
-        loader = new CoverPlanLoader(context, this, false);
+        loader = new CoverPlanLoader(context, this, moodleBridge, false);
         loader.onlyLoadOfflineData = false;
         loader.execute();
     }
@@ -46,7 +49,7 @@ public class LoadManager implements CoverPlanLoaderCallback, Broadcast.Receiver 
         if (loader.isRunning())
             return;
 
-        loader = new CoverPlanLoader(context, this, false);
+        loader = new CoverPlanLoader(context, this, moodleBridge, false);
         loader.onlyLoadOfflineData = true;
         loader.execute();
     }
@@ -70,7 +73,7 @@ public class LoadManager implements CoverPlanLoaderCallback, Broadcast.Receiver 
 
         // Reload data if app has slept for more than 10 minutes
         if (System.currentTimeMillis() - GlobalVariables.getInstance().lastRefreshTime > 600000) {
-            loader = new CoverPlanLoader(context, this, false);
+            loader = new CoverPlanLoader(context, this, moodleBridge, false);
             loader.execute();
         }
     }

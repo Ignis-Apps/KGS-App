@@ -1,5 +1,6 @@
 package de.kgs.vertretungsplan.loader;
 
+import android.accounts.NetworkErrorException;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -12,14 +13,18 @@ import com.google.firebase.perf.metrics.Trace;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 
 import de.kgs.vertretungsplan.coverplan.CoverPlan;
+import de.kgs.vertretungsplan.loader.exceptions.ContentNotProvidedException;
 import de.kgs.vertretungsplan.loader.exceptions.CredentialException;
 import de.kgs.vertretungsplan.loader.exceptions.DownloadException;
+import de.kgs.vertretungsplan.loader.network.MoodleBridge;
 import de.kgs.vertretungsplan.storage.ApplicationData;
+import de.kgs.vertretungsplan.storage.Credentials;
 import de.kgs.vertretungsplan.storage.GlobalVariables;
 import de.kgs.vertretungsplan.storage.json.JsonConverter;
 import de.kgs.vertretungsplan.storage.json.JsonDataStorage;
@@ -30,20 +35,25 @@ public class CoverPlanLoader extends AsyncTask<String, Void, LoaderResponseCode>
     private static final String COVERPLAN_TODAY_FILE = "coverPlanToday.json";
     private static final String COVERPLAN_TOMORROW_FILE = "coverPlanTomorrow.json";
 
-    private Context context;
     private final boolean login;
     private final CoverPlanLoaderCallback callback;
     private final Trace loadDataTrace;
     private final GlobalVariables global = GlobalVariables.getInstance();
     private final ApplicationData applicationData = ApplicationData.getInstance();
+    private final MoodleBridge moodleBridge;
+    private final Credentials credential = Credentials.getInstance();
+
     boolean onlyLoadOfflineData = false;
+    private final Context context;
     private boolean isRunning = false;
     private ProgressDialog dialog;
 
-    public CoverPlanLoader(Context context, CoverPlanLoaderCallback callback, boolean login) {
+
+    public CoverPlanLoader(Context context, CoverPlanLoaderCallback callback, MoodleBridge bridge, boolean login) {
         this.context = context;
         this.callback = callback;
         this.login = login;
+        this.moodleBridge = bridge;
 
         loadDataTrace = FirebasePerformance.getInstance().newTrace("load_data");
     }
@@ -70,7 +80,7 @@ public class CoverPlanLoader extends AsyncTask<String, Void, LoaderResponseCode>
         if (isNetworkAvailable(context) && !onlyLoadOfflineData) {
             try {
                 return downloadData();
-            } catch (IOException e) {
+            } catch (IOException | NetworkErrorException e) {
                 Crashlytics.logException(e);
                 e.printStackTrace();
             }
@@ -95,27 +105,29 @@ public class CoverPlanLoader extends AsyncTask<String, Void, LoaderResponseCode>
         }
     }
 
-    private LoaderResponseCode downloadData() throws IOException {
+    private LoaderResponseCode downloadData() throws IOException, NetworkErrorException {
 
         Document documentToday;
         Document documentTomorrow;
 
         try {
-            HttpUrlConnectionHandler httpHandler = new HttpUrlConnectionHandler();
-            documentToday = httpHandler.getParsedDocument(GlobalVariables.getInstance().cover_plan_today_url);
-            documentTomorrow = httpHandler.getParsedDocument(GlobalVariables.getInstance().cover_plan_tomorrow_url);
+
+            moodleBridge.createSession(credential.getUsername(), credential.getPassword());
+            documentToday = Jsoup.parse(moodleBridge.downloadResources(GlobalVariables.getInstance().cover_plan_today_url));
+            documentTomorrow = Jsoup.parse(moodleBridge.downloadResources(GlobalVariables.getInstance().cover_plan_tomorrow_url));
+
 
         } catch (CredentialException e) {
             e.printStackTrace();
             return LoaderResponseCode.LOGIN_REQUIRED;
-        } catch (DownloadException e) {
+        } catch (DownloadException | ContentNotProvidedException e) {
             e.printStackTrace();
             // Server Data not available
             return LoaderResponseCode.COVER_PLAN_NOT_PROVIDED;
         }
 
-        CoverPlan coverPlanToday = CoverPlanAnalyser.getCoverPlan(documentToday);
-        CoverPlan coverPlanTomorrow = CoverPlanAnalyser.getCoverPlan(documentTomorrow);
+        CoverPlan coverPlanToday = CoverPlanParser.getCoverPlan(documentToday);
+        CoverPlan coverPlanTomorrow = CoverPlanParser.getCoverPlan(documentTomorrow);
 
         global.lastRefreshTime = System.currentTimeMillis();
         applicationData.setCoverPlanToday(coverPlanToday);

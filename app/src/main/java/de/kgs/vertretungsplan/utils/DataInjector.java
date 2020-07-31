@@ -1,4 +1,4 @@
-package de.kgs.vertretungsplan.loader;
+package de.kgs.vertretungsplan.utils;
 
 import android.content.Context;
 import android.content.res.Resources;

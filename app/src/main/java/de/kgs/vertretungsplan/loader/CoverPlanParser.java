@@ -10,7 +10,7 @@ import java.util.List;
 import de.kgs.vertretungsplan.coverplan.CoverItem;
 import de.kgs.vertretungsplan.coverplan.CoverPlan;
 
-class CoverPlanAnalyser {
+class CoverPlanParser {
 
 
     private static final String[] correctHeaders = new String[]{"Klasse(n)", "Stunde", "Fach", "Raum", "Anmerkung", "Vertr. von", "Neu", "Entfall"};
@@ -54,8 +54,10 @@ class CoverPlanAnalyser {
     // TODO : Error handling
     private static void validateParser(Element dataHeader) {
 
-        if (dataHeader.children() == null || dataHeader.children().size() < 8)
+        if (dataHeader.children() == null || dataHeader.children().size() < 8) {
             System.err.println("HTML Parser will not work");
+            return;
+        }
 
         for (int i = 0; i < 8; i++)
             if (!dataHeader.child(i).text().equals(correctHeaders[i])) {

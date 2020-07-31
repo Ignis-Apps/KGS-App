@@ -44,6 +44,7 @@
                 android:contentDescription="@string/accessibility_news_paper_icon"
                 android:padding="3dp"
                 android:tint="#ff7b00"
+
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/ic_black_board_newspaper" />

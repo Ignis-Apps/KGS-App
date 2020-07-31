@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import de.kgs.vertretungsplan.loader.CoverPlanLoader;
 import de.kgs.vertretungsplan.loader.CoverPlanLoaderCallback;
 import de.kgs.vertretungsplan.loader.LoaderResponseCode;
+import de.kgs.vertretungsplan.loader.network.MoodleBridge;
 import de.kgs.vertretungsplan.storage.Credentials;
 import de.kgs.vertretungsplan.storage.GlobalVariables;
 
@@ -52,7 +53,7 @@ public class LoginActivity extends AppCompatActivity implements CoverPlanLoaderC
         credentials.setUsername(usernameText.getText().toString().trim());
         credentials.setPassword(passwordText.getText().toString().trim());
 
-        CoverPlanLoader loader = new CoverPlanLoader(this, this, true);
+        CoverPlanLoader loader = new CoverPlanLoader(this, this, new MoodleBridge(), true);
         loader.execute();
     }
 
@@ -84,9 +85,10 @@ public class LoginActivity extends AppCompatActivity implements CoverPlanLoaderC
         loginButton.setEnabled(true);
         if (ResponseCode == LoaderResponseCode.LATEST_DATA_SET) {
 
-            credentials.setUsername(passwordText.getText().toString().trim());
-            credentials.setPassword(usernameText.getText().toString().trim());
+            credentials.setUsername(usernameText.getText().toString().trim());
+            credentials.setPassword(passwordText.getText().toString().trim());
             credentials.saveCredentials(this);
+            credentials.saveCookie(this);
 
             GlobalVariables.getInstance().responseCode = ResponseCode;
             setResult(SUCCESS_RC);
@@ -100,8 +102,8 @@ public class LoginActivity extends AppCompatActivity implements CoverPlanLoaderC
         } else if (ResponseCode == LoaderResponseCode.COVER_PLAN_NOT_PROVIDED) {
 
             Toast.makeText(getBaseContext(), "Der Vertretungsplan ist im Moment nicht verfügbar!", Toast.LENGTH_LONG).show();
-            credentials.setUsername(passwordText.getText().toString().trim());
-            credentials.setPassword(usernameText.getText().toString().trim());
+            credentials.setUsername(usernameText.getText().toString().trim());
+            credentials.setPassword(passwordText.getText().toString().trim());
             credentials.saveCredentials(this);
             setResult(SUCCESS_RC);
             finish();
